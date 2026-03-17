@@ -134,11 +134,20 @@ export default function DogManager({ dogs, owners, onAdd, onUpdate, onDelete }: 
             {filtered.map(dog => (
               <motion.div key={dog.id} layout initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }}>
                 <Card className="hover:shadow-md transition-shadow">
-                  <CardContent className="p-5">
+                    <CardContent className="p-5">
                     <div className="flex justify-between items-start mb-2">
-                      <div>
-                        <h3 className="font-display font-bold text-lg">{dog.name}</h3>
-                        <p className="text-sm text-muted-foreground">{dog.breed} · {dog.age}y · {dog.weight}kg</p>
+                      <div className="flex gap-3 items-start">
+                        {dog.photoUrl ? (
+                          <img src={dog.photoUrl} alt={dog.name} className="h-12 w-12 rounded-full object-cover border-2 border-primary/20" />
+                        ) : (
+                          <div className="h-12 w-12 rounded-full bg-secondary flex items-center justify-center">
+                            <PawPrint className="h-5 w-5 text-muted-foreground" />
+                          </div>
+                        )}
+                        <div>
+                          <h3 className="font-display font-bold text-lg">{dog.name}</h3>
+                          <p className="text-sm text-muted-foreground">{dog.breed} · {dog.age}y · {dog.weight}kg</p>
+                        </div>
                       </div>
                       <div className="flex gap-1">
                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => startEdit(dog)}><Pencil className="h-4 w-4" /></Button>
