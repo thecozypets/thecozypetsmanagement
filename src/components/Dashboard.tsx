@@ -7,9 +7,12 @@ interface Props {
   owners: Owner[];
   dogs: Dog[];
   boardings: Boarding[];
+  onClickOwner: (ownerId: string) => void;
+  onClickDog: (dogId: string) => void;
+  onClickBoarding: (boardingId: string) => void;
 }
 
-export default function Dashboard({ owners, dogs, boardings }: Props) {
+export default function Dashboard({ owners, dogs, boardings, onClickOwner, onClickDog, onClickBoarding }: Props) {
   const activeBookings = boardings.filter(b => b.status === 'checked-in').length;
   const reservedBookings = boardings.filter(b => b.status === 'reserved').length;
   const totalRevenue = boardings
@@ -28,6 +31,7 @@ export default function Dashboard({ owners, dogs, boardings }: Props) {
     .slice(0, 5);
 
   const getDogName = (id: string) => dogs.find(d => d.id === id)?.name || 'Unknown';
+  const getOwnerName = (id: string) => owners.find(o => o.id === id)?.name || 'Unknown';
 
   return (
     <div className="space-y-8">
@@ -56,9 +60,11 @@ export default function Dashboard({ owners, dogs, boardings }: Props) {
             ) : (
               <div className="space-y-3">
                 {recentBookings.map(b => (
-                  <div key={b.id} className="flex justify-between items-center py-2 border-b border-border last:border-0">
+                  <div key={b.id} className="flex justify-between items-center py-2 border-b border-border last:border-0 cursor-pointer hover:bg-muted/50 rounded px-1 -mx-1 transition-colors" onClick={() => onClickBoarding(b.id)}>
                     <div>
-                      <p className="font-medium">🐕 {getDogName(b.dogId)}</p>
+                      <p className="font-medium">
+                        🐕 <span className="hover:text-primary transition-colors">{getDogName(b.dogId)}</span>
+                      </p>
                       <p className="text-xs text-muted-foreground">{b.checkInDate} → {b.checkOutDate}</p>
                     </div>
                     <span className="text-sm font-medium capitalize">{b.status}</span>

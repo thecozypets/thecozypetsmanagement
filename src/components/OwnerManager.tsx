@@ -23,9 +23,10 @@ interface Props {
   onAdd: (data: OwnerFormData) => void;
   onUpdate: (id: string, data: Partial<Owner>) => void;
   onDelete: (id: string) => void;
+  onClickOwner: (ownerId: string) => void;
 }
 
-export default function OwnerManager({ owners, onAdd, onUpdate, onDelete }: Props) {
+export default function OwnerManager({ owners, onAdd, onUpdate, onDelete, onClickOwner }: Props) {
   const [form, setForm] = useState<OwnerFormData>(emptyForm);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
@@ -33,11 +34,7 @@ export default function OwnerManager({ owners, onAdd, onUpdate, onDelete }: Prop
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (editingId) {
-      onUpdate(editingId, form);
-    } else {
-      onAdd(form);
-    }
+    if (editingId) { onUpdate(editingId, form); } else { onAdd(form); }
     setForm(emptyForm);
     setEditingId(null);
     setOpen(false);
@@ -57,12 +54,7 @@ export default function OwnerManager({ owners, onAdd, onUpdate, onDelete }: Prop
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
-        <Input
-          placeholder="Search owners..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          className="max-w-xs"
-        />
+        <Input placeholder="Search owners..." value={search} onChange={e => setSearch(e.target.value)} className="max-w-xs" />
         <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) { setForm(emptyForm); setEditingId(null); } }}>
           <DialogTrigger asChild>
             <Button><UserPlus className="mr-2 h-4 w-4" /> Add Owner</Button>
@@ -97,7 +89,12 @@ export default function OwnerManager({ owners, onAdd, onUpdate, onDelete }: Prop
                 <Card className="hover:shadow-md transition-shadow">
                   <CardContent className="p-5">
                     <div className="flex justify-between items-start mb-3">
-                      <h3 className="font-display font-bold text-lg">{owner.name}</h3>
+                      <h3
+                        className="font-display font-bold text-lg cursor-pointer hover:text-primary transition-colors"
+                        onClick={() => onClickOwner(owner.id)}
+                      >
+                        {owner.name}
+                      </h3>
                       <div className="flex gap-1">
                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => startEdit(owner)}><Pencil className="h-4 w-4" /></Button>
                         <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => onDelete(owner.id)}><Trash2 className="h-4 w-4" /></Button>
