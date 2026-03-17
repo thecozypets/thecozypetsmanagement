@@ -107,6 +107,11 @@ export default function DogManager({ dogs, owners, onAdd, onUpdate, onDelete }: 
               <div><Label>Special Needs</Label><Textarea value={form.specialNeeds} onChange={e => setForm(p => ({ ...p, specialNeeds: e.target.value }))} /></div>
               <div><Label>Feeding Instructions</Label><Textarea value={form.feedingInstructions} onChange={e => setForm(p => ({ ...p, feedingInstructions: e.target.value }))} /></div>
               <div><Label>Medications</Label><Input value={form.medications} onChange={e => setForm(p => ({ ...p, medications: e.target.value }))} /></div>
+              <div>
+                <Label>Photo URL</Label>
+                <Input placeholder="https://example.com/photo.jpg" value={form.photoUrl} onChange={e => setForm(p => ({ ...p, photoUrl: e.target.value }))} />
+                {form.photoUrl && <img src={form.photoUrl} alt="Dog preview" className="mt-2 h-24 w-24 rounded-lg object-cover border border-border" />}
+              </div>
               <div className="flex gap-8">
                 <div className="flex items-center gap-2"><Switch checked={form.vaccinated} onCheckedChange={v => setForm(p => ({ ...p, vaccinated: v }))} /><Label>Vaccinated</Label></div>
                 <div className="flex items-center gap-2"><Switch checked={form.neutered} onCheckedChange={v => setForm(p => ({ ...p, neutered: v }))} /><Label>Neutered</Label></div>
