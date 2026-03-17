@@ -108,9 +108,25 @@ export default function DogManager({ dogs, owners, onAdd, onUpdate, onDelete }: 
               <div><Label>Feeding Instructions</Label><Textarea value={form.feedingInstructions} onChange={e => setForm(p => ({ ...p, feedingInstructions: e.target.value }))} /></div>
               <div><Label>Medications</Label><Input value={form.medications} onChange={e => setForm(p => ({ ...p, medications: e.target.value }))} /></div>
               <div>
-                <Label>Photo URL</Label>
-                <Input placeholder="https://example.com/photo.jpg" value={form.photoUrl} onChange={e => setForm(p => ({ ...p, photoUrl: e.target.value }))} />
-                {form.photoUrl && <img src={form.photoUrl} alt="Dog preview" className="mt-2 h-24 w-24 rounded-lg object-cover border border-border" />}
+                <Label>Photo</Label>
+                <Input
+                  type="file"
+                  accept="image/*"
+                  onChange={e => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      const reader = new FileReader();
+                      reader.onloadend = () => setForm(p => ({ ...p, photoUrl: reader.result as string }));
+                      reader.readAsDataURL(file);
+                    }
+                  }}
+                />
+                {form.photoUrl && (
+                  <div className="mt-2 flex items-center gap-2">
+                    <img src={form.photoUrl} alt="Dog preview" className="h-24 w-24 rounded-lg object-cover border border-border" />
+                    <Button type="button" variant="ghost" size="sm" className="text-destructive" onClick={() => setForm(p => ({ ...p, photoUrl: '' }))}>Remove</Button>
+                  </div>
+                )}
               </div>
               <div className="flex gap-8">
                 <div className="flex items-center gap-2"><Switch checked={form.vaccinated} onCheckedChange={v => setForm(p => ({ ...p, vaccinated: v }))} /><Label>Vaccinated</Label></div>
