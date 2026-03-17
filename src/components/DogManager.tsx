@@ -35,9 +35,11 @@ interface Props {
   onAdd: (data: DogFormData) => void;
   onUpdate: (id: string, data: Partial<Dog>) => void;
   onDelete: (id: string) => void;
+  onClickDog: (dogId: string) => void;
+  onClickOwner: (ownerId: string) => void;
 }
 
-export default function DogManager({ dogs, owners, onAdd, onUpdate, onDelete }: Props) {
+export default function DogManager({ dogs, owners, onAdd, onUpdate, onDelete, onClickDog, onClickOwner }: Props) {
   const [form, setForm] = useState<DogFormData>(emptyForm);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
@@ -150,9 +152,9 @@ export default function DogManager({ dogs, owners, onAdd, onUpdate, onDelete }: 
             {filtered.map(dog => (
               <motion.div key={dog.id} layout initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }}>
                 <Card className="hover:shadow-md transition-shadow">
-                    <CardContent className="p-5">
+                  <CardContent className="p-5">
                     <div className="flex justify-between items-start mb-2">
-                      <div className="flex gap-3 items-start">
+                      <div className="flex gap-3 items-start cursor-pointer" onClick={() => onClickDog(dog.id)}>
                         {dog.photoUrl ? (
                           <img src={dog.photoUrl} alt={dog.name} className="h-12 w-12 rounded-full object-cover border-2 border-primary/20" />
                         ) : (
@@ -161,7 +163,7 @@ export default function DogManager({ dogs, owners, onAdd, onUpdate, onDelete }: 
                           </div>
                         )}
                         <div>
-                          <h3 className="font-display font-bold text-lg">{dog.name}</h3>
+                          <h3 className="font-display font-bold text-lg hover:text-primary transition-colors">{dog.name}</h3>
                           <p className="text-sm text-muted-foreground">{dog.breed} · {dog.age}y · {dog.weight}kg</p>
                         </div>
                       </div>
@@ -170,7 +172,9 @@ export default function DogManager({ dogs, owners, onAdd, onUpdate, onDelete }: 
                         <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => onDelete(dog.id)}><Trash2 className="h-4 w-4" /></Button>
                       </div>
                     </div>
-                    <p className="text-sm text-muted-foreground mb-2">Owner: {getOwnerName(dog.ownerId)}</p>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      Owner: <span className="cursor-pointer hover:text-primary transition-colors" onClick={() => onClickOwner(dog.ownerId)}>{getOwnerName(dog.ownerId)}</span>
+                    </p>
                     <div className="flex gap-2 flex-wrap">
                       <Badge variant={dog.vaccinated ? 'default' : 'destructive'} className="text-xs">{dog.vaccinated ? '✓ Vaccinated' : '✗ Not Vaccinated'}</Badge>
                       {dog.neutered && <Badge variant="secondary" className="text-xs">Neutered</Badge>}

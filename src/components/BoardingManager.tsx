@@ -34,6 +34,9 @@ interface Props {
   onAdd: (data: BoardingFormData) => void;
   onUpdate: (id: string, data: Partial<Boarding>) => void;
   onDelete: (id: string) => void;
+  onClickBoarding: (boardingId: string) => void;
+  onClickDog: (dogId: string) => void;
+  onClickOwner: (ownerId: string) => void;
 }
 
 const statusColors: Record<BoardingStatus, string> = {
@@ -43,7 +46,7 @@ const statusColors: Record<BoardingStatus, string> = {
   'cancelled': 'bg-destructive/20 text-destructive border-destructive/30',
 };
 
-export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpdate, onDelete }: Props) {
+export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpdate, onDelete, onClickBoarding, onClickDog, onClickOwner }: Props) {
   const [form, setForm] = useState<BoardingFormData>(emptyForm);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
@@ -168,11 +171,15 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
                   <CardContent className="p-5">
                     <div className="flex justify-between items-start mb-3">
                       <div>
-                        <h3 className="font-display font-bold text-lg">🐕 {getDogName(b.dogId)}</h3>
-                        <p className="text-sm text-muted-foreground">Owner: {getOwnerName(b.ownerId)}</p>
+                        <h3 className="font-display font-bold text-lg">
+                          🐕 <span className="cursor-pointer hover:text-primary transition-colors" onClick={() => onClickDog(b.dogId)}>{getDogName(b.dogId)}</span>
+                        </h3>
+                        <p className="text-sm text-muted-foreground">
+                          Owner: <span className="cursor-pointer hover:text-primary transition-colors" onClick={() => onClickOwner(b.ownerId)}>{getOwnerName(b.ownerId)}</span>
+                        </p>
                       </div>
                       <div className="flex items-center gap-1">
-                        <Badge className={statusColors[b.status]}>{b.status}</Badge>
+                        <Badge className={`cursor-pointer ${statusColors[b.status]}`} onClick={() => onClickBoarding(b.id)}>{b.status}</Badge>
                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => startEdit(b)}><Pencil className="h-4 w-4" /></Button>
                         <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => onDelete(b.id)}><Trash2 className="h-4 w-4" /></Button>
                       </div>
