@@ -52,7 +52,7 @@ export default function DogManager({ dogs, owners, onAdd, onUpdate, onDelete }: 
   };
 
   const startEdit = (dog: Dog) => {
-    setForm({ name: dog.name, breed: dog.breed, age: dog.age, weight: dog.weight, gender: dog.gender, ownerId: dog.ownerId, specialNeeds: dog.specialNeeds, feedingInstructions: dog.feedingInstructions, medications: dog.medications, vaccinated: dog.vaccinated, neutered: dog.neutered });
+    setForm({ name: dog.name, breed: dog.breed, age: dog.age, weight: dog.weight, gender: dog.gender, ownerId: dog.ownerId, specialNeeds: dog.specialNeeds, feedingInstructions: dog.feedingInstructions, medications: dog.medications, vaccinated: dog.vaccinated, neutered: dog.neutered, photoUrl: dog.photoUrl || '' });
     setEditingId(dog.id);
     setOpen(true);
   };
