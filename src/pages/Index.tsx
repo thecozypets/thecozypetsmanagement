@@ -27,7 +27,7 @@ const Index = () => {
             <PawPrint className="h-8 w-8 text-primary" />
           </motion.div>
           <div>
-            <h1 className="font-display text-xl font-bold text-foreground">PawStay</h1>
+            <h1 className="font-display text-xl font-bold text-foreground">The Cozy Pets</h1>
             <p className="text-xs text-muted-foreground">Dog Boarding Management</p>
           </div>
         </div>
