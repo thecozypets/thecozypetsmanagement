@@ -21,6 +21,7 @@ export interface Dog {
   medications: string;
   vaccinated: boolean;
   neutered: boolean;
+  photoUrl: string;
   createdAt: string;
 }
 
