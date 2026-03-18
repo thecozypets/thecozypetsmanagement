@@ -14,7 +14,167 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      boardings: {
+        Row: {
+          check_in_date: string
+          check_out_date: string
+          created_at: string
+          daily_rate: number
+          dog_id: string
+          feeding_schedule: string | null
+          id: string
+          kennel_number: string | null
+          notes: string | null
+          owner_id: string
+          special_requests: string | null
+          status: Database["public"]["Enums"]["boarding_status"]
+          total_cost: number
+          user_id: string
+        }
+        Insert: {
+          check_in_date: string
+          check_out_date: string
+          created_at?: string
+          daily_rate?: number
+          dog_id: string
+          feeding_schedule?: string | null
+          id?: string
+          kennel_number?: string | null
+          notes?: string | null
+          owner_id: string
+          special_requests?: string | null
+          status?: Database["public"]["Enums"]["boarding_status"]
+          total_cost?: number
+          user_id: string
+        }
+        Update: {
+          check_in_date?: string
+          check_out_date?: string
+          created_at?: string
+          daily_rate?: number
+          dog_id?: string
+          feeding_schedule?: string | null
+          id?: string
+          kennel_number?: string | null
+          notes?: string | null
+          owner_id?: string
+          special_requests?: string | null
+          status?: Database["public"]["Enums"]["boarding_status"]
+          total_cost?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "boardings_dog_id_fkey"
+            columns: ["dog_id"]
+            isOneToOne: false
+            referencedRelation: "dogs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "boardings_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "owners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dogs: {
+        Row: {
+          age: number
+          breed: string
+          created_at: string
+          feeding_instructions: string | null
+          gender: string
+          id: string
+          medications: string | null
+          name: string
+          neutered: boolean
+          owner_id: string
+          photo_url: string | null
+          special_needs: string | null
+          user_id: string
+          vaccinated: boolean
+          weight: number
+        }
+        Insert: {
+          age?: number
+          breed?: string
+          created_at?: string
+          feeding_instructions?: string | null
+          gender?: string
+          id?: string
+          medications?: string | null
+          name: string
+          neutered?: boolean
+          owner_id: string
+          photo_url?: string | null
+          special_needs?: string | null
+          user_id: string
+          vaccinated?: boolean
+          weight?: number
+        }
+        Update: {
+          age?: number
+          breed?: string
+          created_at?: string
+          feeding_instructions?: string | null
+          gender?: string
+          id?: string
+          medications?: string | null
+          name?: string
+          neutered?: boolean
+          owner_id?: string
+          photo_url?: string | null
+          special_needs?: string | null
+          user_id?: string
+          vaccinated?: boolean
+          weight?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dogs_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "owners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      owners: {
+        Row: {
+          address: string | null
+          created_at: string
+          email: string | null
+          emergency_contact: string | null
+          id: string
+          name: string
+          phone: string
+          user_id: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          email?: string | null
+          emergency_contact?: string | null
+          id?: string
+          name: string
+          phone: string
+          user_id: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          email?: string | null
+          emergency_contact?: string | null
+          id?: string
+          name?: string
+          phone?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +183,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      boarding_status: "reserved" | "checked-in" | "checked-out" | "cancelled"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +310,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      boarding_status: ["reserved", "checked-in", "checked-out", "cancelled"],
+    },
   },
 } as const

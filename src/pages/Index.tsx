@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { PawPrint, LayoutDashboard, Users, Dog, CalendarCheck } from 'lucide-react';
+import { PawPrint, LayoutDashboard, Users, Dog, CalendarCheck, LogOut } from 'lucide-react';
 import { useOwners, useDogs, useBoardings } from '@/hooks/useBoardingStore';
+import { supabase } from '@/integrations/supabase/client';
+import { Button } from '@/components/ui/button';
 import Dashboard from '@/components/Dashboard';
 import OwnerManager from '@/components/OwnerManager';
 import DogManager from '@/components/DogManager';
@@ -48,10 +50,15 @@ const Index = () => {
           <motion.div initial={{ rotate: -20 }} animate={{ rotate: 0 }} transition={{ type: 'spring', stiffness: 200 }}>
             <PawPrint className="h-8 w-8 text-primary" />
           </motion.div>
-          <div>
-            <h1 className="font-display text-xl font-bold text-foreground">The Cozy Pets</h1>
-            <p className="text-xs text-muted-foreground">Dog Boarding Management</p>
+          <div className="flex items-center gap-3 flex-1">
+            <div>
+              <h1 className="font-display text-xl font-bold text-foreground">The Cozy Pets</h1>
+              <p className="text-xs text-muted-foreground">Dog Boarding Management</p>
+            </div>
           </div>
+          <Button variant="ghost" size="sm" onClick={() => supabase.auth.signOut()} className="text-muted-foreground">
+            <LogOut className="h-4 w-4 mr-1" /> Sign Out
+          </Button>
         </div>
       </header>
 
