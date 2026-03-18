@@ -73,10 +73,8 @@ export function useDogs() {
   useEffect(() => { fetchDogs(); }, [fetchDogs]);
 
   const addDog = useCallback(async (dog: Omit<Dog, 'id' | 'createdAt'>) => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return null;
     const { data, error } = await supabase.from('dogs').insert({
-      user_id: user.id, owner_id: dog.ownerId, name: dog.name, breed: dog.breed,
+      owner_id: dog.ownerId, name: dog.name, breed: dog.breed,
       age: dog.age, weight: dog.weight, gender: dog.gender, special_needs: dog.specialNeeds,
       feeding_instructions: dog.feedingInstructions, medications: dog.medications,
       vaccinated: dog.vaccinated, neutered: dog.neutered, photo_url: dog.photoUrl,
