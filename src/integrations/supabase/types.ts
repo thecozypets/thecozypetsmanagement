@@ -45,7 +45,7 @@ export type Database = {
           special_requests?: string | null
           status?: Database["public"]["Enums"]["boarding_status"]
           total_cost?: number
-          user_id: string
+          user_id?: string
         }
         Update: {
           check_in_date?: string
@@ -111,7 +111,7 @@ export type Database = {
           owner_id: string
           photo_url?: string | null
           special_needs?: string | null
-          user_id: string
+          user_id?: string
           vaccinated?: boolean
           weight?: number
         }
@@ -161,7 +161,7 @@ export type Database = {
           id?: string
           name: string
           phone: string
-          user_id: string
+          user_id?: string
         }
         Update: {
           address?: string | null
