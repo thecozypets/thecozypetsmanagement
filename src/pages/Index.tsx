@@ -54,9 +54,6 @@ const Index = () => {
               <p className="text-xs text-muted-foreground">Dog Boarding Management</p>
             </div>
           </div>
-          <Button variant="ghost" size="sm" onClick={() => supabase.auth.signOut()} className="text-muted-foreground">
-            <LogOut className="h-4 w-4 mr-1" /> Sign Out
-          </Button>
         </div>
       </header>
 

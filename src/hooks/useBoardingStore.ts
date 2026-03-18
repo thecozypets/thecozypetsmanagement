@@ -140,10 +140,8 @@ export function useBoardings() {
   useEffect(() => { fetchBoardings(); }, [fetchBoardings]);
 
   const addBoarding = useCallback(async (boarding: Omit<Boarding, 'id' | 'createdAt'>) => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return null;
     const { data, error } = await supabase.from('boardings').insert({
-      user_id: user.id, dog_id: boarding.dogId, owner_id: boarding.ownerId,
+      dog_id: boarding.dogId, owner_id: boarding.ownerId,
       check_in_date: boarding.checkInDate, check_out_date: boarding.checkOutDate,
       status: boarding.status, kennel_number: boarding.kennelNumber,
       daily_rate: boarding.dailyRate, total_cost: boarding.totalCost,
