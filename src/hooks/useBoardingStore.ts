@@ -21,10 +21,8 @@ export function useOwners() {
   useEffect(() => { fetchOwners(); }, [fetchOwners]);
 
   const addOwner = useCallback(async (owner: Omit<Owner, 'id' | 'createdAt'>) => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return null;
     const { data, error } = await supabase.from('owners').insert({
-      user_id: user.id, name: owner.name, phone: owner.phone, email: owner.email,
+      name: owner.name, phone: owner.phone, email: owner.email,
       address: owner.address, emergency_contact: owner.emergencyContact,
     }).select().single();
     if (error) { toast({ title: 'Error adding owner', description: error.message, variant: 'destructive' }); return null; }
