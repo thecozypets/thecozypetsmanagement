@@ -48,11 +48,9 @@ const Index = () => {
           <motion.div initial={{ rotate: -20 }} animate={{ rotate: 0 }} transition={{ type: 'spring', stiffness: 200 }}>
             <PawPrint className="h-8 w-8 text-primary" />
           </motion.div>
-          <div className="flex items-center gap-3 flex-1">
-            <div>
-              <h1 className="font-display text-xl font-bold text-foreground">The Cozy Pets</h1>
-              <p className="text-xs text-muted-foreground">Dog Boarding Management</p>
-            </div>
+          <div>
+            <h1 className="font-display text-xl font-bold text-foreground">The Cozy Pets</h1>
+            <p className="text-xs text-muted-foreground">Dog Boarding Management</p>
           </div>
         </div>
       </header>
