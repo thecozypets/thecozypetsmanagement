@@ -21,10 +21,8 @@ export function useOwners() {
   useEffect(() => { fetchOwners(); }, [fetchOwners]);
 
   const addOwner = useCallback(async (owner: Omit<Owner, 'id' | 'createdAt'>) => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return null;
     const { data, error } = await supabase.from('owners').insert({
-      user_id: user.id, name: owner.name, phone: owner.phone, email: owner.email,
+      name: owner.name, phone: owner.phone, email: owner.email,
       address: owner.address, emergency_contact: owner.emergencyContact,
     }).select().single();
     if (error) { toast({ title: 'Error adding owner', description: error.message, variant: 'destructive' }); return null; }
@@ -75,10 +73,8 @@ export function useDogs() {
   useEffect(() => { fetchDogs(); }, [fetchDogs]);
 
   const addDog = useCallback(async (dog: Omit<Dog, 'id' | 'createdAt'>) => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return null;
     const { data, error } = await supabase.from('dogs').insert({
-      user_id: user.id, owner_id: dog.ownerId, name: dog.name, breed: dog.breed,
+      owner_id: dog.ownerId, name: dog.name, breed: dog.breed,
       age: dog.age, weight: dog.weight, gender: dog.gender, special_needs: dog.specialNeeds,
       feeding_instructions: dog.feedingInstructions, medications: dog.medications,
       vaccinated: dog.vaccinated, neutered: dog.neutered, photo_url: dog.photoUrl,
@@ -144,10 +140,8 @@ export function useBoardings() {
   useEffect(() => { fetchBoardings(); }, [fetchBoardings]);
 
   const addBoarding = useCallback(async (boarding: Omit<Boarding, 'id' | 'createdAt'>) => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return null;
     const { data, error } = await supabase.from('boardings').insert({
-      user_id: user.id, dog_id: boarding.dogId, owner_id: boarding.ownerId,
+      dog_id: boarding.dogId, owner_id: boarding.ownerId,
       check_in_date: boarding.checkInDate, check_out_date: boarding.checkOutDate,
       status: boarding.status, kennel_number: boarding.kennelNumber,
       daily_rate: boarding.dailyRate, total_cost: boarding.totalCost,
