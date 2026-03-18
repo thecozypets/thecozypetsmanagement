@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { PawPrint, LayoutDashboard, Users, Dog, CalendarCheck } from 'lucide-react';
+import { PawPrint, LayoutDashboard, Users, Dog, CalendarCheck, LogOut } from 'lucide-react';
 import { useOwners, useDogs, useBoardings } from '@/hooks/useBoardingStore';
+import { supabase } from '@/integrations/supabase/client';
+import { Button } from '@/components/ui/button';
 import Dashboard from '@/components/Dashboard';
 import OwnerManager from '@/components/OwnerManager';
 import DogManager from '@/components/DogManager';
