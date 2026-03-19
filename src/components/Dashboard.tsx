@@ -41,7 +41,7 @@ export default function Dashboard({ owners, dogs, boardings, onClickOwner, onCli
     { label: 'Total Owners', value: owners.length, icon: Users, color: 'text-primary', key: 'owners' as DrilldownType },
     { label: 'Registered Dogs', value: dogs.length, icon: PawPrint, color: 'text-accent', key: 'dogs' as DrilldownType },
     { label: 'Active Boardings', value: activeBookings.length, icon: CalendarCheck, color: 'text-success', key: 'active' as DrilldownType },
-    { label: 'Total Revenue', value: `$${totalRevenue.toFixed(2)}`, icon: DollarSign, color: 'text-primary', key: 'revenue' as DrilldownType },
+    { label: 'Total Revenue', value: `₹${totalRevenue.toFixed(2)}`, icon: DollarSign, color: 'text-primary', key: 'revenue' as DrilldownType },
   ];
 
   const quickStats = [
