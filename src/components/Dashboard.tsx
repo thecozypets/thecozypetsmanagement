@@ -120,7 +120,7 @@ export default function Dashboard({ owners, dogs, boardings, onClickOwner, onCli
                     <p className="text-xs text-muted-foreground">{b.checkInDate} → {b.checkOutDate}</p>
                   </div>
                   <div className="text-right">
-                    <p className="font-bold text-sm">${b.totalCost.toFixed(2)}</p>
+                    <p className="font-bold text-sm">₹{b.totalCost.toFixed(2)}</p>
                     <Badge className={`text-xs ${statusColors[b.status]}`}>{b.status}</Badge>
                   </div>
                 </CardContent>
