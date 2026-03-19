@@ -110,7 +110,7 @@ export default function Dashboard({ owners, dogs, boardings, onClickOwner, onCli
         return paidBookings.length === 0 ? <p className="text-sm text-muted-foreground">No revenue yet.</p> : (
           <div className="space-y-2">
             <div className="flex justify-between font-display font-bold text-lg px-1 mb-2">
-              <span>Total</span><span>${totalRevenue.toFixed(2)}</span>
+              <span>Total</span><span>₹{totalRevenue.toFixed(2)}</span>
             </div>
             {paidBookings.map(b => (
               <Card key={b.id} className="cursor-pointer hover:ring-1 hover:ring-primary/50 transition-all" onClick={() => { setDrilldown(null); onClickBoarding(b.id); }}>
