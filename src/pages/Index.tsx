@@ -13,6 +13,7 @@ import { motion } from 'framer-motion';
 import { Owner } from '@/types/boarding';
 
 const Index = () => {
+  const { signOut } = useAuth();
   const { owners, addOwner, updateOwner, deleteOwner } = useOwners();
   const { dogs, addDog, updateDog, deleteDog } = useDogs();
   const { boardings, addBoarding, updateBoarding, deleteBoarding } = useBoardings();
