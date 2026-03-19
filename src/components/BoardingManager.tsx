@@ -132,8 +132,8 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
               </div>
               <div className="grid grid-cols-3 gap-4">
                 <div><Label>Kennel #</Label><Input value={form.kennelNumber} onChange={e => setForm(p => ({ ...p, kennelNumber: e.target.value }))} /></div>
-                <div><Label>Daily Rate ($)</Label><Input type="number" min={0} step={0.01} value={form.dailyRate} onChange={e => setForm(p => updateCost({ ...p, dailyRate: +e.target.value }))} /></div>
-                <div><Label>Total Cost</Label><Input readOnly value={`$${form.totalCost.toFixed(2)}`} className="bg-muted" /></div>
+                <div><Label>Daily Rate (₹)</Label><Input type="number" min={0} step={0.01} value={form.dailyRate} onChange={e => setForm(p => updateCost({ ...p, dailyRate: +e.target.value }))} /></div>
+                <div><Label>Total Cost</Label><Input readOnly value={`₹${form.totalCost.toFixed(2)}`} className="bg-muted" /></div>
               </div>
               <div>
                 <Label>Status</Label>
@@ -188,7 +188,7 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
                       <div className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" /> In: {b.checkInDate}</div>
                       <div className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" /> Out: {b.checkOutDate}</div>
                       {b.kennelNumber && <div>Kennel: #{b.kennelNumber}</div>}
-                      <div className="flex items-center gap-1.5"><DollarSign className="h-3.5 w-3.5" /> ${b.totalCost.toFixed(2)}</div>
+                      <div className="flex items-center gap-1.5"><DollarSign className="h-3.5 w-3.5" /> ₹{b.totalCost.toFixed(2)}</div>
                     </div>
                     {b.notes && <p className="text-xs text-muted-foreground mt-2 italic">{b.notes}</p>}
                   </CardContent>

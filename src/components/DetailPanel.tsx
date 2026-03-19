@@ -144,7 +144,7 @@ export default function DetailPanel({ open, onOpenChange, owner, dogs, boardings
                             <span className="flex items-center gap-1"><Calendar className="h-3 w-3" />In: {b.checkInDate}</span>
                             <span className="flex items-center gap-1"><Calendar className="h-3 w-3" />Out: {b.checkOutDate}</span>
                             {b.kennelNumber && <span>Kennel: #{b.kennelNumber}</span>}
-                            <span className="flex items-center gap-1"><DollarSign className="h-3 w-3" />${b.totalCost.toFixed(2)} (${b.dailyRate}/day)</span>
+                            <span className="flex items-center gap-1"><DollarSign className="h-3 w-3" />₹{b.totalCost.toFixed(2)} (₹{b.dailyRate}/day)</span>
                           </div>
                           {b.feedingSchedule && <p className="text-xs text-muted-foreground mt-1">🍽 {b.feedingSchedule}</p>}
                           {b.specialRequests && <p className="text-xs text-muted-foreground mt-0.5">📝 {b.specialRequests}</p>}
