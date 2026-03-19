@@ -47,14 +47,19 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border bg-card sticky top-0 z-50">
-        <div className="container max-w-7xl mx-auto px-4 py-4 flex items-center gap-3">
-          <motion.div initial={{ rotate: -20 }} animate={{ rotate: 0 }} transition={{ type: 'spring', stiffness: 200 }}>
-            <PawPrint className="h-8 w-8 text-primary" />
-          </motion.div>
-          <div>
-            <h1 className="font-display text-xl font-bold text-foreground">The Cozy Pets</h1>
-            <p className="text-xs text-muted-foreground">Dog Boarding Management</p>
+        <div className="container max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <motion.div initial={{ rotate: -20 }} animate={{ rotate: 0 }} transition={{ type: 'spring', stiffness: 200 }}>
+              <PawPrint className="h-8 w-8 text-primary" />
+            </motion.div>
+            <div>
+              <h1 className="font-display text-xl font-bold text-foreground">The Cozy Pets</h1>
+              <p className="text-xs text-muted-foreground">Dog Boarding Management</p>
+            </div>
           </div>
+          <Button variant="ghost" size="sm" onClick={signOut} className="gap-2 text-muted-foreground">
+            <LogOut className="h-4 w-4" /> Sign Out
+          </Button>
         </div>
       </header>
 
