@@ -41,7 +41,7 @@ export default function Dashboard({ owners, dogs, boardings, onClickOwner, onCli
     { label: 'Total Owners', value: owners.length, icon: Users, color: 'text-primary', key: 'owners' as DrilldownType },
     { label: 'Registered Dogs', value: dogs.length, icon: PawPrint, color: 'text-accent', key: 'dogs' as DrilldownType },
     { label: 'Active Boardings', value: activeBookings.length, icon: CalendarCheck, color: 'text-success', key: 'active' as DrilldownType },
-    { label: 'Total Revenue', value: `$${totalRevenue.toFixed(2)}`, icon: DollarSign, color: 'text-primary', key: 'revenue' as DrilldownType },
+    { label: 'Total Revenue', value: `₹${totalRevenue.toFixed(2)}`, icon: DollarSign, color: 'text-primary', key: 'revenue' as DrilldownType },
   ];
 
   const quickStats = [
@@ -110,7 +110,7 @@ export default function Dashboard({ owners, dogs, boardings, onClickOwner, onCli
         return paidBookings.length === 0 ? <p className="text-sm text-muted-foreground">No revenue yet.</p> : (
           <div className="space-y-2">
             <div className="flex justify-between font-display font-bold text-lg px-1 mb-2">
-              <span>Total</span><span>${totalRevenue.toFixed(2)}</span>
+              <span>Total</span><span>₹{totalRevenue.toFixed(2)}</span>
             </div>
             {paidBookings.map(b => (
               <Card key={b.id} className="cursor-pointer hover:ring-1 hover:ring-primary/50 transition-all" onClick={() => { setDrilldown(null); onClickBoarding(b.id); }}>
@@ -120,7 +120,7 @@ export default function Dashboard({ owners, dogs, boardings, onClickOwner, onCli
                     <p className="text-xs text-muted-foreground">{b.checkInDate} → {b.checkOutDate}</p>
                   </div>
                   <div className="text-right">
-                    <p className="font-bold text-sm">${b.totalCost.toFixed(2)}</p>
+                    <p className="font-bold text-sm">₹{b.totalCost.toFixed(2)}</p>
                     <Badge className={`text-xs ${statusColors[b.status]}`}>{b.status}</Badge>
                   </div>
                 </CardContent>
@@ -158,7 +158,7 @@ export default function Dashboard({ owners, dogs, boardings, onClickOwner, onCli
                 </div>
                 <div className="text-right">
                   <Badge className={`text-xs ${statusColors[b.status]}`}>{b.status}</Badge>
-                  <p className="text-sm font-bold mt-1">${b.totalCost.toFixed(2)}</p>
+                  <p className="text-sm font-bold mt-1">₹{b.totalCost.toFixed(2)}</p>
                 </div>
               </div>
               {b.specialRequests && <p className="text-xs text-muted-foreground mt-1">📝 {b.specialRequests}</p>}
