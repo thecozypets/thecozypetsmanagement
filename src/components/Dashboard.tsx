@@ -158,7 +158,7 @@ export default function Dashboard({ owners, dogs, boardings, onClickOwner, onCli
                 </div>
                 <div className="text-right">
                   <Badge className={`text-xs ${statusColors[b.status]}`}>{b.status}</Badge>
-                  <p className="text-sm font-bold mt-1">${b.totalCost.toFixed(2)}</p>
+                  <p className="text-sm font-bold mt-1">₹{b.totalCost.toFixed(2)}</p>
                 </div>
               </div>
               {b.specialRequests && <p className="text-xs text-muted-foreground mt-1">📝 {b.specialRequests}</p>}
