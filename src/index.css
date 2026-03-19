@@ -6,50 +6,50 @@
 
 @layer base {
   :root {
-    --background: 35 30% 97%;
-    --foreground: 25 20% 15%;
+    --background: 0 0% 99%;
+    --foreground: 220 30% 15%;
 
-    --card: 35 25% 99%;
-    --card-foreground: 25 20% 15%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 30% 15%;
 
-    --popover: 35 25% 99%;
-    --popover-foreground: 25 20% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 30% 15%;
 
-    --primary: 25 80% 52%;
+    --primary: 217 80% 50%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 35 30% 92%;
-    --secondary-foreground: 25 20% 20%;
+    --secondary: 48 90% 92%;
+    --secondary-foreground: 220 30% 15%;
 
-    --muted: 35 20% 94%;
-    --muted-foreground: 25 10% 45%;
+    --muted: 210 15% 94%;
+    --muted-foreground: 220 10% 45%;
 
-    --accent: 145 35% 45%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 48 95% 55%;
+    --accent-foreground: 220 30% 15%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 30 20% 88%;
-    --input: 30 20% 88%;
-    --ring: 25 80% 52%;
+    --border: 210 15% 88%;
+    --input: 210 15% 88%;
+    --ring: 217 80% 50%;
 
     --radius: 0.75rem;
 
-    --warning: 45 93% 47%;
-    --warning-foreground: 25 20% 15%;
+    --warning: 48 95% 55%;
+    --warning-foreground: 220 30% 15%;
 
     --success: 145 35% 45%;
     --success-foreground: 0 0% 100%;
 
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-background: 217 80% 50%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 48 95% 55%;
+    --sidebar-primary-foreground: 220 30% 15%;
+    --sidebar-accent: 217 70% 42%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 217 70% 42%;
+    --sidebar-ring: 48 95% 55%;
 
     --font-display: 'Quicksand', sans-serif;
     --font-body: 'Nunito', sans-serif;
