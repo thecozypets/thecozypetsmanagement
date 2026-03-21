@@ -69,14 +69,15 @@ export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner 
           {/* Header */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '24px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              {settings.logoUrl ? (
-                <img src={settings.logoUrl} alt="Logo" style={{ height: '48px', maxWidth: '120px', objectFit: 'contain' }} />
-              ) : (
-                <span style={{ fontSize: '32px' }}>🐾</span>
-              )}
+              {settings.logoUrl ?
+              <img src={settings.logoUrl} alt="Logo" style={{ height: '48px', maxWidth: '120px', objectFit: 'contain' }} /> :
+
+              <span style={{ fontSize: '32px' }}>🐾</span>
+              }
               <div>
                 <div style={{ fontSize: '24px', fontWeight: 700, color: '#2563eb' }}>{companyName}</div>
-                <div style={{ fontSize: '12px', color: '#666' }}>Dog Boarding Management</div>
+                <div style={{ fontSize: '12px', color: '#666' }}>
+</div>
                 {settings.companyPhone && <div style={{ fontSize: '12px', color: '#666' }}>📞 {settings.companyPhone}</div>}
                 {settings.companyEmail && <div style={{ fontSize: '12px', color: '#666' }}>✉️ {settings.companyEmail}</div>}
                 {settings.companyAddress && <div style={{ fontSize: '12px', color: '#666', maxWidth: '250px' }}>📍 {settings.companyAddress}</div>}
@@ -115,11 +116,10 @@ export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', marginBottom: '24px', fontSize: '13px' }}>
             <div><strong>Check-in:</strong> {boarding.checkInDate}</div>
             <div><strong>Check-out:</strong> {boarding.checkOutDate}</div>
-            <div><strong>Status:</strong> <span style={{
-              display: 'inline-block', padding: '2px 8px', borderRadius: '10px', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase',
-              background: boarding.status === 'reserved' ? '#fef3c7' : boarding.status === 'checked-in' ? '#d1fae5' : boarding.status === 'checked-out' ? '#e5e7eb' : '#fee2e2',
-              color: boarding.status === 'reserved' ? '#92400e' : boarding.status === 'checked-in' ? '#065f46' : boarding.status === 'checked-out' ? '#374151' : '#991b1b',
-            }}>{boarding.status}</span></div>
+            <div><strong>Status:</strong> <span style={{ display: 'inline-block', padding: '2px 8px', borderRadius: '10px', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase',
+                  background: boarding.status === 'reserved' ? '#fef3c7' : boarding.status === 'checked-in' ? '#d1fae5' : boarding.status === 'checked-out' ? '#e5e7eb' : '#fee2e2',
+                  color: boarding.status === 'reserved' ? '#92400e' : boarding.status === 'checked-in' ? '#065f46' : boarding.status === 'checked-out' ? '#374151' : '#991b1b'
+                }}>{boarding.status}</span></div>
           </div>
 
           {/* Line Items Table */}
@@ -142,20 +142,20 @@ export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner 
                 <td style={{ padding: '10px 14px', fontSize: '13px', borderBottom: '1px solid #e5e7eb', textAlign: 'right' }}>₹{boarding.dailyRate.toFixed(2)}</td>
                 <td style={{ padding: '10px 14px', fontSize: '13px', borderBottom: '1px solid #e5e7eb', textAlign: 'right' }}>₹{boarding.totalCost.toFixed(2)}</td>
               </tr>
-              {boarding.feedingSchedule && (
-                <tr>
+              {boarding.feedingSchedule &&
+              <tr>
                   <td colSpan={4} style={{ padding: '8px 14px', fontSize: '12px', borderBottom: '1px solid #e5e7eb', color: '#666' }}>
                     Feeding Schedule: {boarding.feedingSchedule}
                   </td>
                 </tr>
-              )}
-              {boarding.specialRequests && (
-                <tr>
+              }
+              {boarding.specialRequests &&
+              <tr>
                   <td colSpan={4} style={{ padding: '8px 14px', fontSize: '12px', borderBottom: '1px solid #e5e7eb', color: '#666' }}>
                     Special Requests: {boarding.specialRequests}
                   </td>
                 </tr>
-              )}
+              }
             </tbody>
           </table>
 
@@ -180,12 +180,12 @@ export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner 
           </div>
 
           {/* Notes */}
-          {boarding.notes && (
-            <div style={{ marginTop: '20px' }}>
+          {boarding.notes &&
+          <div style={{ marginTop: '20px' }}>
               <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1px', color: '#2563eb', fontWeight: 600, marginBottom: '6px' }}>Notes</div>
               <div style={{ background: '#f9fafb', padding: '12px 16px', borderRadius: '8px', fontSize: '13px', color: '#555' }}>{boarding.notes}</div>
             </div>
-          )}
+          }
 
           {/* Footer */}
           <div style={{ marginTop: '40px', textAlign: 'center', paddingTop: '20px', borderTop: '1px solid #e5e7eb' }}>
@@ -194,6 +194,6 @@ export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner 
           </div>
         </div>
       </DialogContent>
-    </Dialog>
-  );
+    </Dialog>);
+
 }
