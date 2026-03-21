@@ -71,6 +71,7 @@ const Index = () => {
             <TabsTrigger value="owners" className="gap-2 font-display"><Users className="h-4 w-4" /> Owners</TabsTrigger>
             <TabsTrigger value="dogs" className="gap-2 font-display"><Dog className="h-4 w-4" /> Dogs</TabsTrigger>
             <TabsTrigger value="boardings" className="gap-2 font-display"><CalendarCheck className="h-4 w-4" /> Boardings</TabsTrigger>
+            <TabsTrigger value="settings" className="gap-2 font-display"><Settings className="h-4 w-4" /> Settings</TabsTrigger>
           </TabsList>
 
           <TabsContent value="dashboard">
