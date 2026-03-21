@@ -52,6 +52,7 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
   const [editingId, setEditingId] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [invoiceBoarding, setInvoiceBoarding] = useState<Boarding | null>(null);
 
   const calcDays = (checkIn: string, checkOut: string) => {
     if (!checkIn || !checkOut) return 0;
