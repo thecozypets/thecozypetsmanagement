@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { PawPrint, LayoutDashboard, Users, Dog, CalendarCheck, LogOut } from 'lucide-react';
+import { PawPrint, LayoutDashboard, Users, Dog, CalendarCheck, LogOut, Settings } from 'lucide-react';
 import { useOwners, useDogs, useBoardings } from '@/hooks/useBoardingStore';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -9,6 +9,7 @@ import OwnerManager from '@/components/OwnerManager';
 import DogManager from '@/components/DogManager';
 import BoardingManager from '@/components/BoardingManager';
 import DetailPanel from '@/components/DetailPanel';
+import CompanySettingsForm from '@/components/CompanySettingsForm';
 import { motion } from 'framer-motion';
 import { Owner } from '@/types/boarding';
 
