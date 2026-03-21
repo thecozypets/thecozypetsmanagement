@@ -25,37 +25,38 @@ const Index = () => {
   const [focusDogId, setFocusDogId] = useState<string | null>(null);
 
   const openDetailByOwner = (ownerId: string) => {
-    const owner = owners.find(o => o.id === ownerId);
-    if (owner) { setDetailOwner(owner); setFocusDogId(null); setDetailOpen(true); }
+    const owner = owners.find((o) => o.id === ownerId);
+    if (owner) {setDetailOwner(owner);setFocusDogId(null);setDetailOpen(true);}
   };
 
   const openDetailByDog = (dogId: string) => {
-    const dog = dogs.find(d => d.id === dogId);
+    const dog = dogs.find((d) => d.id === dogId);
     if (dog) {
-      const owner = owners.find(o => o.id === dog.ownerId);
-      if (owner) { setDetailOwner(owner); setFocusDogId(dogId); setDetailOpen(true); }
+      const owner = owners.find((o) => o.id === dog.ownerId);
+      if (owner) {setDetailOwner(owner);setFocusDogId(dogId);setDetailOpen(true);}
     }
   };
 
   const openDetailByBoarding = (boardingId: string) => {
-    const b = boardings.find(x => x.id === boardingId);
+    const b = boardings.find((x) => x.id === boardingId);
     if (b) {
-      const owner = owners.find(o => o.id === b.ownerId);
-      if (owner) { setDetailOwner(owner); setFocusDogId(b.dogId); setDetailOpen(true); }
+      const owner = owners.find((o) => o.id === b.ownerId);
+      if (owner) {setDetailOwner(owner);setFocusDogId(b.dogId);setDetailOpen(true);}
     }
   };
 
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border bg-card sticky top-0 z-50">
-        <div className="container max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="container max-w-7xl mx-auto px-4 py-4 flex items-center justify-between text-sm">
           <div className="flex items-center gap-3">
             <motion.div initial={{ rotate: -20 }} animate={{ rotate: 0 }} transition={{ type: 'spring', stiffness: 200 }}>
               <PawPrint className="h-8 w-8 text-primary" />
             </motion.div>
             <div>
-              <h1 className="font-display text-xl font-bold text-foreground">The Cozy Pets</h1>
-              <p className="text-xs text-muted-foreground">Dog Boarding Management</p>
+              <h1 className="font-bold text-foreground text-2xl font-serif">The Cozy Pets</h1>
+              <p className="text-xs text-muted-foreground">
+</p>
             </div>
           </div>
           <Button variant="ghost" size="sm" onClick={signOut} className="gap-2 text-muted-foreground">
@@ -92,18 +93,17 @@ const Index = () => {
         </Tabs>
       </main>
 
-      <DetailPanel
-        open={detailOpen}
-        onOpenChange={setDetailOpen}
-        owner={detailOwner}
-        dogs={dogs}
-        boardings={boardings}
-        allOwners={owners}
-        allDogs={dogs}
-        focusDogId={focusDogId}
-      />
-    </div>
-  );
+      <DetailPanel open={detailOpen}
+      onOpenChange={setDetailOpen}
+      owner={detailOwner}
+      dogs={dogs}
+      boardings={boardings}
+      allOwners={owners}
+      allDogs={dogs}
+      focusDogId={focusDogId} />
+      
+    </div>);
+
 };
 
 export default Index;
