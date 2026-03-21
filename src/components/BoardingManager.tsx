@@ -8,8 +8,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { CalendarPlus, Pencil, Trash2, Calendar, DollarSign } from 'lucide-react';
+import { CalendarPlus, Pencil, Trash2, Calendar, DollarSign, FileText } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import InvoiceModal from './InvoiceModal';
 
 interface BoardingFormData {
   dogId: string;
