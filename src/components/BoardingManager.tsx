@@ -8,8 +8,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { CalendarPlus, Pencil, Trash2, Calendar, DollarSign } from 'lucide-react';
+import { CalendarPlus, Pencil, Trash2, Calendar, DollarSign, FileText } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import InvoiceModal from './InvoiceModal';
 
 interface BoardingFormData {
   dogId: string;
@@ -51,6 +52,7 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
   const [editingId, setEditingId] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [invoiceBoarding, setInvoiceBoarding] = useState<Boarding | null>(null);
 
   const calcDays = (checkIn: string, checkOut: string) => {
     if (!checkIn || !checkOut) return 0;
@@ -180,6 +182,7 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
                       </div>
                       <div className="flex items-center gap-1">
                         <Badge className={`cursor-pointer ${statusColors[b.status]}`} onClick={() => onClickBoarding(b.id)}>{b.status}</Badge>
+                        <Button variant="ghost" size="icon" className="h-8 w-8" title="Invoice" onClick={() => setInvoiceBoarding(b)}><FileText className="h-4 w-4" /></Button>
                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => startEdit(b)}><Pencil className="h-4 w-4" /></Button>
                         <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => onDelete(b.id)}><Trash2 className="h-4 w-4" /></Button>
                       </div>
@@ -198,6 +201,14 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
           </AnimatePresence>
         </div>
       )}
+
+      <InvoiceModal
+        open={!!invoiceBoarding}
+        onOpenChange={(v) => { if (!v) setInvoiceBoarding(null); }}
+        boarding={invoiceBoarding}
+        dog={invoiceBoarding ? dogs.find(d => d.id === invoiceBoarding.dogId) || null : null}
+        owner={invoiceBoarding ? owners.find(o => o.id === invoiceBoarding.ownerId) || null : null}
+      />
     </div>
   );
 }
