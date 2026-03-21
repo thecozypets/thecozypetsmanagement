@@ -1,9 +1,10 @@
 import { useRef } from 'react';
 import { Boarding, Dog, Owner } from '@/types/boarding';
+import { useCompanySettings } from '@/hooks/useCompanySettings';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { Printer, Download, PawPrint } from 'lucide-react';
+import { Printer, Download } from 'lucide-react';
 
 interface Props {
   open: boolean;
@@ -15,6 +16,7 @@ interface Props {
 
 export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner }: Props) {
   const invoiceRef = useRef<HTMLDivElement>(null);
+  const { settings } = useCompanySettings();
 
   if (!boarding || !dog || !owner) return null;
 
@@ -37,34 +39,6 @@ export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner 
       <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: Arial, sans-serif; padding: 40px; color: #1a1a1a; }
-        .invoice-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 32px; }
-        .brand { display: flex; align-items: center; gap: 12px; }
-        .brand-name { font-size: 24px; font-weight: 700; color: #2563eb; }
-        .brand-sub { font-size: 12px; color: #666; }
-        .invoice-title { text-align: right; }
-        .invoice-title h2 { font-size: 28px; color: #2563eb; font-weight: 700; }
-        .invoice-title p { font-size: 13px; color: #666; margin-top: 4px; }
-        .section { margin-bottom: 24px; }
-        .section-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #2563eb; font-weight: 600; margin-bottom: 8px; }
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-        .info-block p { font-size: 13px; line-height: 1.6; color: #333; }
-        .info-block p strong { color: #1a1a1a; }
-        table { width: 100%; border-collapse: collapse; margin-top: 8px; }
-        th { background: #2563eb; color: white; text-align: left; padding: 10px 14px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
-        td { padding: 10px 14px; font-size: 13px; border-bottom: 1px solid #e5e7eb; }
-        .text-right { text-align: right; }
-        .totals { margin-top: 16px; display: flex; justify-content: flex-end; }
-        .totals-table { width: 280px; }
-        .totals-table tr td { padding: 6px 14px; font-size: 13px; border: none; }
-        .totals-table .grand-total td { font-size: 16px; font-weight: 700; color: #2563eb; border-top: 2px solid #2563eb; padding-top: 10px; }
-        .footer { margin-top: 40px; text-align: center; padding-top: 20px; border-top: 1px solid #e5e7eb; }
-        .footer p { font-size: 12px; color: #999; }
-        .status-badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
-        .status-reserved { background: #fef3c7; color: #92400e; }
-        .status-checked-in { background: #d1fae5; color: #065f46; }
-        .status-checked-out { background: #e5e7eb; color: #374151; }
-        .status-cancelled { background: #fee2e2; color: #991b1b; }
-        .notes { background: #f9fafb; padding: 12px 16px; border-radius: 8px; font-size: 13px; color: #555; margin-top: 8px; }
         @media print { body { padding: 20px; } }
       </style></head><body>${content.innerHTML}</body></html>
     `);
@@ -73,41 +47,43 @@ export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner 
     printWindow.print();
   };
 
-  const handleDownloadPDF = () => {
-    // Use print dialog's "Save as PDF" option
-    handlePrint();
-  };
-
-  const statusClass = `status-${boarding.status}`;
+  const companyName = settings.companyName || 'The Cozy Pets';
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="font-display flex items-center gap-2">
-            Invoice Preview
-          </DialogTitle>
+          <DialogTitle className="font-display flex items-center gap-2">Invoice Preview</DialogTitle>
         </DialogHeader>
 
         <div className="flex gap-2 mb-4">
           <Button onClick={handlePrint} size="sm" className="gap-2">
             <Printer className="h-4 w-4" /> Print
           </Button>
-          <Button onClick={handleDownloadPDF} variant="outline" size="sm" className="gap-2">
+          <Button onClick={handlePrint} variant="outline" size="sm" className="gap-2">
             <Download className="h-4 w-4" /> Download PDF
           </Button>
         </div>
 
         <div ref={invoiceRef} className="bg-white text-foreground p-6 rounded-lg border">
           {/* Header */}
-          <div className="invoice-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '24px' }}>
-            <div className="brand" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '24px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              {settings.logoUrl ? (
+                <img src={settings.logoUrl} alt="Logo" style={{ height: '48px', maxWidth: '120px', objectFit: 'contain' }} />
+              ) : (
+                <span style={{ fontSize: '32px' }}>🐾</span>
+              )}
               <div>
-                <div className="brand-name" style={{ fontSize: '24px', fontWeight: 700, color: '#2563eb' }}>🐾 The Cozy Pets</div>
-                <div className="brand-sub" style={{ fontSize: '12px', color: '#666' }}>Dog Boarding Management</div>
+                <div style={{ fontSize: '24px', fontWeight: 700, color: '#2563eb' }}>{companyName}</div>
+                <div style={{ fontSize: '12px', color: '#666' }}>Dog Boarding Management</div>
+                {settings.companyPhone && <div style={{ fontSize: '12px', color: '#666' }}>📞 {settings.companyPhone}</div>}
+                {settings.companyEmail && <div style={{ fontSize: '12px', color: '#666' }}>✉️ {settings.companyEmail}</div>}
+                {settings.companyAddress && <div style={{ fontSize: '12px', color: '#666', maxWidth: '250px' }}>📍 {settings.companyAddress}</div>}
+                {settings.gstNumber && <div style={{ fontSize: '11px', color: '#888' }}>GST: {settings.gstNumber}</div>}
               </div>
             </div>
-            <div className="invoice-title" style={{ textAlign: 'right' }}>
+            <div style={{ textAlign: 'right' }}>
               <h2 style={{ fontSize: '28px', color: '#2563eb', fontWeight: 700 }}>INVOICE</h2>
               <p style={{ fontSize: '13px', color: '#666', marginTop: '4px' }}>{invoiceNumber}</p>
               <p style={{ fontSize: '13px', color: '#666' }}>Date: {invoiceDate}</p>
@@ -139,7 +115,7 @@ export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', marginBottom: '24px', fontSize: '13px' }}>
             <div><strong>Check-in:</strong> {boarding.checkInDate}</div>
             <div><strong>Check-out:</strong> {boarding.checkOutDate}</div>
-            <div><strong>Status:</strong> <span className={`status-badge ${statusClass}`} style={{
+            <div><strong>Status:</strong> <span style={{
               display: 'inline-block', padding: '2px 8px', borderRadius: '10px', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase',
               background: boarding.status === 'reserved' ? '#fef3c7' : boarding.status === 'checked-in' ? '#d1fae5' : boarding.status === 'checked-out' ? '#e5e7eb' : '#fee2e2',
               color: boarding.status === 'reserved' ? '#92400e' : boarding.status === 'checked-in' ? '#065f46' : boarding.status === 'checked-out' ? '#374151' : '#991b1b',
@@ -213,7 +189,7 @@ export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner 
 
           {/* Footer */}
           <div style={{ marginTop: '40px', textAlign: 'center', paddingTop: '20px', borderTop: '1px solid #e5e7eb' }}>
-            <p style={{ fontSize: '13px', color: '#2563eb', fontWeight: 600 }}>Thank you for choosing The Cozy Pets! 🐾</p>
+            <p style={{ fontSize: '13px', color: '#2563eb', fontWeight: 600 }}>Thank you for choosing {companyName}! 🐾</p>
             <p style={{ fontSize: '11px', color: '#999', marginTop: '4px' }}>This is a computer-generated invoice.</p>
           </div>
         </div>

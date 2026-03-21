@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { PawPrint, LayoutDashboard, Users, Dog, CalendarCheck, LogOut } from 'lucide-react';
+import { PawPrint, LayoutDashboard, Users, Dog, CalendarCheck, LogOut, Settings } from 'lucide-react';
 import { useOwners, useDogs, useBoardings } from '@/hooks/useBoardingStore';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -9,6 +9,7 @@ import OwnerManager from '@/components/OwnerManager';
 import DogManager from '@/components/DogManager';
 import BoardingManager from '@/components/BoardingManager';
 import DetailPanel from '@/components/DetailPanel';
+import CompanySettingsForm from '@/components/CompanySettingsForm';
 import { motion } from 'framer-motion';
 import { Owner } from '@/types/boarding';
 
@@ -70,6 +71,7 @@ const Index = () => {
             <TabsTrigger value="owners" className="gap-2 font-display"><Users className="h-4 w-4" /> Owners</TabsTrigger>
             <TabsTrigger value="dogs" className="gap-2 font-display"><Dog className="h-4 w-4" /> Dogs</TabsTrigger>
             <TabsTrigger value="boardings" className="gap-2 font-display"><CalendarCheck className="h-4 w-4" /> Boardings</TabsTrigger>
+            <TabsTrigger value="settings" className="gap-2 font-display"><Settings className="h-4 w-4" /> Settings</TabsTrigger>
           </TabsList>
 
           <TabsContent value="dashboard">
@@ -83,6 +85,9 @@ const Index = () => {
           </TabsContent>
           <TabsContent value="boardings">
             <BoardingManager boardings={boardings} dogs={dogs} owners={owners} onAdd={addBoarding} onUpdate={updateBoarding} onDelete={deleteBoarding} onClickBoarding={openDetailByBoarding} onClickDog={openDetailByDog} onClickOwner={openDetailByOwner} />
+          </TabsContent>
+          <TabsContent value="settings">
+            <CompanySettingsForm />
           </TabsContent>
         </Tabs>
       </main>
