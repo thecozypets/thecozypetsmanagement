@@ -67,12 +67,14 @@ const Index = () => {
 
       <main className="container max-w-7xl mx-auto px-4 py-6">
         <Tabs value={tab} onValueChange={setTab}>
-          <TabsList className="mb-6 w-full justify-start bg-secondary/50">
-            <TabsTrigger value="dashboard" className="gap-2 font-display"><LayoutDashboard className="h-4 w-4" /> Dashboard</TabsTrigger>
-            <TabsTrigger value="owners" className="gap-2 font-display"><Users className="h-4 w-4" /> Owners</TabsTrigger>
-            <TabsTrigger value="dogs" className="gap-2 font-display"><Dog className="h-4 w-4" /> Dogs</TabsTrigger>
-            <TabsTrigger value="boardings" className="gap-2 font-display"><CalendarCheck className="h-4 w-4" /> Boardings</TabsTrigger>
-            <TabsTrigger value="settings" className="gap-2 font-display"><Settings className="h-4 w-4" /> Settings</TabsTrigger>
+          <TabsList className="mb-6 w-full justify-between bg-secondary/50">
+            <div className="flex">
+              <TabsTrigger value="dashboard" className="gap-2 font-display"><LayoutDashboard className="h-4 w-4" /> Dashboard</TabsTrigger>
+              <TabsTrigger value="owners" className="gap-2 font-display"><Users className="h-4 w-4" /> Owners</TabsTrigger>
+              <TabsTrigger value="dogs" className="gap-2 font-display"><Dog className="h-4 w-4" /> Dogs</TabsTrigger>
+              <TabsTrigger value="boardings" className="gap-2 font-display"><CalendarCheck className="h-4 w-4" /> Boardings</TabsTrigger>
+            </div>
+            <TabsTrigger value="settings" className="font-display" title="Settings"><Settings className="h-4 w-4" /></TabsTrigger>
           </TabsList>
 
           <TabsContent value="dashboard">
