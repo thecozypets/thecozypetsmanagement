@@ -214,8 +214,8 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
-                      <div className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" /> In: {b.checkInDate}</div>
-                      <div className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" /> Out: {b.checkOutDate}</div>
+                      <div className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" /> In: {b.checkInDate}{b.checkInTime ? ` ${formatTime12(b.checkInTime)}` : ''}</div>
+                      <div className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" /> Out: {b.checkOutDate}{b.checkOutTime ? ` ${formatTime12(b.checkOutTime)}` : ''}</div>
                       {b.kennelNumber && <div>Kennel: #{b.kennelNumber}</div>}
                       <div className="flex items-center gap-1.5"><DollarSign className="h-3.5 w-3.5" /> ₹{b.totalCost.toFixed(2)}</div>
                     </div>
