@@ -132,9 +132,32 @@ export default function DogManager({ dogs, owners, onAdd, onUpdate, onDelete, on
                 )}
               </div>
               <div className="flex gap-8">
-                <div className="flex items-center gap-2"><Switch checked={form.vaccinated} onCheckedChange={v => setForm(p => ({ ...p, vaccinated: v }))} /><Label>Vaccinated</Label></div>
+                <div className="flex items-center gap-2"><Switch checked={form.vaccinated} onCheckedChange={v => setForm(p => ({ ...p, vaccinated: v, vaccinePhotoUrl: v ? p.vaccinePhotoUrl : '' }))} /><Label>Vaccinated</Label></div>
                 <div className="flex items-center gap-2"><Switch checked={form.neutered} onCheckedChange={v => setForm(p => ({ ...p, neutered: v }))} /><Label>Neutered</Label></div>
               </div>
+              {form.vaccinated && (
+                <div>
+                  <Label>Vaccine Certificate Photo</Label>
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={e => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        const reader = new FileReader();
+                        reader.onloadend = () => setForm(p => ({ ...p, vaccinePhotoUrl: reader.result as string }));
+                        reader.readAsDataURL(file);
+                      }
+                    }}
+                  />
+                  {form.vaccinePhotoUrl && (
+                    <div className="mt-2 flex items-center gap-2">
+                      <img src={form.vaccinePhotoUrl} alt="Vaccine certificate" className="h-24 w-32 rounded-lg object-cover border border-border" />
+                      <Button type="button" variant="ghost" size="sm" className="text-destructive" onClick={() => setForm(p => ({ ...p, vaccinePhotoUrl: '' }))}>Remove</Button>
+                    </div>
+                  )}
+                </div>
+              )}
               <Button type="submit" className="w-full">{editingId ? 'Update' : 'Add Dog'}</Button>
             </form>
           </DialogContent>
