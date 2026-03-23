@@ -16,7 +16,9 @@ interface BoardingFormData {
   dogId: string;
   ownerId: string;
   checkInDate: string;
+  checkInTime: string;
   checkOutDate: string;
+  checkOutTime: string;
   status: BoardingStatus;
   kennelNumber: string;
   dailyRate: number;
@@ -26,7 +28,15 @@ interface BoardingFormData {
   notes: string;
 }
 
-const emptyForm: BoardingFormData = { dogId: '', ownerId: '', checkInDate: '', checkOutDate: '', status: 'reserved', kennelNumber: '', dailyRate: 0, totalCost: 0, specialRequests: '', feedingSchedule: '', notes: '' };
+const emptyForm: BoardingFormData = { dogId: '', ownerId: '', checkInDate: '', checkInTime: '', checkOutDate: '', checkOutTime: '', status: 'reserved', kennelNumber: '', dailyRate: 0, totalCost: 0, specialRequests: '', feedingSchedule: '', notes: '' };
+
+const formatTime12 = (time24: string) => {
+  if (!time24) return '';
+  const [h, m] = time24.split(':').map(Number);
+  const period = h >= 12 ? 'PM' : 'AM';
+  const h12 = h % 12 || 12;
+  return `${h12}:${m.toString().padStart(2, '0')} ${period}`;
+};
 
 interface Props {
   boardings: Boarding[];
