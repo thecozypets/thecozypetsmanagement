@@ -1,0 +1,1 @@
+ALTER TABLE public.dogs ADD COLUMN vaccine_photo_url text DEFAULT '' NULL;

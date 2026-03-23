@@ -135,6 +135,7 @@ export type Database = {
           special_needs: string | null
           user_id: string
           vaccinated: boolean
+          vaccine_photo_url: string | null
           weight: number
         }
         Insert: {
@@ -152,6 +153,7 @@ export type Database = {
           special_needs?: string | null
           user_id?: string
           vaccinated?: boolean
+          vaccine_photo_url?: string | null
           weight?: number
         }
         Update: {
@@ -169,6 +171,7 @@ export type Database = {
           special_needs?: string | null
           user_id?: string
           vaccinated?: boolean
+          vaccine_photo_url?: string | null
           weight?: number
         }
         Relationships: [

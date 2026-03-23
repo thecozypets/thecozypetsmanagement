@@ -25,9 +25,10 @@ interface DogFormData {
   vaccinated: boolean;
   neutered: boolean;
   photoUrl: string;
+  vaccinePhotoUrl: string;
 }
 
-const emptyForm: DogFormData = { name: '', breed: '', age: 0, weight: 0, gender: 'male', ownerId: '', specialNeeds: '', feedingInstructions: '', medications: '', vaccinated: false, neutered: false, photoUrl: '' };
+const emptyForm: DogFormData = { name: '', breed: '', age: 0, weight: 0, gender: 'male', ownerId: '', specialNeeds: '', feedingInstructions: '', medications: '', vaccinated: false, neutered: false, photoUrl: '', vaccinePhotoUrl: '' };
 
 interface Props {
   dogs: Dog[];
@@ -54,7 +55,7 @@ export default function DogManager({ dogs, owners, onAdd, onUpdate, onDelete, on
   };
 
   const startEdit = (dog: Dog) => {
-    setForm({ name: dog.name, breed: dog.breed, age: dog.age, weight: dog.weight, gender: dog.gender, ownerId: dog.ownerId, specialNeeds: dog.specialNeeds, feedingInstructions: dog.feedingInstructions, medications: dog.medications, vaccinated: dog.vaccinated, neutered: dog.neutered, photoUrl: dog.photoUrl || '' });
+    setForm({ name: dog.name, breed: dog.breed, age: dog.age, weight: dog.weight, gender: dog.gender, ownerId: dog.ownerId, specialNeeds: dog.specialNeeds, feedingInstructions: dog.feedingInstructions, medications: dog.medications, vaccinated: dog.vaccinated, neutered: dog.neutered, photoUrl: dog.photoUrl || '', vaccinePhotoUrl: dog.vaccinePhotoUrl || '' });
     setEditingId(dog.id);
     setOpen(true);
   };
@@ -131,9 +132,32 @@ export default function DogManager({ dogs, owners, onAdd, onUpdate, onDelete, on
                 )}
               </div>
               <div className="flex gap-8">
-                <div className="flex items-center gap-2"><Switch checked={form.vaccinated} onCheckedChange={v => setForm(p => ({ ...p, vaccinated: v }))} /><Label>Vaccinated</Label></div>
+                <div className="flex items-center gap-2"><Switch checked={form.vaccinated} onCheckedChange={v => setForm(p => ({ ...p, vaccinated: v, vaccinePhotoUrl: v ? p.vaccinePhotoUrl : '' }))} /><Label>Vaccinated</Label></div>
                 <div className="flex items-center gap-2"><Switch checked={form.neutered} onCheckedChange={v => setForm(p => ({ ...p, neutered: v }))} /><Label>Neutered</Label></div>
               </div>
+              {form.vaccinated && (
+                <div>
+                  <Label>Vaccine Certificate Photo</Label>
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={e => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        const reader = new FileReader();
+                        reader.onloadend = () => setForm(p => ({ ...p, vaccinePhotoUrl: reader.result as string }));
+                        reader.readAsDataURL(file);
+                      }
+                    }}
+                  />
+                  {form.vaccinePhotoUrl && (
+                    <div className="mt-2 flex items-center gap-2">
+                      <img src={form.vaccinePhotoUrl} alt="Vaccine certificate" className="h-24 w-32 rounded-lg object-cover border border-border" />
+                      <Button type="button" variant="ghost" size="sm" className="text-destructive" onClick={() => setForm(p => ({ ...p, vaccinePhotoUrl: '' }))}>Remove</Button>
+                    </div>
+                  )}
+                </div>
+              )}
               <Button type="submit" className="w-full">{editingId ? 'Update' : 'Add Dog'}</Button>
             </form>
           </DialogContent>
@@ -181,6 +205,12 @@ export default function DogManager({ dogs, owners, onAdd, onUpdate, onDelete, on
                       {dog.gender === 'male' ? <Badge variant="outline" className="text-xs">♂ Male</Badge> : <Badge variant="outline" className="text-xs">♀ Female</Badge>}
                     </div>
                     {dog.specialNeeds && <p className="text-xs text-muted-foreground mt-2 italic">⚠ {dog.specialNeeds}</p>}
+                    {dog.vaccinated && dog.vaccinePhotoUrl && (
+                      <div className="mt-2">
+                        <p className="text-xs font-medium text-muted-foreground mb-1">📋 Vaccine Certificate</p>
+                        <img src={dog.vaccinePhotoUrl} alt="Vaccine certificate" className="h-20 w-28 rounded-md object-cover border border-border cursor-pointer hover:opacity-80 transition-opacity" onClick={() => window.open(dog.vaccinePhotoUrl, '_blank')} />
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               </motion.div>
