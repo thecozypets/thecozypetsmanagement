@@ -205,6 +205,12 @@ export default function DogManager({ dogs, owners, onAdd, onUpdate, onDelete, on
                       {dog.gender === 'male' ? <Badge variant="outline" className="text-xs">♂ Male</Badge> : <Badge variant="outline" className="text-xs">♀ Female</Badge>}
                     </div>
                     {dog.specialNeeds && <p className="text-xs text-muted-foreground mt-2 italic">⚠ {dog.specialNeeds}</p>}
+                    {dog.vaccinated && dog.vaccinePhotoUrl && (
+                      <div className="mt-2">
+                        <p className="text-xs font-medium text-muted-foreground mb-1">📋 Vaccine Certificate</p>
+                        <img src={dog.vaccinePhotoUrl} alt="Vaccine certificate" className="h-20 w-28 rounded-md object-cover border border-border cursor-pointer hover:opacity-80 transition-opacity" onClick={() => window.open(dog.vaccinePhotoUrl, '_blank')} />
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               </motion.div>
