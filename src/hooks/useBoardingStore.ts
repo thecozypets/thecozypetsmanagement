@@ -61,7 +61,7 @@ export function useDogs() {
       gender: r.gender as 'male' | 'female', ownerId: r.owner_id,
       specialNeeds: r.special_needs || '', feedingInstructions: r.feeding_instructions || '',
       medications: r.medications || '', vaccinated: r.vaccinated, neutered: r.neutered,
-      photoUrl: r.photo_url || '', createdAt: r.created_at,
+      photoUrl: r.photo_url || '', vaccinePhotoUrl: (r as any).vaccine_photo_url || '', createdAt: r.created_at,
     })));
   }, []);
 
