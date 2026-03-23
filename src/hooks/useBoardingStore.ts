@@ -155,8 +155,8 @@ export function useBoardings() {
     const update: any = {};
     if (d.dogId !== undefined) update.dog_id = d.dogId;
     if (d.ownerId !== undefined) update.owner_id = d.ownerId;
-    if (d.checkInDate !== undefined) update.check_in_date = d.checkInDate;
-    if (d.checkOutDate !== undefined) update.check_out_date = d.checkOutDate;
+    if (d.checkInDate !== undefined) update.check_in_date = d.checkInTime ? `${d.checkInDate}T${d.checkInTime}` : d.checkInDate;
+    if (d.checkOutDate !== undefined) update.check_out_date = d.checkOutTime ? `${d.checkOutDate}T${d.checkOutTime}` : d.checkOutDate;
     if (d.status !== undefined) update.status = d.status;
     if (d.kennelNumber !== undefined) update.kennel_number = d.kennelNumber;
     if (d.dailyRate !== undefined) update.daily_rate = d.dailyRate;
