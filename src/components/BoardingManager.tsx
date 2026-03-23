@@ -85,7 +85,7 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
   };
 
   const startEdit = (b: Boarding) => {
-    setForm({ dogId: b.dogId, ownerId: b.ownerId, checkInDate: b.checkInDate, checkOutDate: b.checkOutDate, status: b.status, kennelNumber: b.kennelNumber, dailyRate: b.dailyRate, totalCost: b.totalCost, specialRequests: b.specialRequests, feedingSchedule: b.feedingSchedule, notes: b.notes });
+    setForm({ dogId: b.dogId, ownerId: b.ownerId, checkInDate: b.checkInDate, checkInTime: b.checkInTime || '', checkOutDate: b.checkOutDate, checkOutTime: b.checkOutTime || '', status: b.status, kennelNumber: b.kennelNumber, dailyRate: b.dailyRate, totalCost: b.totalCost, specialRequests: b.specialRequests, feedingSchedule: b.feedingSchedule, notes: b.notes });
     setEditingId(b.id);
     setOpen(true);
   };
