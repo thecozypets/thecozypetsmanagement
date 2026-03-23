@@ -32,7 +32,9 @@ export interface Boarding {
   dogId: string;
   ownerId: string;
   checkInDate: string;
+  checkInTime: string;
   checkOutDate: string;
+  checkOutTime: string;
   status: BoardingStatus;
   kennelNumber: string;
   dailyRate: number;
