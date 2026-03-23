@@ -96,7 +96,8 @@ export function useDogs() {
     if (d.vaccinated !== undefined) update.vaccinated = d.vaccinated;
     if (d.neutered !== undefined) update.neutered = d.neutered;
     if (d.photoUrl !== undefined) update.photo_url = d.photoUrl;
-    const { error } = await supabase.from('dogs').update(update).eq('id', id);
+    if (d.vaccinePhotoUrl !== undefined) update.vaccine_photo_url = d.vaccinePhotoUrl;
+    const { error } = await supabase.from('dogs').update(update as any).eq('id', id);
     if (error) { toast.error('Failed to update dog'); return; }
     await fetchDogs();
   }, [fetchDogs]);

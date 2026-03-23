@@ -22,6 +22,7 @@ export interface Dog {
   vaccinated: boolean;
   neutered: boolean;
   photoUrl: string;
+  vaccinePhotoUrl: string;
   createdAt: string;
 }
 
