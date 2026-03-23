@@ -25,9 +25,10 @@ interface DogFormData {
   vaccinated: boolean;
   neutered: boolean;
   photoUrl: string;
+  vaccinePhotoUrl: string;
 }
 
-const emptyForm: DogFormData = { name: '', breed: '', age: 0, weight: 0, gender: 'male', ownerId: '', specialNeeds: '', feedingInstructions: '', medications: '', vaccinated: false, neutered: false, photoUrl: '' };
+const emptyForm: DogFormData = { name: '', breed: '', age: 0, weight: 0, gender: 'male', ownerId: '', specialNeeds: '', feedingInstructions: '', medications: '', vaccinated: false, neutered: false, photoUrl: '', vaccinePhotoUrl: '' };
 
 interface Props {
   dogs: Dog[];
