@@ -16,7 +16,9 @@ interface BoardingFormData {
   dogId: string;
   ownerId: string;
   checkInDate: string;
+  checkInTime: string;
   checkOutDate: string;
+  checkOutTime: string;
   status: BoardingStatus;
   kennelNumber: string;
   dailyRate: number;
@@ -26,7 +28,15 @@ interface BoardingFormData {
   notes: string;
 }
 
-const emptyForm: BoardingFormData = { dogId: '', ownerId: '', checkInDate: '', checkOutDate: '', status: 'reserved', kennelNumber: '', dailyRate: 0, totalCost: 0, specialRequests: '', feedingSchedule: '', notes: '' };
+const emptyForm: BoardingFormData = { dogId: '', ownerId: '', checkInDate: '', checkInTime: '', checkOutDate: '', checkOutTime: '', status: 'reserved', kennelNumber: '', dailyRate: 0, totalCost: 0, specialRequests: '', feedingSchedule: '', notes: '' };
+
+const formatTime12 = (time24: string) => {
+  if (!time24) return '';
+  const [h, m] = time24.split(':').map(Number);
+  const period = h >= 12 ? 'PM' : 'AM';
+  const h12 = h % 12 || 12;
+  return `${h12}:${m.toString().padStart(2, '0')} ${period}`;
+};
 
 interface Props {
   boardings: Boarding[];
@@ -75,7 +85,7 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
   };
 
   const startEdit = (b: Boarding) => {
-    setForm({ dogId: b.dogId, ownerId: b.ownerId, checkInDate: b.checkInDate, checkOutDate: b.checkOutDate, status: b.status, kennelNumber: b.kennelNumber, dailyRate: b.dailyRate, totalCost: b.totalCost, specialRequests: b.specialRequests, feedingSchedule: b.feedingSchedule, notes: b.notes });
+    setForm({ dogId: b.dogId, ownerId: b.ownerId, checkInDate: b.checkInDate, checkInTime: b.checkInTime || '', checkOutDate: b.checkOutDate, checkOutTime: b.checkOutTime || '', status: b.status, kennelNumber: b.kennelNumber, dailyRate: b.dailyRate, totalCost: b.totalCost, specialRequests: b.specialRequests, feedingSchedule: b.feedingSchedule, notes: b.notes });
     setEditingId(b.id);
     setOpen(true);
   };
@@ -129,8 +139,24 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <div><Label>Check-in Date *</Label><Input required type="date" value={form.checkInDate} onChange={e => setForm(p => updateCost({ ...p, checkInDate: e.target.value }))} /></div>
-                <div><Label>Check-out Date *</Label><Input required type="date" value={form.checkOutDate} onChange={e => setForm(p => updateCost({ ...p, checkOutDate: e.target.value }))} /></div>
+                <div>
+                  <Label>Check-in Date *</Label>
+                  <Input required type="date" value={form.checkInDate} onChange={e => setForm(p => updateCost({ ...p, checkInDate: e.target.value }))} />
+                </div>
+                <div>
+                  <Label>Check-in Time</Label>
+                  <Input type="time" value={form.checkInTime} onChange={e => setForm(p => ({ ...p, checkInTime: e.target.value }))} />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Check-out Date *</Label>
+                  <Input required type="date" value={form.checkOutDate} onChange={e => setForm(p => updateCost({ ...p, checkOutDate: e.target.value }))} />
+                </div>
+                <div>
+                  <Label>Check-out Time</Label>
+                  <Input type="time" value={form.checkOutTime} onChange={e => setForm(p => ({ ...p, checkOutTime: e.target.value }))} />
+                </div>
               </div>
               <div className="grid grid-cols-3 gap-4">
                 <div><Label>Kennel #</Label><Input value={form.kennelNumber} onChange={e => setForm(p => ({ ...p, kennelNumber: e.target.value }))} /></div>
@@ -188,8 +214,8 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
-                      <div className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" /> In: {b.checkInDate}</div>
-                      <div className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" /> Out: {b.checkOutDate}</div>
+                      <div className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" /> In: {b.checkInDate}{b.checkInTime ? ` ${formatTime12(b.checkInTime)}` : ''}</div>
+                      <div className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" /> Out: {b.checkOutDate}{b.checkOutTime ? ` ${formatTime12(b.checkOutTime)}` : ''}</div>
                       {b.kennelNumber && <div>Kennel: #{b.kennelNumber}</div>}
                       <div className="flex items-center gap-1.5"><DollarSign className="h-3.5 w-3.5" /> ₹{b.totalCost.toFixed(2)}</div>
                     </div>

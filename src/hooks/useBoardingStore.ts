@@ -115,13 +115,21 @@ export function useBoardings() {
   const fetchBoardings = useCallback(async () => {
     const { data, error } = await supabase.from('boardings').select('*');
     if (error) { toast.error('Failed to load boardings'); return; }
-    setBoardings((data || []).map(r => ({
-      id: r.id, dogId: r.dog_id, ownerId: r.owner_id, checkInDate: r.check_in_date,
-      checkOutDate: r.check_out_date, status: r.status, kennelNumber: r.kennel_number || '',
-      dailyRate: Number(r.daily_rate), totalCost: Number(r.total_cost),
-      specialRequests: r.special_requests || '', feedingSchedule: r.feeding_schedule || '',
-      notes: r.notes || '', createdAt: r.created_at,
-    })));
+    setBoardings((data || []).map(r => {
+      const checkInParts = (r.check_in_date || '').split('T');
+      const checkOutParts = (r.check_out_date || '').split('T');
+      return {
+        id: r.id, dogId: r.dog_id, ownerId: r.owner_id,
+        checkInDate: checkInParts[0] || r.check_in_date,
+        checkInTime: checkInParts[1]?.slice(0, 5) || '',
+        checkOutDate: checkOutParts[0] || r.check_out_date,
+        checkOutTime: checkOutParts[1]?.slice(0, 5) || '',
+        status: r.status, kennelNumber: r.kennel_number || '',
+        dailyRate: Number(r.daily_rate), totalCost: Number(r.total_cost),
+        specialRequests: r.special_requests || '', feedingSchedule: r.feeding_schedule || '',
+        notes: r.notes || '', createdAt: r.created_at,
+      };
+    }));
   }, []);
 
   useEffect(() => { fetchBoardings(); }, [fetchBoardings]);
@@ -129,9 +137,11 @@ export function useBoardings() {
   const addBoarding = useCallback(async (boarding: Omit<Boarding, 'id' | 'createdAt'>) => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { toast.error('Not authenticated'); return null; }
+    const checkInFull = boarding.checkInTime ? `${boarding.checkInDate}T${boarding.checkInTime}` : boarding.checkInDate;
+    const checkOutFull = boarding.checkOutTime ? `${boarding.checkOutDate}T${boarding.checkOutTime}` : boarding.checkOutDate;
     const { data, error } = await supabase.from('boardings').insert({
-      dog_id: boarding.dogId, owner_id: boarding.ownerId, check_in_date: boarding.checkInDate,
-      check_out_date: boarding.checkOutDate, status: boarding.status,
+      dog_id: boarding.dogId, owner_id: boarding.ownerId, check_in_date: checkInFull,
+      check_out_date: checkOutFull, status: boarding.status,
       kennel_number: boarding.kennelNumber || null, daily_rate: boarding.dailyRate,
       total_cost: boarding.totalCost, special_requests: boarding.specialRequests || null,
       feeding_schedule: boarding.feedingSchedule || null, notes: boarding.notes || null, user_id: user.id,
@@ -145,8 +155,8 @@ export function useBoardings() {
     const update: any = {};
     if (d.dogId !== undefined) update.dog_id = d.dogId;
     if (d.ownerId !== undefined) update.owner_id = d.ownerId;
-    if (d.checkInDate !== undefined) update.check_in_date = d.checkInDate;
-    if (d.checkOutDate !== undefined) update.check_out_date = d.checkOutDate;
+    if (d.checkInDate !== undefined) update.check_in_date = d.checkInTime ? `${d.checkInDate}T${d.checkInTime}` : d.checkInDate;
+    if (d.checkOutDate !== undefined) update.check_out_date = d.checkOutTime ? `${d.checkOutDate}T${d.checkOutTime}` : d.checkOutDate;
     if (d.status !== undefined) update.status = d.status;
     if (d.kennelNumber !== undefined) update.kennel_number = d.kennelNumber;
     if (d.dailyRate !== undefined) update.daily_rate = d.dailyRate;
