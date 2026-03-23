@@ -137,9 +137,11 @@ export function useBoardings() {
   const addBoarding = useCallback(async (boarding: Omit<Boarding, 'id' | 'createdAt'>) => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { toast.error('Not authenticated'); return null; }
+    const checkInFull = boarding.checkInTime ? `${boarding.checkInDate}T${boarding.checkInTime}` : boarding.checkInDate;
+    const checkOutFull = boarding.checkOutTime ? `${boarding.checkOutDate}T${boarding.checkOutTime}` : boarding.checkOutDate;
     const { data, error } = await supabase.from('boardings').insert({
-      dog_id: boarding.dogId, owner_id: boarding.ownerId, check_in_date: boarding.checkInDate,
-      check_out_date: boarding.checkOutDate, status: boarding.status,
+      dog_id: boarding.dogId, owner_id: boarding.ownerId, check_in_date: checkInFull,
+      check_out_date: checkOutFull, status: boarding.status,
       kennel_number: boarding.kennelNumber || null, daily_rate: boarding.dailyRate,
       total_cost: boarding.totalCost, special_requests: boarding.specialRequests || null,
       feeding_schedule: boarding.feedingSchedule || null, notes: boarding.notes || null, user_id: user.id,
