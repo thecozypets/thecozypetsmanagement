@@ -115,13 +115,21 @@ export function useBoardings() {
   const fetchBoardings = useCallback(async () => {
     const { data, error } = await supabase.from('boardings').select('*');
     if (error) { toast.error('Failed to load boardings'); return; }
-    setBoardings((data || []).map(r => ({
-      id: r.id, dogId: r.dog_id, ownerId: r.owner_id, checkInDate: r.check_in_date,
-      checkOutDate: r.check_out_date, status: r.status, kennelNumber: r.kennel_number || '',
-      dailyRate: Number(r.daily_rate), totalCost: Number(r.total_cost),
-      specialRequests: r.special_requests || '', feedingSchedule: r.feeding_schedule || '',
-      notes: r.notes || '', createdAt: r.created_at,
-    })));
+    setBoardings((data || []).map(r => {
+      const checkInParts = (r.check_in_date || '').split('T');
+      const checkOutParts = (r.check_out_date || '').split('T');
+      return {
+        id: r.id, dogId: r.dog_id, ownerId: r.owner_id,
+        checkInDate: checkInParts[0] || r.check_in_date,
+        checkInTime: checkInParts[1]?.slice(0, 5) || '',
+        checkOutDate: checkOutParts[0] || r.check_out_date,
+        checkOutTime: checkOutParts[1]?.slice(0, 5) || '',
+        status: r.status, kennelNumber: r.kennel_number || '',
+        dailyRate: Number(r.daily_rate), totalCost: Number(r.total_cost),
+        specialRequests: r.special_requests || '', feedingSchedule: r.feeding_schedule || '',
+        notes: r.notes || '', createdAt: r.created_at,
+      };
+    }));
   }, []);
 
   useEffect(() => { fetchBoardings(); }, [fetchBoardings]);
