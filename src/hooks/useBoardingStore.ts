@@ -74,8 +74,9 @@ export function useDogs() {
       name: dog.name, breed: dog.breed, age: dog.age, weight: dog.weight,
       gender: dog.gender, owner_id: dog.ownerId, special_needs: dog.specialNeeds || null,
       feeding_instructions: dog.feedingInstructions || null, medications: dog.medications || null,
-      vaccinated: dog.vaccinated, neutered: dog.neutered, photo_url: dog.photoUrl || null, user_id: user.id,
-    }).select().single();
+      vaccinated: dog.vaccinated, neutered: dog.neutered, photo_url: dog.photoUrl || null,
+      vaccine_photo_url: (dog as any).vaccinePhotoUrl || null, user_id: user.id,
+    } as any).select().single();
     if (error) { toast.error('Failed to add dog'); return null; }
     await fetchDogs();
     return { ...dog, id: data.id, createdAt: data.created_at } as Dog;
