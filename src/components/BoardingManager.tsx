@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Boarding, Dog, Owner, BoardingStatus } from '@/types/boarding';
+import { Boarding, Dog, Owner, BoardingStatus, PaymentStatus, PaymentMethod } from '@/types/boarding';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -26,9 +26,12 @@ interface BoardingFormData {
   specialRequests: string;
   feedingSchedule: string;
   notes: string;
+  paymentStatus: PaymentStatus;
+  paidAmount: number;
+  paymentMethod: PaymentMethod;
 }
 
-const emptyForm: BoardingFormData = { dogId: '', ownerId: '', checkInDate: '', checkInTime: '', checkOutDate: '', checkOutTime: '', status: 'reserved', kennelNumber: '', dailyRate: 0, totalCost: 0, specialRequests: '', feedingSchedule: '', notes: '' };
+const emptyForm: BoardingFormData = { dogId: '', ownerId: '', checkInDate: '', checkInTime: '', checkOutDate: '', checkOutTime: '', status: 'reserved', kennelNumber: '', dailyRate: 0, totalCost: 0, specialRequests: '', feedingSchedule: '', notes: '', paymentStatus: 'outstanding', paidAmount: 0, paymentMethod: '' };
 
 const formatTime12 = (time24: string) => {
   if (!time24) return '';
@@ -85,7 +88,7 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
   };
 
   const startEdit = (b: Boarding) => {
-    setForm({ dogId: b.dogId, ownerId: b.ownerId, checkInDate: b.checkInDate, checkInTime: b.checkInTime || '', checkOutDate: b.checkOutDate, checkOutTime: b.checkOutTime || '', status: b.status, kennelNumber: b.kennelNumber, dailyRate: b.dailyRate, totalCost: b.totalCost, specialRequests: b.specialRequests, feedingSchedule: b.feedingSchedule, notes: b.notes });
+    setForm({ dogId: b.dogId, ownerId: b.ownerId, checkInDate: b.checkInDate, checkInTime: b.checkInTime || '', checkOutDate: b.checkOutDate, checkOutTime: b.checkOutTime || '', status: b.status, kennelNumber: b.kennelNumber, dailyRate: b.dailyRate, totalCost: b.totalCost, specialRequests: b.specialRequests, feedingSchedule: b.feedingSchedule, notes: b.notes, paymentStatus: b.paymentStatus || 'outstanding', paidAmount: b.paidAmount || 0, paymentMethod: b.paymentMethod || '' });
     setEditingId(b.id);
     setOpen(true);
   };
@@ -176,6 +179,37 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
                 </Select>
               </div>
               <div><Label>Feeding Schedule</Label><Input value={form.feedingSchedule} onChange={e => setForm(p => ({ ...p, feedingSchedule: e.target.value }))} /></div>
+              
+              {/* Payment Details */}
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <Label>Payment Status</Label>
+                  <Select value={form.paymentStatus} onValueChange={(v: PaymentStatus) => setForm(p => ({ ...p, paymentStatus: v, paidAmount: v === 'paid' ? p.totalCost : v === 'outstanding' ? 0 : p.paidAmount }))}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="paid">Paid</SelectItem>
+                      <SelectItem value="partly-paid">Partly Paid</SelectItem>
+                      <SelectItem value="outstanding">Outstanding</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Paid Amount (₹)</Label>
+                  <Input type="number" min={0} step={0.01} value={form.paidAmount} disabled={form.paymentStatus === 'paid' || form.paymentStatus === 'outstanding'} onChange={e => setForm(p => ({ ...p, paidAmount: +e.target.value }))} />
+                </div>
+                <div>
+                  <Label>Payment Method</Label>
+                  <Select value={form.paymentMethod || 'none'} onValueChange={(v) => setForm(p => ({ ...p, paymentMethod: v === 'none' ? '' : v as PaymentMethod }))}>
+                    <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">Not set</SelectItem>
+                      <SelectItem value="upi">UPI</SelectItem>
+                      <SelectItem value="cash">Cash</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
               <div><Label>Special Requests</Label><Textarea value={form.specialRequests} onChange={e => setForm(p => ({ ...p, specialRequests: e.target.value }))} /></div>
               <div><Label>Notes</Label><Textarea value={form.notes} onChange={e => setForm(p => ({ ...p, notes: e.target.value }))} /></div>
               <Button type="submit" className="w-full">{editingId ? 'Update' : 'Create Booking'}</Button>
@@ -217,7 +251,13 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
                       <div className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" /> In: {b.checkInDate}{b.checkInTime ? ` ${formatTime12(b.checkInTime)}` : ''}</div>
                       <div className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" /> Out: {b.checkOutDate}{b.checkOutTime ? ` ${formatTime12(b.checkOutTime)}` : ''}</div>
                       {b.kennelNumber && <div>Kennel: #{b.kennelNumber}</div>}
-                      <div className="flex items-center gap-1.5"><DollarSign className="h-3.5 w-3.5" /> ₹{b.totalCost.toFixed(2)}</div>
+                       <div className="flex items-center gap-1.5"><DollarSign className="h-3.5 w-3.5" /> ₹{b.totalCost.toFixed(2)}</div>
+                      <div>
+                        <Badge variant="outline" className={`text-xs ${b.paymentStatus === 'paid' ? 'border-success/50 text-success-foreground' : b.paymentStatus === 'partly-paid' ? 'border-warning/50 text-warning-foreground' : 'border-destructive/50 text-destructive'}`}>
+                          {b.paymentStatus === 'partly-paid' ? `Partly ₹${b.paidAmount}` : b.paymentStatus}
+                        </Badge>
+                        {b.paymentMethod && <span className="text-xs ml-1 uppercase">{b.paymentMethod}</span>}
+                      </div>
                     </div>
                     {b.notes && <p className="text-xs text-muted-foreground mt-2 italic">{b.notes}</p>}
                   </CardContent>
