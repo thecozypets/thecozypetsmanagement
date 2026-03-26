@@ -159,9 +159,9 @@ export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner 
             </tbody>
           </table>
 
-          {/* Totals */}
+          {/* Totals & Payment */}
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px' }}>
-            <table style={{ width: '250px', borderCollapse: 'collapse' }}>
+            <table style={{ width: '280px', borderCollapse: 'collapse' }}>
               <tbody>
                 <tr>
                   <td style={{ padding: '6px 14px', fontSize: '13px' }}>Subtotal</td>
@@ -175,6 +175,31 @@ export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner 
                   <td style={{ padding: '10px 14px', fontSize: '16px', fontWeight: 700, color: '#2563eb', borderTop: '2px solid #2563eb' }}>Total</td>
                   <td style={{ padding: '10px 14px', fontSize: '16px', fontWeight: 700, color: '#2563eb', borderTop: '2px solid #2563eb', textAlign: 'right' }}>₹{boarding.totalCost.toFixed(2)}</td>
                 </tr>
+                <tr>
+                  <td style={{ padding: '6px 14px', fontSize: '13px', color: '#16a34a' }}>Paid</td>
+                  <td style={{ padding: '6px 14px', fontSize: '13px', textAlign: 'right', color: '#16a34a' }}>₹{(boarding.paidAmount || 0).toFixed(2)}</td>
+                </tr>
+                {(boarding.totalCost - (boarding.paidAmount || 0)) > 0 && (
+                  <tr>
+                    <td style={{ padding: '6px 14px', fontSize: '13px', color: '#dc2626', fontWeight: 600 }}>Outstanding</td>
+                    <td style={{ padding: '6px 14px', fontSize: '13px', textAlign: 'right', color: '#dc2626', fontWeight: 600 }}>₹{(boarding.totalCost - (boarding.paidAmount || 0)).toFixed(2)}</td>
+                  </tr>
+                )}
+                <tr>
+                  <td style={{ padding: '6px 14px', fontSize: '12px', color: '#888' }}>Payment Status</td>
+                  <td style={{ padding: '6px 14px', fontSize: '12px', textAlign: 'right', textTransform: 'capitalize' }}>
+                    <span style={{ padding: '2px 8px', borderRadius: '10px', fontSize: '11px', fontWeight: 600,
+                      background: boarding.paymentStatus === 'paid' ? '#d1fae5' : boarding.paymentStatus === 'partly-paid' ? '#fef3c7' : '#fee2e2',
+                      color: boarding.paymentStatus === 'paid' ? '#065f46' : boarding.paymentStatus === 'partly-paid' ? '#92400e' : '#991b1b'
+                    }}>{boarding.paymentStatus || 'outstanding'}</span>
+                  </td>
+                </tr>
+                {boarding.paymentMethod && (
+                  <tr>
+                    <td style={{ padding: '6px 14px', fontSize: '12px', color: '#888' }}>Payment Method</td>
+                    <td style={{ padding: '6px 14px', fontSize: '12px', textAlign: 'right', textTransform: 'uppercase', fontWeight: 600 }}>{boarding.paymentMethod}</td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>

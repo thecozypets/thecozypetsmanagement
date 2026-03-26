@@ -33,6 +33,8 @@ export default function Dashboard({ owners, dogs, boardings, onClickOwner, onCli
   const cancelledBookings = boardings.filter(b => b.status === 'cancelled');
   const paidBookings = boardings.filter(b => b.status !== 'cancelled');
   const totalRevenue = paidBookings.reduce((sum, b) => sum + b.totalCost, 0);
+  const totalPaid = paidBookings.reduce((sum, b) => sum + (b.paidAmount || 0), 0);
+  const totalOutstanding = totalRevenue - totalPaid;
 
   const getDogName = (id: string) => dogs.find(d => d.id === id)?.name || 'Unknown';
   const getOwnerName = (id: string) => owners.find(o => o.id === id)?.name || 'Unknown';
@@ -109,8 +111,16 @@ export default function Dashboard({ owners, dogs, boardings, onClickOwner, onCli
       case 'revenue':
         return paidBookings.length === 0 ? <p className="text-sm text-muted-foreground">No revenue yet.</p> : (
           <div className="space-y-2">
-            <div className="flex justify-between font-display font-bold text-lg px-1 mb-2">
-              <span>Total</span><span>₹{totalRevenue.toFixed(2)}</span>
+            <div className="space-y-1 px-1 mb-3">
+              <div className="flex justify-between font-display font-bold text-lg">
+                <span>Total</span><span>₹{totalRevenue.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between text-sm text-success">
+                <span>Paid</span><span>₹{totalPaid.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between text-sm text-destructive">
+                <span>Outstanding</span><span>₹{totalOutstanding.toFixed(2)}</span>
+              </div>
             </div>
             {paidBookings.map(b => (
               <Card key={b.id} className="cursor-pointer hover:ring-1 hover:ring-primary/50 transition-all" onClick={() => { setDrilldown(null); onClickBoarding(b.id); }}>
@@ -121,7 +131,13 @@ export default function Dashboard({ owners, dogs, boardings, onClickOwner, onCli
                   </div>
                   <div className="text-right">
                     <p className="font-bold text-sm">₹{b.totalCost.toFixed(2)}</p>
-                    <Badge className={`text-xs ${statusColors[b.status]}`}>{b.status}</Badge>
+                    <div className="flex items-center gap-1 justify-end">
+                      <Badge className={`text-xs ${statusColors[b.status]}`}>{b.status}</Badge>
+                      <Badge variant="outline" className={`text-xs ${b.paymentStatus === 'paid' ? 'border-success/50 text-success-foreground' : b.paymentStatus === 'partly-paid' ? 'border-warning/50 text-warning-foreground' : 'border-destructive/50 text-destructive'}`}>
+                        {b.paymentStatus || 'outstanding'}
+                      </Badge>
+                    </div>
+                    {b.paymentMethod && <p className="text-xs text-muted-foreground uppercase mt-0.5">{b.paymentMethod}</p>}
                   </div>
                 </CardContent>
               </Card>
