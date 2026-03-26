@@ -129,7 +129,11 @@ export function useBoardings() {
         status: r.status, kennelNumber: r.kennel_number || '',
         dailyRate: Number(r.daily_rate), totalCost: Number(r.total_cost),
         specialRequests: r.special_requests || '', feedingSchedule: r.feeding_schedule || '',
-        notes: r.notes || '', createdAt: r.created_at,
+        notes: r.notes || '',
+        paymentStatus: ((r as any).payment_status || 'outstanding') as any,
+        paidAmount: Number((r as any).paid_amount || 0),
+        paymentMethod: ((r as any).payment_method || '') as any,
+        createdAt: r.created_at,
       };
     }));
   }, []);
@@ -146,8 +150,12 @@ export function useBoardings() {
       check_out_date: checkOutFull, status: boarding.status,
       kennel_number: boarding.kennelNumber || null, daily_rate: boarding.dailyRate,
       total_cost: boarding.totalCost, special_requests: boarding.specialRequests || null,
-      feeding_schedule: boarding.feedingSchedule || null, notes: boarding.notes || null, user_id: user.id,
-    }).select().single();
+      feeding_schedule: boarding.feedingSchedule || null, notes: boarding.notes || null,
+      payment_status: (boarding as any).paymentStatus || 'outstanding',
+      paid_amount: (boarding as any).paidAmount || 0,
+      payment_method: (boarding as any).paymentMethod || null,
+      user_id: user.id,
+    } as any).select().single();
     if (error) { toast.error('Failed to add boarding'); return null; }
     await fetchBoardings();
     return { ...boarding, id: data.id, createdAt: data.created_at } as Boarding;
@@ -166,6 +174,9 @@ export function useBoardings() {
     if (d.specialRequests !== undefined) update.special_requests = d.specialRequests;
     if (d.feedingSchedule !== undefined) update.feeding_schedule = d.feedingSchedule;
     if (d.notes !== undefined) update.notes = d.notes;
+    if ((d as any).paymentStatus !== undefined) update.payment_status = (d as any).paymentStatus;
+    if ((d as any).paidAmount !== undefined) update.paid_amount = (d as any).paidAmount;
+    if ((d as any).paymentMethod !== undefined) update.payment_method = (d as any).paymentMethod;
     const { error } = await supabase.from('boardings').update(update).eq('id', id);
     if (error) { toast.error('Failed to update boarding'); return; }
     await fetchBoardings();
