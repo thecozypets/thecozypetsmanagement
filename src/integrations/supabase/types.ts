@@ -26,6 +26,9 @@ export type Database = {
           kennel_number: string | null
           notes: string | null
           owner_id: string
+          paid_amount: number
+          payment_method: string | null
+          payment_status: string
           special_requests: string | null
           status: Database["public"]["Enums"]["boarding_status"]
           total_cost: number
@@ -42,6 +45,9 @@ export type Database = {
           kennel_number?: string | null
           notes?: string | null
           owner_id: string
+          paid_amount?: number
+          payment_method?: string | null
+          payment_status?: string
           special_requests?: string | null
           status?: Database["public"]["Enums"]["boarding_status"]
           total_cost?: number
@@ -58,6 +64,9 @@ export type Database = {
           kennel_number?: string | null
           notes?: string | null
           owner_id?: string
+          paid_amount?: number
+          payment_method?: string | null
+          payment_status?: string
           special_requests?: string | null
           status?: Database["public"]["Enums"]["boarding_status"]
           total_cost?: number
