@@ -27,6 +27,8 @@ export interface Dog {
 }
 
 export type BoardingStatus = 'reserved' | 'checked-in' | 'checked-out' | 'cancelled';
+export type PaymentStatus = 'paid' | 'partly-paid' | 'outstanding';
+export type PaymentMethod = 'upi' | 'cash' | '';
 
 export interface Boarding {
   id: string;
@@ -43,5 +45,8 @@ export interface Boarding {
   specialRequests: string;
   feedingSchedule: string;
   notes: string;
+  paymentStatus: PaymentStatus;
+  paidAmount: number;
+  paymentMethod: PaymentMethod;
   createdAt: string;
 }
