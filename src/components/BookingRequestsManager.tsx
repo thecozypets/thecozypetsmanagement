@@ -69,7 +69,7 @@ export default function BookingRequestsManager() {
     fetchRequests();
   };
 
-  const bookingLink = user ? `${window.location.origin}/book/${user.id}` : '';
+  const bookingLink = `${window.location.origin}/book`;
 
   const copyLink = () => {
     navigator.clipboard.writeText(bookingLink);
