@@ -91,6 +91,9 @@ const Index = () => {
           <TabsContent value="boardings">
             <BoardingManager boardings={boardings} dogs={dogs} owners={owners} onAdd={addBoarding} onUpdate={updateBoarding} onDelete={deleteBoarding} onClickBoarding={openDetailByBoarding} onClickDog={openDetailByDog} onClickOwner={openDetailByOwner} />
           </TabsContent>
+          <TabsContent value="requests">
+            <BookingRequestsManager />
+          </TabsContent>
           <TabsContent value="settings">
             <CompanySettingsForm />
           </TabsContent>
