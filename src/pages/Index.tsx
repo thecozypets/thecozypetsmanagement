@@ -10,6 +10,7 @@ import DogManager from '@/components/DogManager';
 import BoardingManager from '@/components/BoardingManager';
 import DetailPanel from '@/components/DetailPanel';
 import CompanySettingsForm from '@/components/CompanySettingsForm';
+import BookingRequestsManager from '@/components/BookingRequestsManager';
 import { motion } from 'framer-motion';
 import { Owner } from '@/types/boarding';
 
