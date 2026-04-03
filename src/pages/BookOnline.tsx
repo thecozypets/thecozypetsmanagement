@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,6 +9,7 @@ import { PawPrint, CalendarCheck, CheckCircle2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface CompanyInfo {
+  userId: string;
   companyName: string;
   companyPhone: string;
   companyEmail: string;
@@ -18,7 +18,6 @@ interface CompanyInfo {
 }
 
 export default function BookOnline() {
-  const { userId } = useParams<{ userId: string }>();
   const [company, setCompany] = useState<CompanyInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -37,15 +36,15 @@ export default function BookOnline() {
   });
 
   useEffect(() => {
-    if (!userId) return;
     (async () => {
       const { data } = await supabase
         .from('company_settings')
         .select('*')
-        .eq('user_id', userId)
+        .limit(1)
         .maybeSingle();
       if (data) {
         setCompany({
+          userId: data.user_id,
           companyName: data.company_name,
           companyPhone: data.company_phone || '',
           companyEmail: data.company_email || '',
@@ -53,19 +52,19 @@ export default function BookOnline() {
           logoUrl: data.logo_url || '',
         });
       } else {
-        setCompany({ companyName: 'Dog Boarding', companyPhone: '', companyEmail: '', companyAddress: '', logoUrl: '' });
+        setCompany({ userId: '', companyName: 'The Cozy Pets', companyPhone: '', companyEmail: '', companyAddress: '', logoUrl: '' });
       }
       setLoading(false);
     })();
-  }, [userId]);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!userId) return;
+    if (!company?.userId) return;
     setSubmitting(true);
 
     const { error } = await supabase.from('booking_requests').insert({
-      user_id: userId,
+      user_id: company.userId,
       client_name: form.clientName.trim(),
       client_phone: form.clientPhone.trim(),
       client_email: form.clientEmail.trim(),
@@ -103,7 +102,7 @@ export default function BookOnline() {
               <CheckCircle2 className="h-16 w-16 text-success mx-auto" />
               <h2 className="font-display text-2xl font-bold text-foreground">Booking Request Submitted!</h2>
               <p className="text-muted-foreground">
-                Thank you! Your booking request has been sent to <strong>{company?.companyName}</strong>. They will review and confirm your reservation soon.
+                Thank you! Your booking request has been sent to <strong>{company?.companyName}</strong>. We'll review and confirm your reservation soon.
               </p>
               {company?.companyPhone && (
                 <p className="text-sm text-muted-foreground">
@@ -122,7 +121,6 @@ export default function BookOnline() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
       <header className="border-b border-border bg-card">
         <div className="max-w-2xl mx-auto px-4 py-6 flex items-center gap-3">
           {company?.logoUrl ? (
@@ -141,7 +139,6 @@ export default function BookOnline() {
         </div>
       </header>
 
-      {/* Form */}
       <main className="max-w-2xl mx-auto px-4 py-8">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <Card>
@@ -150,7 +147,6 @@ export default function BookOnline() {
               <p className="text-sm text-muted-foreground mb-6">Fill in the details below and we'll get back to you to confirm your booking.</p>
 
               <form onSubmit={handleSubmit} className="space-y-5">
-                {/* Client Info */}
                 <div className="space-y-1">
                   <h3 className="font-display font-semibold text-foreground text-sm uppercase tracking-wider">Your Details</h3>
                   <div className="h-px bg-border" />
@@ -170,7 +166,6 @@ export default function BookOnline() {
                   <Input type="email" value={form.clientEmail} onChange={e => setForm(p => ({ ...p, clientEmail: e.target.value }))} placeholder="john@example.com" maxLength={255} />
                 </div>
 
-                {/* Dog Info */}
                 <div className="space-y-1 pt-2">
                   <h3 className="font-display font-semibold text-foreground text-sm uppercase tracking-wider">Dog Details</h3>
                   <div className="h-px bg-border" />
@@ -190,7 +185,6 @@ export default function BookOnline() {
                   <Textarea value={form.specialNeeds} onChange={e => setForm(p => ({ ...p, specialNeeds: e.target.value }))} placeholder="Allergies, medications, dietary restrictions..." maxLength={500} />
                 </div>
 
-                {/* Dates */}
                 <div className="space-y-1 pt-2">
                   <h3 className="font-display font-semibold text-foreground text-sm uppercase tracking-wider">Preferred Dates</h3>
                   <div className="h-px bg-border" />
@@ -206,7 +200,6 @@ export default function BookOnline() {
                   </div>
                 </div>
 
-                {/* Message */}
                 <div>
                   <Label>Additional Message</Label>
                   <Textarea value={form.message} onChange={e => setForm(p => ({ ...p, message: e.target.value }))} placeholder="Any other details you'd like us to know..." maxLength={500} />
@@ -219,7 +212,6 @@ export default function BookOnline() {
             </CardContent>
           </Card>
 
-          {/* Footer with contact info */}
           {(company?.companyPhone || company?.companyEmail || company?.companyAddress) && (
             <div className="mt-6 text-center text-sm text-muted-foreground space-y-1">
               {company.companyAddress && <p>📍 {company.companyAddress}</p>}
