@@ -89,6 +89,54 @@ export type Database = {
           },
         ]
       }
+      booking_requests: {
+        Row: {
+          client_email: string | null
+          client_name: string
+          client_phone: string
+          created_at: string
+          dog_breed: string | null
+          dog_name: string
+          id: string
+          message: string | null
+          preferred_check_in: string
+          preferred_check_out: string
+          special_needs: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          client_email?: string | null
+          client_name: string
+          client_phone: string
+          created_at?: string
+          dog_breed?: string | null
+          dog_name: string
+          id?: string
+          message?: string | null
+          preferred_check_in: string
+          preferred_check_out: string
+          special_needs?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          client_email?: string | null
+          client_name?: string
+          client_phone?: string
+          created_at?: string
+          dog_breed?: string | null
+          dog_name?: string
+          id?: string
+          message?: string | null
+          preferred_check_in?: string
+          preferred_check_out?: string
+          special_needs?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       company_settings: {
         Row: {
           company_address: string | null
