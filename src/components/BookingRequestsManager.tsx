@@ -73,7 +73,12 @@ export default function BookingRequestsManager() {
 
   const copyLink = () => {
     navigator.clipboard.writeText(bookingLink);
-    toast.success('Booking link copied to clipboard!');
+    toast.success('Booking link copied!');
+  };
+
+  const shareWhatsApp = () => {
+    const text = encodeURIComponent(`Book your pet's stay with us! 🐾\n${bookingLink}`);
+    window.open(`https://wa.me/?text=${text}`, '_blank');
   };
 
   const filtered = requests.filter(r => filter === 'all' || r.status === filter);
