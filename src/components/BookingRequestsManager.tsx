@@ -86,23 +86,15 @@ export default function BookingRequestsManager() {
 
   return (
     <div className="space-y-6">
-      {/* Share Link Section */}
-      <Card className="border-primary/20 bg-primary/5">
-        <CardContent className="p-4">
-          <h3 className="font-display font-bold text-sm mb-2 flex items-center gap-2">
-            <ExternalLink className="h-4 w-4 text-primary" /> Share Booking Link with Clients
-          </h3>
-          <div className="flex gap-2 items-center">
-            <code className="flex-1 bg-background border border-border rounded-md px-3 py-2 text-xs truncate text-muted-foreground">
-              {bookingLink}
-            </code>
-            <Button size="sm" variant="outline" onClick={copyLink} className="shrink-0 gap-1">
-              <Copy className="h-3.5 w-3.5" /> Copy
-            </Button>
-          </div>
-          <p className="text-xs text-muted-foreground mt-2">Share this link with your clients so they can submit boarding requests online.</p>
-        </CardContent>
-      </Card>
+      {/* Share Buttons */}
+      <div className="flex gap-2 items-center">
+        <Button size="sm" variant="outline" onClick={copyLink} className="gap-2">
+          <Copy className="h-3.5 w-3.5" /> Copy Link
+        </Button>
+        <Button size="sm" variant="outline" onClick={shareWhatsApp} className="gap-2 text-green-600 border-green-300 hover:bg-green-50 dark:hover:bg-green-950">
+          <Share2 className="h-3.5 w-3.5" /> WhatsApp
+        </Button>
+      </div>
 
       {/* Filter & Count */}
       <div className="flex gap-2 items-center flex-wrap">
