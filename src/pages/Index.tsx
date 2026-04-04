@@ -17,6 +17,7 @@ import { Owner } from '@/types/boarding';
 
 const Index = () => {
   const { signOut } = useAuth();
+  const { theme, setTheme } = useTheme();
   const { owners, addOwner, updateOwner, deleteOwner } = useOwners();
   const { dogs, addDog, updateDog, deleteDog } = useDogs();
   const { boardings, addBoarding, updateBoarding, deleteBoarding } = useBoardings();
