@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { PawPrint, LayoutDashboard, Users, Dog, CalendarCheck, LogOut, Settings, Globe } from 'lucide-react';
+import { PawPrint, LayoutDashboard, Users, Dog, CalendarCheck, LogOut, Settings, Globe, Sun, Moon } from 'lucide-react';
+import { useTheme } from 'next-themes';
 import { useOwners, useDogs, useBoardings } from '@/hooks/useBoardingStore';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -16,6 +17,7 @@ import { Owner } from '@/types/boarding';
 
 const Index = () => {
   const { signOut } = useAuth();
+  const { theme, setTheme } = useTheme();
   const { owners, addOwner, updateOwner, deleteOwner } = useOwners();
   const { dogs, addDog, updateDog, deleteDog } = useDogs();
   const { boardings, addBoarding, updateBoarding, deleteBoarding } = useBoardings();
@@ -60,9 +62,14 @@ const Index = () => {
 </p>
             </div>
           </div>
-          <Button variant="ghost" size="sm" onClick={signOut} className="gap-2 text-muted-foreground">
-            <LogOut className="h-4 w-4" /> Sign Out
-          </Button>
+          <div className="flex items-center gap-1">
+            <Button variant="ghost" size="icon" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} className="text-muted-foreground" title="Toggle theme">
+              {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </Button>
+            <Button variant="ghost" size="sm" onClick={signOut} className="gap-2 text-muted-foreground">
+              <LogOut className="h-4 w-4" /> Sign Out
+            </Button>
+          </div>
         </div>
       </header>
 
