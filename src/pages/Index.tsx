@@ -62,9 +62,14 @@ const Index = () => {
 </p>
             </div>
           </div>
-          <Button variant="ghost" size="sm" onClick={signOut} className="gap-2 text-muted-foreground">
-            <LogOut className="h-4 w-4" /> Sign Out
-          </Button>
+          <div className="flex items-center gap-1">
+            <Button variant="ghost" size="icon" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} className="text-muted-foreground" title="Toggle theme">
+              {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </Button>
+            <Button variant="ghost" size="sm" onClick={signOut} className="gap-2 text-muted-foreground">
+              <LogOut className="h-4 w-4" /> Sign Out
+            </Button>
+          </div>
         </div>
       </header>
 
