@@ -39,6 +39,7 @@ export function useCompanySettings() {
         companyEmail: data.company_email || '',
         logoUrl: data.logo_url || '',
         gstNumber: data.gst_number || '',
+        whatsappNumber: (data as any).whatsapp_number || '',
       });
     }
     setLoading(false);
