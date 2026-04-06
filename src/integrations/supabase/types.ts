@@ -97,6 +97,7 @@ export type Database = {
           created_at: string
           dog_breed: string | null
           dog_name: string
+          dog_photo_url: string | null
           id: string
           message: string | null
           preferred_check_in: string
@@ -112,6 +113,7 @@ export type Database = {
           created_at?: string
           dog_breed?: string | null
           dog_name: string
+          dog_photo_url?: string | null
           id?: string
           message?: string | null
           preferred_check_in: string
@@ -127,6 +129,7 @@ export type Database = {
           created_at?: string
           dog_breed?: string | null
           dog_name?: string
+          dog_photo_url?: string | null
           id?: string
           message?: string | null
           preferred_check_in?: string
