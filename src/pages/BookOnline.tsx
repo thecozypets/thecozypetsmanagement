@@ -15,6 +15,7 @@ interface CompanyInfo {
   companyEmail: string;
   companyAddress: string;
   logoUrl: string;
+  whatsappNumber: string;
 }
 
 export default function BookOnline() {
