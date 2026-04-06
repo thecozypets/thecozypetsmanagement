@@ -51,9 +51,10 @@ export default function BookOnline() {
           companyEmail: data.company_email || '',
           companyAddress: data.company_address || '',
           logoUrl: data.logo_url || '',
+          whatsappNumber: (data as any).whatsapp_number || '',
         });
       } else {
-        setCompany({ userId: '', companyName: 'The Cozy Pets', companyPhone: '', companyEmail: '', companyAddress: '', logoUrl: '' });
+        setCompany({ userId: '', companyName: 'The Cozy Pets', companyPhone: '', companyEmail: '', companyAddress: '', logoUrl: '', whatsappNumber: '' });
       }
       setLoading(false);
     })();
