@@ -55,6 +55,12 @@ export default function CompanySettingsForm() {
           </div>
 
           <div>
+            <Label>WhatsApp Notification Number</Label>
+            <Input value={form.whatsappNumber} onChange={e => setForm(f => ({ ...f, whatsappNumber: e.target.value }))} placeholder="+91 7378528453" />
+            <p className="text-xs text-muted-foreground mt-1">Receive booking notifications on this WhatsApp number</p>
+          </div>
+
+          <div>
             <Label>Address</Label>
             <Textarea value={form.companyAddress} onChange={e => setForm(f => ({ ...f, companyAddress: e.target.value }))} placeholder="123 Pet Street, Mumbai, Maharashtra 400001" rows={2} />
           </div>

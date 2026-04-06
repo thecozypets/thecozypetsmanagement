@@ -58,6 +58,7 @@ export function useCompanySettings() {
       company_email: s.companyEmail,
       logo_url: s.logoUrl,
       gst_number: s.gstNumber,
+      whatsapp_number: s.whatsappNumber,
       user_id: user.id,
       updated_at: new Date().toISOString(),
     };
