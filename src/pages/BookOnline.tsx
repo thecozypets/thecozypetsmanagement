@@ -15,6 +15,7 @@ interface CompanyInfo {
   companyEmail: string;
   companyAddress: string;
   logoUrl: string;
+  whatsappNumber: string;
 }
 
 export default function BookOnline() {
@@ -50,9 +51,10 @@ export default function BookOnline() {
           companyEmail: data.company_email || '',
           companyAddress: data.company_address || '',
           logoUrl: data.logo_url || '',
+          whatsappNumber: (data as any).whatsapp_number || '',
         });
       } else {
-        setCompany({ userId: '', companyName: 'The Cozy Pets', companyPhone: '', companyEmail: '', companyAddress: '', logoUrl: '' });
+        setCompany({ userId: '', companyName: 'The Cozy Pets', companyPhone: '', companyEmail: '', companyAddress: '', logoUrl: '', whatsappNumber: '' });
       }
       setLoading(false);
     })();
@@ -84,8 +86,11 @@ export default function BookOnline() {
     }
     setSubmitted(true);
 
-    const waMsg = `🐾 *New Booking Request*\n\n👤 *Client:* ${form.clientName}\n📞 *Phone:* ${form.clientPhone}\n✉️ *Email:* ${form.clientEmail || 'N/A'}\n🐕 *Dog:* ${form.dogName}${form.dogBreed ? ` (${form.dogBreed})` : ''}\n🩺 *Special Needs:* ${form.specialNeeds || 'None'}\n📅 *Check-in:* ${form.preferredCheckIn}\n📅 *Check-out:* ${form.preferredCheckOut}\n💬 *Message:* ${form.message || 'None'}`;
-    window.open(`https://wa.me/917378528453?text=${encodeURIComponent(waMsg)}`, '_blank');
+    if (company?.whatsappNumber) {
+      const waNum = company.whatsappNumber.replace(/[^0-9]/g, '');
+      const waMsg = `🐾 *New Booking Request*\n\n👤 *Client:* ${form.clientName}\n📞 *Phone:* ${form.clientPhone}\n✉️ *Email:* ${form.clientEmail || 'N/A'}\n🐕 *Dog:* ${form.dogName}${form.dogBreed ? ` (${form.dogBreed})` : ''}\n🩺 *Special Needs:* ${form.specialNeeds || 'None'}\n📅 *Check-in:* ${form.preferredCheckIn}\n📅 *Check-out:* ${form.preferredCheckOut}\n💬 *Message:* ${form.message || 'None'}`;
+      window.open(`https://wa.me/${waNum}?text=${encodeURIComponent(waMsg)}`, '_blank');
+    }
   };
 
   if (loading) {

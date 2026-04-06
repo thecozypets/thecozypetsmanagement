@@ -10,6 +10,7 @@ export interface CompanySettings {
   companyEmail: string;
   logoUrl: string;
   gstNumber: string;
+  whatsappNumber: string;
 }
 
 const defaults: CompanySettings = {
@@ -19,6 +20,7 @@ const defaults: CompanySettings = {
   companyEmail: '',
   logoUrl: '',
   gstNumber: '',
+  whatsappNumber: '',
 };
 
 export function useCompanySettings() {
@@ -37,6 +39,7 @@ export function useCompanySettings() {
         companyEmail: data.company_email || '',
         logoUrl: data.logo_url || '',
         gstNumber: data.gst_number || '',
+        whatsappNumber: (data as any).whatsapp_number || '',
       });
     }
     setLoading(false);
@@ -55,6 +58,7 @@ export function useCompanySettings() {
       company_email: s.companyEmail,
       logo_url: s.logoUrl,
       gst_number: s.gstNumber,
+      whatsapp_number: s.whatsappNumber,
       user_id: user.id,
       updated_at: new Date().toISOString(),
     };
