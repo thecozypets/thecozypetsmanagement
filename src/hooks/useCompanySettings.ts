@@ -10,6 +10,7 @@ export interface CompanySettings {
   companyEmail: string;
   logoUrl: string;
   gstNumber: string;
+  whatsappNumber: string;
 }
 
 const defaults: CompanySettings = {
@@ -19,6 +20,7 @@ const defaults: CompanySettings = {
   companyEmail: '',
   logoUrl: '',
   gstNumber: '',
+  whatsappNumber: '',
 };
 
 export function useCompanySettings() {
