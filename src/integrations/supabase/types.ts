@@ -149,6 +149,7 @@ export type Database = {
           logo_url: string | null
           updated_at: string
           user_id: string
+          whatsapp_number: string | null
         }
         Insert: {
           company_address?: string | null
@@ -161,6 +162,7 @@ export type Database = {
           logo_url?: string | null
           updated_at?: string
           user_id?: string
+          whatsapp_number?: string | null
         }
         Update: {
           company_address?: string | null
@@ -173,6 +175,7 @@ export type Database = {
           logo_url?: string | null
           updated_at?: string
           user_id?: string
+          whatsapp_number?: string | null
         }
         Relationships: []
       }

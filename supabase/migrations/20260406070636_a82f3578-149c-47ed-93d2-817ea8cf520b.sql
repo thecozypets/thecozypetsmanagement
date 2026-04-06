@@ -1,0 +1,1 @@
+ALTER TABLE public.company_settings ADD COLUMN whatsapp_number text DEFAULT '';
