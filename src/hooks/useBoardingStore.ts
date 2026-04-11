@@ -190,3 +190,84 @@ export function useBoardings() {
 
   return { boardings, addBoarding, updateBoarding, deleteBoarding };
 }
+
+export function useFosters() {
+  const [fosters, setFosters] = useState<Foster[]>([]);
+
+  const fetchFosters = useCallback(async () => {
+    const { data, error } = await supabase.from('fosters').select('*');
+    if (error) { toast.error('Failed to load fosters'); return; }
+    setFosters((data || []).map((r: any) => {
+      const checkInParts = (r.check_in_date || '').split('T');
+      const checkOutParts = (r.check_out_date || '').split('T');
+      return {
+        id: r.id, dogId: r.dog_id, ownerId: r.owner_id,
+        animalType: (r.animal_type || 'dog') as AnimalType,
+        checkInDate: checkInParts[0] || r.check_in_date,
+        checkInTime: checkInParts[1]?.slice(0, 5) || '',
+        checkOutDate: checkOutParts[0] || r.check_out_date,
+        checkOutTime: checkOutParts[1]?.slice(0, 5) || '',
+        status: r.status, kennelNumber: r.kennel_number || '',
+        dailyRate: Number(r.daily_rate), totalCost: Number(r.total_cost),
+        specialRequests: r.special_requests || '', feedingSchedule: r.feeding_schedule || '',
+        notes: r.notes || '',
+        paymentStatus: (r.payment_status || 'outstanding') as any,
+        paidAmount: Number(r.paid_amount || 0),
+        paymentMethod: (r.payment_method || '') as any,
+        createdAt: r.created_at,
+      };
+    }));
+  }, []);
+
+  useEffect(() => { fetchFosters(); }, [fetchFosters]);
+
+  const addFoster = useCallback(async (foster: Omit<Foster, 'id' | 'createdAt'>) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { toast.error('Not authenticated'); return null; }
+    const checkInFull = foster.checkInTime ? `${foster.checkInDate}T${foster.checkInTime}` : foster.checkInDate;
+    const checkOutFull = foster.checkOutTime ? `${foster.checkOutDate}T${foster.checkOutTime}` : foster.checkOutDate;
+    const { data, error } = await supabase.from('fosters' as any).insert({
+      dog_id: foster.dogId, owner_id: foster.ownerId, animal_type: foster.animalType,
+      check_in_date: checkInFull, check_out_date: checkOutFull, status: foster.status,
+      kennel_number: foster.kennelNumber || null, daily_rate: foster.dailyRate,
+      total_cost: foster.totalCost, special_requests: foster.specialRequests || null,
+      feeding_schedule: foster.feedingSchedule || null, notes: foster.notes || null,
+      payment_status: foster.paymentStatus || 'outstanding',
+      paid_amount: foster.paidAmount || 0, payment_method: foster.paymentMethod || null,
+      user_id: user.id,
+    } as any).select().single();
+    if (error) { toast.error('Failed to add foster'); return null; }
+    await fetchFosters();
+    return { ...foster, id: (data as any).id, createdAt: (data as any).created_at } as Foster;
+  }, [fetchFosters]);
+
+  const updateFoster = useCallback(async (id: string, d: Partial<Foster>) => {
+    const update: any = {};
+    if (d.dogId !== undefined) update.dog_id = d.dogId;
+    if (d.ownerId !== undefined) update.owner_id = d.ownerId;
+    if (d.animalType !== undefined) update.animal_type = d.animalType;
+    if (d.checkInDate !== undefined) update.check_in_date = d.checkInTime ? `${d.checkInDate}T${d.checkInTime}` : d.checkInDate;
+    if (d.checkOutDate !== undefined) update.check_out_date = d.checkOutTime ? `${d.checkOutDate}T${d.checkOutTime}` : d.checkOutDate;
+    if (d.status !== undefined) update.status = d.status;
+    if (d.kennelNumber !== undefined) update.kennel_number = d.kennelNumber;
+    if (d.dailyRate !== undefined) update.daily_rate = d.dailyRate;
+    if (d.totalCost !== undefined) update.total_cost = d.totalCost;
+    if (d.specialRequests !== undefined) update.special_requests = d.specialRequests;
+    if (d.feedingSchedule !== undefined) update.feeding_schedule = d.feedingSchedule;
+    if (d.notes !== undefined) update.notes = d.notes;
+    if (d.paymentStatus !== undefined) update.payment_status = d.paymentStatus;
+    if (d.paidAmount !== undefined) update.paid_amount = d.paidAmount;
+    if (d.paymentMethod !== undefined) update.payment_method = d.paymentMethod;
+    const { error } = await supabase.from('fosters' as any).update(update).eq('id', id);
+    if (error) { toast.error('Failed to update foster'); return; }
+    await fetchFosters();
+  }, [fetchFosters]);
+
+  const deleteFoster = useCallback(async (id: string) => {
+    const { error } = await supabase.from('fosters' as any).delete().eq('id', id);
+    if (error) { toast.error('Failed to delete foster'); return; }
+    await fetchFosters();
+  }, [fetchFosters]);
+
+  return { fosters, addFoster, updateFoster, deleteFoster };
+}

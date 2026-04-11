@@ -1,14 +1,15 @@
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { PawPrint, LayoutDashboard, Users, Dog, CalendarCheck, LogOut, Settings, Globe, Sun, Moon } from 'lucide-react';
+import { PawPrint, LayoutDashboard, Users, Dog, CalendarCheck, LogOut, Settings, Globe, Sun, Moon, Heart } from 'lucide-react';
 import { useTheme } from 'next-themes';
-import { useOwners, useDogs, useBoardings } from '@/hooks/useBoardingStore';
+import { useOwners, useDogs, useBoardings, useFosters } from '@/hooks/useBoardingStore';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import Dashboard from '@/components/Dashboard';
 import OwnerManager from '@/components/OwnerManager';
 import DogManager from '@/components/DogManager';
 import BoardingManager from '@/components/BoardingManager';
+import FosterManager from '@/components/FosterManager';
 import DetailPanel from '@/components/DetailPanel';
 import CompanySettingsForm from '@/components/CompanySettingsForm';
 import BookingRequestsManager from '@/components/BookingRequestsManager';
@@ -21,6 +22,7 @@ const Index = () => {
   const { owners, addOwner, updateOwner, deleteOwner } = useOwners();
   const { dogs, addDog, updateDog, deleteDog } = useDogs();
   const { boardings, addBoarding, updateBoarding, deleteBoarding } = useBoardings();
+  const { fosters, addFoster, updateFoster, deleteFoster } = useFosters();
   const [tab, setTab] = useState('dashboard');
 
   const [detailOpen, setDetailOpen] = useState(false);
@@ -58,8 +60,7 @@ const Index = () => {
             </motion.div>
             <div>
               <h1 className="font-bold text-foreground text-2xl font-serif">The Cozy Pets</h1>
-              <p className="text-xs text-muted-foreground">
-</p>
+              <p className="text-xs text-muted-foreground"></p>
             </div>
           </div>
           <div className="flex items-center gap-1">
@@ -81,6 +82,7 @@ const Index = () => {
               <TabsTrigger value="owners" className="gap-2 font-display"><Users className="h-4 w-4" /> Owners</TabsTrigger>
               <TabsTrigger value="dogs" className="gap-2 font-display"><Dog className="h-4 w-4" /> Dogs</TabsTrigger>
               <TabsTrigger value="boardings" className="gap-2 font-display"><CalendarCheck className="h-4 w-4" /> Boardings</TabsTrigger>
+              <TabsTrigger value="fosters" className="gap-2 font-display"><Heart className="h-4 w-4" /> Foster</TabsTrigger>
               <TabsTrigger value="requests" className="gap-2 font-display"><Globe className="h-4 w-4" /> Online Bookings</TabsTrigger>
             </div>
             <TabsTrigger value="settings" className="font-display" title="Settings"><Settings className="h-4 w-4" /></TabsTrigger>
@@ -97,6 +99,9 @@ const Index = () => {
           </TabsContent>
           <TabsContent value="boardings">
             <BoardingManager boardings={boardings} dogs={dogs} owners={owners} onAdd={addBoarding} onUpdate={updateBoarding} onDelete={deleteBoarding} onClickBoarding={openDetailByBoarding} onClickDog={openDetailByDog} onClickOwner={openDetailByOwner} />
+          </TabsContent>
+          <TabsContent value="fosters">
+            <FosterManager fosters={fosters} dogs={dogs} owners={owners} onAdd={addFoster} onUpdate={updateFoster} onDelete={deleteFoster} onClickDog={openDetailByDog} onClickOwner={openDetailByOwner} />
           </TabsContent>
           <TabsContent value="requests">
             <BookingRequestsManager />
