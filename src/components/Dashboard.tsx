@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { Dog, Owner, Boarding, BoardingStatus } from '@/types/boarding';
+import { Dog, Owner, Boarding, BoardingStatus, Foster } from '@/types/boarding';
 import { Card, CardContent } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { Users, PawPrint, CalendarCheck, DollarSign, Phone, Mail } from 'lucide-react';
+import { Users, PawPrint, CalendarCheck, DollarSign, Phone, Mail, Heart, Cat, Dog as DogIcon } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const statusColors: Record<BoardingStatus, string> = {
@@ -17,61 +17,101 @@ interface Props {
   owners: Owner[];
   dogs: Dog[];
   boardings: Boarding[];
+  fosters: Foster[];
   onClickOwner: (ownerId: string) => void;
   onClickDog: (dogId: string) => void;
   onClickBoarding: (boardingId: string) => void;
 }
 
-type DrilldownType = 'owners' | 'dogs' | 'active' | 'revenue' | 'reserved' | 'boarding' | 'completed' | 'cancelled' | null;
+type DrilldownType = 'owners' | 'dogs' | 'b-active' | 'b-revenue' | 'b-reserved' | 'b-completed' | 'b-cancelled' | 'f-active' | 'f-revenue' | 'f-reserved' | 'f-completed' | 'f-cancelled' | null;
 
-export default function Dashboard({ owners, dogs, boardings, onClickOwner, onClickDog, onClickBoarding }: Props) {
+export default function Dashboard({ owners, dogs, boardings, fosters, onClickOwner, onClickDog, onClickBoarding }: Props) {
   const [drilldown, setDrilldown] = useState<DrilldownType>(null);
 
-  const activeBookings = boardings.filter(b => b.status === 'checked-in');
-  const reservedBookings = boardings.filter(b => b.status === 'reserved');
-  const completedBookings = boardings.filter(b => b.status === 'checked-out');
-  const cancelledBookings = boardings.filter(b => b.status === 'cancelled');
-  const paidBookings = boardings.filter(b => b.status !== 'cancelled');
-  const totalRevenue = paidBookings.reduce((sum, b) => sum + b.totalCost, 0);
-  const totalPaid = paidBookings.reduce((sum, b) => sum + (b.paidAmount || 0), 0);
-  const totalOutstanding = totalRevenue - totalPaid;
+  // Boarding stats
+  const bActive = boardings.filter(b => b.status === 'checked-in');
+  const bReserved = boardings.filter(b => b.status === 'reserved');
+  const bCompleted = boardings.filter(b => b.status === 'checked-out');
+  const bCancelled = boardings.filter(b => b.status === 'cancelled');
+  const bPaid = boardings.filter(b => b.status !== 'cancelled');
+  const bRevenue = bPaid.reduce((s, b) => s + b.totalCost, 0);
+  const bPaidAmt = bPaid.reduce((s, b) => s + (b.paidAmount || 0), 0);
+
+  // Foster stats
+  const fActive = fosters.filter(f => f.status === 'checked-in');
+  const fReserved = fosters.filter(f => f.status === 'reserved');
+  const fCompleted = fosters.filter(f => f.status === 'checked-out');
+  const fCancelled = fosters.filter(f => f.status === 'cancelled');
+  const fPaid = fosters.filter(f => f.status !== 'cancelled');
+  const fRevenue = fPaid.reduce((s, f) => s + f.totalCost, 0);
+  const fPaidAmt = fPaid.reduce((s, f) => s + (f.paidAmount || 0), 0);
 
   const getDogName = (id: string) => dogs.find(d => d.id === id)?.name || 'Unknown';
   const getOwnerName = (id: string) => owners.find(o => o.id === id)?.name || 'Unknown';
 
-  const stats = [
-    { label: 'Total Owners', value: owners.length, icon: Users, color: 'text-primary', key: 'owners' as DrilldownType },
-    { label: 'Registered Dogs', value: dogs.length, icon: PawPrint, color: 'text-accent', key: 'dogs' as DrilldownType },
-    { label: 'Active Boardings', value: activeBookings.length, icon: CalendarCheck, color: 'text-success', key: 'active' as DrilldownType },
-    { label: 'Total Revenue', value: `₹${totalRevenue.toFixed(2)}`, icon: DollarSign, color: 'text-primary', key: 'revenue' as DrilldownType },
-  ];
-
-  const quickStats = [
-    { label: 'Reserved', value: reservedBookings.length, key: 'reserved' as DrilldownType },
-    { label: 'Currently Boarding', value: activeBookings.length, key: 'boarding' as DrilldownType },
-    { label: 'Completed', value: completedBookings.length, key: 'completed' as DrilldownType },
-    { label: 'Cancelled', value: cancelledBookings.length, key: 'cancelled' as DrilldownType },
-  ];
-
-  const recentBookings = [...boardings]
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-    .slice(0, 5);
-
   const drilldownTitle: Record<string, string> = {
     owners: 'All Owners',
     dogs: 'All Registered Dogs',
-    active: 'Active Boardings (Checked-In)',
-    revenue: 'Revenue Breakdown (Non-Cancelled)',
-    reserved: 'Reserved Bookings',
-    boarding: 'Currently Boarding',
-    completed: 'Completed Bookings',
-    cancelled: 'Cancelled Bookings',
+    'b-active': 'Active Boardings',
+    'b-revenue': 'Boarding Revenue',
+    'b-reserved': 'Reserved Boardings',
+    'b-completed': 'Completed Boardings',
+    'b-cancelled': 'Cancelled Boardings',
+    'f-active': 'Active Fosters',
+    'f-revenue': 'Foster Revenue',
+    'f-reserved': 'Reserved Fosters',
+    'f-completed': 'Completed Fosters',
+    'f-cancelled': 'Cancelled Fosters',
   };
+
+  const renderBookingList = (list: (Boarding | Foster)[]) =>
+    list.length === 0 ? <p className="text-sm text-muted-foreground">No entries in this category.</p> : (
+      <div className="space-y-2">
+        {list.map(b => (
+          <Card key={b.id} className="cursor-pointer hover:ring-1 hover:ring-primary/50 transition-all" onClick={() => { setDrilldown(null); onClickBoarding(b.id); }}>
+            <CardContent className="p-3">
+              <div className="flex justify-between items-start">
+                <div>
+                  <p className="font-semibold text-sm">🐕 {getDogName(b.dogId)}</p>
+                  <p className="text-xs text-muted-foreground">Owner: {getOwnerName(b.ownerId)}</p>
+                  <p className="text-xs text-muted-foreground">{b.checkInDate} → {b.checkOutDate}</p>
+                </div>
+                <div className="text-right">
+                  <Badge className={`text-xs ${statusColors[b.status]}`}>{b.status}</Badge>
+                  <p className="text-sm font-bold mt-1">₹{b.totalCost.toFixed(2)}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    );
+
+  const renderRevenueList = (list: (Boarding | Foster)[], total: number, paid: number) => (
+    <div className="space-y-2">
+      <div className="space-y-1 px-1 mb-3">
+        <div className="flex justify-between font-display font-bold text-lg"><span>Total</span><span>₹{total.toFixed(2)}</span></div>
+        <div className="flex justify-between text-sm text-success"><span>Paid</span><span>₹{paid.toFixed(2)}</span></div>
+        <div className="flex justify-between text-sm text-destructive"><span>Outstanding</span><span>₹{(total - paid).toFixed(2)}</span></div>
+      </div>
+      {list.map(b => (
+        <Card key={b.id} className="cursor-pointer hover:ring-1 hover:ring-primary/50 transition-all" onClick={() => { setDrilldown(null); onClickBoarding(b.id); }}>
+          <CardContent className="p-3 flex justify-between items-center">
+            <div>
+              <p className="font-semibold text-sm">🐕 {getDogName(b.dogId)}</p>
+              <p className="text-xs text-muted-foreground">{b.checkInDate} → {b.checkOutDate}</p>
+            </div>
+            <p className="font-bold text-sm">₹{b.totalCost.toFixed(2)}</p>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
 
   const renderDrilldownContent = () => {
     switch (drilldown) {
       case 'owners':
-        return owners.length === 0 ? <p className="text-sm text-muted-foreground">No owners registered.</p> : (
+        return owners.length === 0 ? <p className="text-sm text-muted-foreground">No owners.</p> : (
           <div className="space-y-2">
             {owners.map(o => (
               <Card key={o.id} className="cursor-pointer hover:ring-1 hover:ring-primary/50 transition-all" onClick={() => { setDrilldown(null); onClickOwner(o.id); }}>
@@ -86,9 +126,8 @@ export default function Dashboard({ owners, dogs, boardings, onClickOwner, onCli
             ))}
           </div>
         );
-
       case 'dogs':
-        return dogs.length === 0 ? <p className="text-sm text-muted-foreground">No dogs registered.</p> : (
+        return dogs.length === 0 ? <p className="text-sm text-muted-foreground">No dogs.</p> : (
           <div className="space-y-2">
             {dogs.map(d => (
               <Card key={d.id} className="cursor-pointer hover:ring-1 hover:ring-primary/50 transition-all" onClick={() => { setDrilldown(null); onClickDog(d.id); }}>
@@ -100,96 +139,37 @@ export default function Dashboard({ owners, dogs, boardings, onClickOwner, onCli
                   )}
                   <div>
                     <p className="font-display font-semibold">{d.name}</p>
-                    <p className="text-xs text-muted-foreground">{d.breed} · {d.age}y · {d.weight}kg · Owner: {getOwnerName(d.ownerId)}</p>
+                    <p className="text-xs text-muted-foreground">{d.breed} · {d.age}y · Owner: {getOwnerName(d.ownerId)}</p>
                   </div>
                 </CardContent>
               </Card>
             ))}
           </div>
         );
-
-      case 'revenue':
-        return paidBookings.length === 0 ? <p className="text-sm text-muted-foreground">No revenue yet.</p> : (
-          <div className="space-y-2">
-            <div className="space-y-1 px-1 mb-3">
-              <div className="flex justify-between font-display font-bold text-lg">
-                <span>Total</span><span>₹{totalRevenue.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between text-sm text-success">
-                <span>Paid</span><span>₹{totalPaid.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between text-sm text-destructive">
-                <span>Outstanding</span><span>₹{totalOutstanding.toFixed(2)}</span>
-              </div>
-            </div>
-            {paidBookings.map(b => (
-              <Card key={b.id} className="cursor-pointer hover:ring-1 hover:ring-primary/50 transition-all" onClick={() => { setDrilldown(null); onClickBoarding(b.id); }}>
-                <CardContent className="p-3 flex justify-between items-center">
-                  <div>
-                    <p className="font-semibold text-sm">🐕 {getDogName(b.dogId)}</p>
-                    <p className="text-xs text-muted-foreground">{b.checkInDate} → {b.checkOutDate}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-bold text-sm">₹{b.totalCost.toFixed(2)}</p>
-                    <div className="flex items-center gap-1 justify-end">
-                      <Badge className={`text-xs ${statusColors[b.status]}`}>{b.status}</Badge>
-                      <Badge variant="outline" className={`text-xs ${b.paymentStatus === 'paid' ? 'border-success/50 text-success-foreground' : b.paymentStatus === 'partly-paid' ? 'border-warning/50 text-warning-foreground' : 'border-destructive/50 text-destructive'}`}>
-                        {b.paymentStatus || 'outstanding'}
-                      </Badge>
-                    </div>
-                    {b.paymentMethod && <p className="text-xs text-muted-foreground uppercase mt-0.5">{b.paymentMethod}</p>}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        );
-
-      case 'active':
-      case 'boarding':
-        return renderBookingList(activeBookings);
-      case 'reserved':
-        return renderBookingList(reservedBookings);
-      case 'completed':
-        return renderBookingList(completedBookings);
-      case 'cancelled':
-        return renderBookingList(cancelledBookings);
-      default:
-        return null;
+      case 'b-active': return renderBookingList(bActive);
+      case 'b-reserved': return renderBookingList(bReserved);
+      case 'b-completed': return renderBookingList(bCompleted);
+      case 'b-cancelled': return renderBookingList(bCancelled);
+      case 'b-revenue': return bPaid.length === 0 ? <p className="text-sm text-muted-foreground">No revenue.</p> : renderRevenueList(bPaid, bRevenue, bPaidAmt);
+      case 'f-active': return renderBookingList(fActive);
+      case 'f-reserved': return renderBookingList(fReserved);
+      case 'f-completed': return renderBookingList(fCompleted);
+      case 'f-cancelled': return renderBookingList(fCancelled);
+      case 'f-revenue': return fPaid.length === 0 ? <p className="text-sm text-muted-foreground">No revenue.</p> : renderRevenueList(fPaid, fRevenue, fPaidAmt);
+      default: return null;
     }
   };
 
-  const renderBookingList = (list: Boarding[]) =>
-    list.length === 0 ? <p className="text-sm text-muted-foreground">No bookings in this category.</p> : (
-      <div className="space-y-2">
-        {list.map(b => (
-          <Card key={b.id} className="cursor-pointer hover:ring-1 hover:ring-primary/50 transition-all" onClick={() => { setDrilldown(null); onClickBoarding(b.id); }}>
-            <CardContent className="p-3">
-              <div className="flex justify-between items-start">
-                <div>
-                  <p className="font-semibold text-sm">🐕 {getDogName(b.dogId)}</p>
-                  <p className="text-xs text-muted-foreground">Owner: {getOwnerName(b.ownerId)}</p>
-                  <p className="text-xs text-muted-foreground">{b.checkInDate} → {b.checkOutDate}</p>
-                  {b.kennelNumber && <p className="text-xs text-muted-foreground">Kennel: #{b.kennelNumber}</p>}
-                </div>
-                <div className="text-right">
-                  <Badge className={`text-xs ${statusColors[b.status]}`}>{b.status}</Badge>
-                  <p className="text-sm font-bold mt-1">₹{b.totalCost.toFixed(2)}</p>
-                </div>
-              </div>
-              {b.specialRequests && <p className="text-xs text-muted-foreground mt-1">📝 {b.specialRequests}</p>}
-              {b.notes && <p className="text-xs text-muted-foreground italic">{b.notes}</p>}
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    );
+  const overviewStats = [
+    { label: 'Total Owners', value: owners.length, icon: Users, color: 'text-primary', key: 'owners' as DrilldownType },
+    { label: 'Registered Dogs', value: dogs.length, icon: PawPrint, color: 'text-accent', key: 'dogs' as DrilldownType },
+  ];
 
   return (
     <div className="space-y-8">
-      {/* Stat Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {stats.map((stat, i) => (
+      {/* Overview Stats */}
+      <div className="grid grid-cols-2 gap-4">
+        {overviewStats.map((stat, i) => (
           <motion.div key={stat.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}>
             <Card className="cursor-pointer hover:ring-1 hover:ring-primary/50 hover:shadow-md transition-all" onClick={() => setDrilldown(stat.key)}>
               <CardContent className="p-5">
@@ -204,45 +184,123 @@ export default function Dashboard({ owners, dogs, boardings, onClickOwner, onCli
         ))}
       </div>
 
+      {/* Boarding & Foster Side by Side */}
       <div className="grid lg:grid-cols-2 gap-6">
-        {/* Recent Bookings */}
+        {/* Boarding Section */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+          <Card>
+            <CardContent className="p-5">
+              <div className="flex items-center gap-2 mb-4">
+                <CalendarCheck className="h-5 w-5 text-primary" />
+                <h3 className="font-display font-bold text-lg">Boarding</h3>
+              </div>
+              <div className="grid grid-cols-2 gap-3 mb-4">
+                <Card className="cursor-pointer hover:ring-1 hover:ring-primary/50 transition-all" onClick={() => setDrilldown('b-active')}>
+                  <CardContent className="p-3 text-center">
+                    <p className="font-display text-xl font-bold text-success">{bActive.length}</p>
+                    <p className="text-xs text-muted-foreground">Active</p>
+                  </CardContent>
+                </Card>
+                <Card className="cursor-pointer hover:ring-1 hover:ring-primary/50 transition-all" onClick={() => setDrilldown('b-revenue')}>
+                  <CardContent className="p-3 text-center">
+                    <p className="font-display text-xl font-bold text-primary">₹{bRevenue.toFixed(0)}</p>
+                    <p className="text-xs text-muted-foreground">Revenue</p>
+                  </CardContent>
+                </Card>
+              </div>
+              <div className="space-y-2">
+                {[
+                  { label: 'Reserved', value: bReserved.length, key: 'b-reserved' as DrilldownType },
+                  { label: 'Currently Boarding', value: bActive.length, key: 'b-active' as DrilldownType },
+                  { label: 'Completed', value: bCompleted.length, key: 'b-completed' as DrilldownType },
+                  { label: 'Cancelled', value: bCancelled.length, key: 'b-cancelled' as DrilldownType },
+                ].map((qs, i) => (
+                  <div key={qs.key} className="flex justify-between py-1.5 cursor-pointer hover:bg-muted/50 rounded px-2 -mx-2 transition-colors border-b border-border last:border-0" onClick={() => setDrilldown(qs.key)}>
+                    <span className="text-sm text-muted-foreground">{qs.label}</span>
+                    <span className="text-sm font-bold">{qs.value}</span>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Foster Section */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+          <Card>
+            <CardContent className="p-5">
+              <div className="flex items-center gap-2 mb-4">
+                <Heart className="h-5 w-5 text-pink-500" />
+                <h3 className="font-display font-bold text-lg">Foster</h3>
+              </div>
+              <div className="grid grid-cols-2 gap-3 mb-4">
+                <Card className="cursor-pointer hover:ring-1 hover:ring-primary/50 transition-all" onClick={() => setDrilldown('f-active')}>
+                  <CardContent className="p-3 text-center">
+                    <p className="font-display text-xl font-bold text-success">{fActive.length}</p>
+                    <p className="text-xs text-muted-foreground">Active</p>
+                  </CardContent>
+                </Card>
+                <Card className="cursor-pointer hover:ring-1 hover:ring-primary/50 transition-all" onClick={() => setDrilldown('f-revenue')}>
+                  <CardContent className="p-3 text-center">
+                    <p className="font-display text-xl font-bold text-primary">₹{fRevenue.toFixed(0)}</p>
+                    <p className="text-xs text-muted-foreground">Revenue</p>
+                  </CardContent>
+                </Card>
+              </div>
+              <div className="space-y-2">
+                {[
+                  { label: 'Reserved', value: fReserved.length, key: 'f-reserved' as DrilldownType },
+                  { label: 'Currently Fostering', value: fActive.length, key: 'f-active' as DrilldownType },
+                  { label: 'Completed', value: fCompleted.length, key: 'f-completed' as DrilldownType },
+                  { label: 'Cancelled', value: fCancelled.length, key: 'f-cancelled' as DrilldownType },
+                ].map((qs) => (
+                  <div key={qs.key} className="flex justify-between py-1.5 cursor-pointer hover:bg-muted/50 rounded px-2 -mx-2 transition-colors border-b border-border last:border-0" onClick={() => setDrilldown(qs.key)}>
+                    <span className="text-sm text-muted-foreground">{qs.label}</span>
+                    <span className="text-sm font-bold">{qs.value}</span>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
+
+      {/* Recent Bookings */}
+      <div className="grid lg:grid-cols-2 gap-6">
         <Card>
           <CardContent className="p-5">
-            <h3 className="font-display font-bold text-lg mb-4">Recent Bookings</h3>
-            {recentBookings.length === 0 ? (
-              <p className="text-muted-foreground text-sm">No bookings yet</p>
-            ) : (
+            <h3 className="font-display font-bold text-lg mb-4">Recent Boardings</h3>
+            {boardings.length === 0 ? <p className="text-muted-foreground text-sm">No boardings yet</p> : (
               <div className="space-y-3">
-                {recentBookings.map(b => (
+                {[...boardings].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 5).map(b => (
                   <div key={b.id} className="flex justify-between items-center py-2 border-b border-border last:border-0 cursor-pointer hover:bg-muted/50 rounded px-1 -mx-1 transition-colors" onClick={() => onClickBoarding(b.id)}>
                     <div>
-                      <p className="font-medium">🐕 <span className="hover:text-primary transition-colors">{getDogName(b.dogId)}</span></p>
+                      <p className="font-medium">🐕 {getDogName(b.dogId)}</p>
                       <p className="text-xs text-muted-foreground">{b.checkInDate} → {b.checkOutDate}</p>
                     </div>
-                    <span className="text-sm font-medium capitalize">{b.status}</span>
+                    <Badge className={`text-xs ${statusColors[b.status]}`}>{b.status}</Badge>
                   </div>
                 ))}
               </div>
             )}
           </CardContent>
         </Card>
-
-        {/* Quick Stats */}
         <Card>
           <CardContent className="p-5">
-            <h3 className="font-display font-bold text-lg mb-4">Quick Stats</h3>
-            <div className="space-y-3">
-              {quickStats.map((qs, i) => (
-                <div
-                  key={qs.key}
-                  className={`flex justify-between py-2 cursor-pointer hover:bg-muted/50 rounded px-2 -mx-2 transition-colors ${i < quickStats.length - 1 ? 'border-b border-border' : ''}`}
-                  onClick={() => setDrilldown(qs.key)}
-                >
-                  <span className="text-muted-foreground">{qs.label}</span>
-                  <span className="font-bold">{qs.value}</span>
-                </div>
-              ))}
-            </div>
+            <h3 className="font-display font-bold text-lg mb-4">Recent Fosters</h3>
+            {fosters.length === 0 ? <p className="text-muted-foreground text-sm">No fosters yet</p> : (
+              <div className="space-y-3">
+                {[...fosters].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 5).map(f => (
+                  <div key={f.id} className="flex justify-between items-center py-2 border-b border-border last:border-0 cursor-pointer hover:bg-muted/50 rounded px-1 -mx-1 transition-colors">
+                    <div>
+                      <p className="font-medium">{f.animalType === 'cat' ? '🐈' : '🐕'} {getDogName(f.dogId)}</p>
+                      <p className="text-xs text-muted-foreground">{f.checkInDate} → {f.checkOutDate}</p>
+                    </div>
+                    <Badge className={`text-xs ${statusColors[f.status]}`}>{f.status}</Badge>
+                  </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

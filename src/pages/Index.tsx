@@ -24,6 +24,8 @@ const Index = () => {
   const { boardings, addBoarding, updateBoarding, deleteBoarding } = useBoardings();
   const { fosters, addFoster, updateFoster, deleteFoster } = useFosters();
   const [tab, setTab] = useState('dashboard');
+  const [boardingSubTab, setBoardingSubTab] = useState('boardings');
+  const [fosterSubTab, setFosterSubTab] = useState('fosters');
 
   const [detailOpen, setDetailOpen] = useState(false);
   const [detailOwner, setDetailOwner] = useState<Owner | null>(null);
@@ -79,30 +81,57 @@ const Index = () => {
           <TabsList className="mb-6 w-full justify-between bg-secondary/50">
             <div className="flex">
               <TabsTrigger value="dashboard" className="gap-2 font-display"><LayoutDashboard className="h-4 w-4" /> Dashboard</TabsTrigger>
-              <TabsTrigger value="owners" className="gap-2 font-display"><Users className="h-4 w-4" /> Owners</TabsTrigger>
-              <TabsTrigger value="dogs" className="gap-2 font-display"><Dog className="h-4 w-4" /> Dogs</TabsTrigger>
-              <TabsTrigger value="boardings" className="gap-2 font-display"><CalendarCheck className="h-4 w-4" /> Boardings</TabsTrigger>
-              <TabsTrigger value="fosters" className="gap-2 font-display"><Heart className="h-4 w-4" /> Foster</TabsTrigger>
+              <TabsTrigger value="boarding" className="gap-2 font-display"><CalendarCheck className="h-4 w-4" /> Boarding</TabsTrigger>
+              <TabsTrigger value="foster" className="gap-2 font-display"><Heart className="h-4 w-4" /> Foster</TabsTrigger>
               <TabsTrigger value="requests" className="gap-2 font-display"><Globe className="h-4 w-4" /> Online Bookings</TabsTrigger>
             </div>
             <TabsTrigger value="settings" className="font-display" title="Settings"><Settings className="h-4 w-4" /></TabsTrigger>
           </TabsList>
 
           <TabsContent value="dashboard">
-            <Dashboard owners={owners} dogs={dogs} boardings={boardings} onClickOwner={openDetailByOwner} onClickDog={openDetailByDog} onClickBoarding={openDetailByBoarding} />
+            <Dashboard owners={owners} dogs={dogs} boardings={boardings} fosters={fosters} onClickOwner={openDetailByOwner} onClickDog={openDetailByDog} onClickBoarding={openDetailByBoarding} />
           </TabsContent>
-          <TabsContent value="owners">
-            <OwnerManager owners={owners} onAdd={addOwner} onUpdate={updateOwner} onDelete={deleteOwner} onClickOwner={openDetailByOwner} />
+
+          {/* Boarding Section with Sub-tabs */}
+          <TabsContent value="boarding">
+            <Tabs value={boardingSubTab} onValueChange={setBoardingSubTab}>
+              <TabsList className="mb-4 bg-muted/60">
+                <TabsTrigger value="boardings" className="gap-2"><CalendarCheck className="h-4 w-4" /> Boardings</TabsTrigger>
+                <TabsTrigger value="owners" className="gap-2"><Users className="h-4 w-4" /> Owners</TabsTrigger>
+                <TabsTrigger value="dogs" className="gap-2"><Dog className="h-4 w-4" /> Dogs</TabsTrigger>
+              </TabsList>
+              <TabsContent value="boardings">
+                <BoardingManager boardings={boardings} dogs={dogs} owners={owners} onAdd={addBoarding} onUpdate={updateBoarding} onDelete={deleteBoarding} onClickBoarding={openDetailByBoarding} onClickDog={openDetailByDog} onClickOwner={openDetailByOwner} />
+              </TabsContent>
+              <TabsContent value="owners">
+                <OwnerManager owners={owners} onAdd={addOwner} onUpdate={updateOwner} onDelete={deleteOwner} onClickOwner={openDetailByOwner} />
+              </TabsContent>
+              <TabsContent value="dogs">
+                <DogManager dogs={dogs} owners={owners} onAdd={addDog} onUpdate={updateDog} onDelete={deleteDog} onClickDog={openDetailByDog} onClickOwner={openDetailByOwner} />
+              </TabsContent>
+            </Tabs>
           </TabsContent>
-          <TabsContent value="dogs">
-            <DogManager dogs={dogs} owners={owners} onAdd={addDog} onUpdate={updateDog} onDelete={deleteDog} onClickDog={openDetailByDog} onClickOwner={openDetailByOwner} />
+
+          {/* Foster Section with Sub-tabs */}
+          <TabsContent value="foster">
+            <Tabs value={fosterSubTab} onValueChange={setFosterSubTab}>
+              <TabsList className="mb-4 bg-muted/60">
+                <TabsTrigger value="fosters" className="gap-2"><Heart className="h-4 w-4" /> Fosters</TabsTrigger>
+                <TabsTrigger value="owners" className="gap-2"><Users className="h-4 w-4" /> Owners</TabsTrigger>
+                <TabsTrigger value="dogs" className="gap-2"><Dog className="h-4 w-4" /> Dogs</TabsTrigger>
+              </TabsList>
+              <TabsContent value="fosters">
+                <FosterManager fosters={fosters} dogs={dogs} owners={owners} onAdd={addFoster} onUpdate={updateFoster} onDelete={deleteFoster} onClickDog={openDetailByDog} onClickOwner={openDetailByOwner} />
+              </TabsContent>
+              <TabsContent value="owners">
+                <OwnerManager owners={owners} onAdd={addOwner} onUpdate={updateOwner} onDelete={deleteOwner} onClickOwner={openDetailByOwner} />
+              </TabsContent>
+              <TabsContent value="dogs">
+                <DogManager dogs={dogs} owners={owners} onAdd={addDog} onUpdate={updateDog} onDelete={deleteDog} onClickDog={openDetailByDog} onClickOwner={openDetailByOwner} />
+              </TabsContent>
+            </Tabs>
           </TabsContent>
-          <TabsContent value="boardings">
-            <BoardingManager boardings={boardings} dogs={dogs} owners={owners} onAdd={addBoarding} onUpdate={updateBoarding} onDelete={deleteBoarding} onClickBoarding={openDetailByBoarding} onClickDog={openDetailByDog} onClickOwner={openDetailByOwner} />
-          </TabsContent>
-          <TabsContent value="fosters">
-            <FosterManager fosters={fosters} dogs={dogs} owners={owners} onAdd={addFoster} onUpdate={updateFoster} onDelete={deleteFoster} onClickDog={openDetailByDog} onClickOwner={openDetailByOwner} />
-          </TabsContent>
+
           <TabsContent value="requests">
             <BookingRequestsManager />
           </TabsContent>
