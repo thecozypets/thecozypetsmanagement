@@ -230,7 +230,7 @@ export default function Dashboard({ owners, dogs, boardings, fosters, onClickOwn
           <Card>
             <CardContent className="p-5">
               <div className="flex items-center gap-2 mb-4">
-                <Heart className="h-5 w-5 text-pink-500" />
+                <Heart className="h-5 w-5 text-destructive" />
                 <h3 className="font-display font-bold text-lg">Foster</h3>
               </div>
               <div className="grid grid-cols-2 gap-3 mb-4">
