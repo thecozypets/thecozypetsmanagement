@@ -247,6 +247,69 @@ export type Database = {
           },
         ]
       }
+      fosters: {
+        Row: {
+          animal_type: string
+          check_in_date: string
+          check_out_date: string
+          created_at: string
+          daily_rate: number
+          dog_id: string
+          feeding_schedule: string | null
+          id: string
+          kennel_number: string | null
+          notes: string | null
+          owner_id: string
+          paid_amount: number
+          payment_method: string | null
+          payment_status: string
+          special_requests: string | null
+          status: Database["public"]["Enums"]["boarding_status"]
+          total_cost: number
+          user_id: string
+        }
+        Insert: {
+          animal_type?: string
+          check_in_date: string
+          check_out_date: string
+          created_at?: string
+          daily_rate?: number
+          dog_id: string
+          feeding_schedule?: string | null
+          id?: string
+          kennel_number?: string | null
+          notes?: string | null
+          owner_id: string
+          paid_amount?: number
+          payment_method?: string | null
+          payment_status?: string
+          special_requests?: string | null
+          status?: Database["public"]["Enums"]["boarding_status"]
+          total_cost?: number
+          user_id?: string
+        }
+        Update: {
+          animal_type?: string
+          check_in_date?: string
+          check_out_date?: string
+          created_at?: string
+          daily_rate?: number
+          dog_id?: string
+          feeding_schedule?: string | null
+          id?: string
+          kennel_number?: string | null
+          notes?: string | null
+          owner_id?: string
+          paid_amount?: number
+          payment_method?: string | null
+          payment_status?: string
+          special_requests?: string | null
+          status?: Database["public"]["Enums"]["boarding_status"]
+          total_cost?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       owners: {
         Row: {
           address: string | null
