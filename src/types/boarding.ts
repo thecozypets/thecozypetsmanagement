@@ -50,3 +50,27 @@ export interface Boarding {
   paymentMethod: PaymentMethod;
   createdAt: string;
 }
+
+export type AnimalType = 'dog' | 'cat';
+
+export interface Foster {
+  id: string;
+  dogId: string;
+  ownerId: string;
+  animalType: AnimalType;
+  checkInDate: string;
+  checkInTime: string;
+  checkOutDate: string;
+  checkOutTime: string;
+  status: BoardingStatus;
+  kennelNumber: string;
+  dailyRate: number;
+  totalCost: number;
+  specialRequests: string;
+  feedingSchedule: string;
+  notes: string;
+  paymentStatus: PaymentStatus;
+  paidAmount: number;
+  paymentMethod: PaymentMethod;
+  createdAt: string;
+}
