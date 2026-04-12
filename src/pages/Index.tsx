@@ -26,8 +26,8 @@ const Index = () => {
   const { fosterOwners, addFosterOwner, updateFosterOwner, deleteFosterOwner } = useFosterOwners();
   const { fosterDogs, addFosterDog, updateFosterDog, deleteFosterDog } = useFosterDogs();
   const [tab, setTab] = useState('dashboard');
-  const [boardingSubTab, setBoardingSubTab] = useState('boardings');
-  const [fosterSubTab, setFosterSubTab] = useState('fosters');
+  const [boardingSubTab, setBoardingSubTab] = useState('owners');
+  const [fosterSubTab, setFosterSubTab] = useState('owners');
 
   const [detailOpen, setDetailOpen] = useState(false);
   const [detailOwner, setDetailOwner] = useState<Owner | null>(null);
