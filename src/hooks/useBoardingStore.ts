@@ -271,3 +271,111 @@ export function useFosters() {
 
   return { fosters, addFoster, updateFoster, deleteFoster };
 }
+
+export function useFosterOwners() {
+  const [owners, setOwners] = useState<Owner[]>([]);
+
+  const fetchOwners = useCallback(async () => {
+    const { data, error } = await supabase.from('foster_owners' as any).select('*');
+    if (error) { toast.error('Failed to load foster owners'); return; }
+    setOwners((data || []).map((r: any) => ({
+      id: r.id, name: r.name, phone: r.phone, email: r.email || '',
+      address: r.address || '', emergencyContact: r.emergency_contact || '', createdAt: r.created_at,
+    })));
+  }, []);
+
+  useEffect(() => { fetchOwners(); }, [fetchOwners]);
+
+  const addOwner = useCallback(async (owner: Omit<Owner, 'id' | 'createdAt'>) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { toast.error('Not authenticated'); return null; }
+    const { data, error } = await supabase.from('foster_owners' as any).insert({
+      name: owner.name, phone: owner.phone, email: owner.email || null,
+      address: owner.address || null, emergency_contact: owner.emergencyContact || null, user_id: user.id,
+    } as any).select().single();
+    if (error) { toast.error('Failed to add foster owner'); return null; }
+    await fetchOwners();
+    return { ...owner, id: (data as any).id, createdAt: (data as any).created_at } as Owner;
+  }, [fetchOwners]);
+
+  const updateOwner = useCallback(async (id: string, d: Partial<Owner>) => {
+    const update: any = {};
+    if (d.name !== undefined) update.name = d.name;
+    if (d.phone !== undefined) update.phone = d.phone;
+    if (d.email !== undefined) update.email = d.email;
+    if (d.address !== undefined) update.address = d.address;
+    if (d.emergencyContact !== undefined) update.emergency_contact = d.emergencyContact;
+    const { error } = await supabase.from('foster_owners' as any).update(update).eq('id', id);
+    if (error) { toast.error('Failed to update foster owner'); return; }
+    await fetchOwners();
+  }, [fetchOwners]);
+
+  const deleteOwner = useCallback(async (id: string) => {
+    const { error } = await supabase.from('foster_owners' as any).delete().eq('id', id);
+    if (error) { toast.error('Failed to delete foster owner'); return; }
+    await fetchOwners();
+  }, [fetchOwners]);
+
+  return { fosterOwners: owners, addFosterOwner: addOwner, updateFosterOwner: updateOwner, deleteFosterOwner: deleteOwner };
+}
+
+export function useFosterDogs() {
+  const [dogs, setDogs] = useState<Dog[]>([]);
+
+  const fetchDogs = useCallback(async () => {
+    const { data, error } = await supabase.from('foster_dogs' as any).select('*');
+    if (error) { toast.error('Failed to load foster dogs'); return; }
+    setDogs((data || []).map((r: any) => ({
+      id: r.id, name: r.name, breed: r.breed, age: r.age, weight: Number(r.weight),
+      gender: r.gender as 'male' | 'female', ownerId: r.owner_id,
+      specialNeeds: r.special_needs || '', feedingInstructions: r.feeding_instructions || '',
+      medications: r.medications || '', vaccinated: r.vaccinated, neutered: r.neutered,
+      photoUrl: r.photo_url || '', vaccinePhotoUrl: r.vaccine_photo_url || '', createdAt: r.created_at,
+    })));
+  }, []);
+
+  useEffect(() => { fetchDogs(); }, [fetchDogs]);
+
+  const addDog = useCallback(async (dog: Omit<Dog, 'id' | 'createdAt'>) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { toast.error('Not authenticated'); return null; }
+    const { data, error } = await supabase.from('foster_dogs' as any).insert({
+      name: dog.name, breed: dog.breed, age: dog.age, weight: dog.weight,
+      gender: dog.gender, owner_id: dog.ownerId, special_needs: dog.specialNeeds || null,
+      feeding_instructions: dog.feedingInstructions || null, medications: dog.medications || null,
+      vaccinated: dog.vaccinated, neutered: dog.neutered, photo_url: dog.photoUrl || null,
+      vaccine_photo_url: dog.vaccinePhotoUrl || null, user_id: user.id,
+    } as any).select().single();
+    if (error) { toast.error('Failed to add foster dog'); return null; }
+    await fetchDogs();
+    return { ...dog, id: (data as any).id, createdAt: (data as any).created_at } as Dog;
+  }, [fetchDogs]);
+
+  const updateDog = useCallback(async (id: string, d: Partial<Dog>) => {
+    const update: any = {};
+    if (d.name !== undefined) update.name = d.name;
+    if (d.breed !== undefined) update.breed = d.breed;
+    if (d.age !== undefined) update.age = d.age;
+    if (d.weight !== undefined) update.weight = d.weight;
+    if (d.gender !== undefined) update.gender = d.gender;
+    if (d.ownerId !== undefined) update.owner_id = d.ownerId;
+    if (d.specialNeeds !== undefined) update.special_needs = d.specialNeeds;
+    if (d.feedingInstructions !== undefined) update.feeding_instructions = d.feedingInstructions;
+    if (d.medications !== undefined) update.medications = d.medications;
+    if (d.vaccinated !== undefined) update.vaccinated = d.vaccinated;
+    if (d.neutered !== undefined) update.neutered = d.neutered;
+    if (d.photoUrl !== undefined) update.photo_url = d.photoUrl;
+    if (d.vaccinePhotoUrl !== undefined) update.vaccine_photo_url = d.vaccinePhotoUrl;
+    const { error } = await supabase.from('foster_dogs' as any).update(update).eq('id', id);
+    if (error) { toast.error('Failed to update foster dog'); return; }
+    await fetchDogs();
+  }, [fetchDogs]);
+
+  const deleteDog = useCallback(async (id: string) => {
+    const { error } = await supabase.from('foster_dogs' as any).delete().eq('id', id);
+    if (error) { toast.error('Failed to delete foster dog'); return; }
+    await fetchDogs();
+  }, [fetchDogs]);
+
+  return { fosterDogs: dogs, addFosterDog: addDog, updateFosterDog: updateDog, deleteFosterDog: deleteDog };
+}
