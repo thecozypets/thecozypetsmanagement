@@ -247,6 +247,104 @@ export type Database = {
           },
         ]
       }
+      foster_dogs: {
+        Row: {
+          age: number
+          breed: string
+          created_at: string
+          feeding_instructions: string | null
+          gender: string
+          id: string
+          medications: string | null
+          name: string
+          neutered: boolean
+          owner_id: string
+          photo_url: string | null
+          special_needs: string | null
+          user_id: string
+          vaccinated: boolean
+          vaccine_photo_url: string | null
+          weight: number
+        }
+        Insert: {
+          age?: number
+          breed?: string
+          created_at?: string
+          feeding_instructions?: string | null
+          gender?: string
+          id?: string
+          medications?: string | null
+          name: string
+          neutered?: boolean
+          owner_id: string
+          photo_url?: string | null
+          special_needs?: string | null
+          user_id?: string
+          vaccinated?: boolean
+          vaccine_photo_url?: string | null
+          weight?: number
+        }
+        Update: {
+          age?: number
+          breed?: string
+          created_at?: string
+          feeding_instructions?: string | null
+          gender?: string
+          id?: string
+          medications?: string | null
+          name?: string
+          neutered?: boolean
+          owner_id?: string
+          photo_url?: string | null
+          special_needs?: string | null
+          user_id?: string
+          vaccinated?: boolean
+          vaccine_photo_url?: string | null
+          weight?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "foster_dogs_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "foster_owners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      foster_owners: {
+        Row: {
+          address: string | null
+          created_at: string
+          email: string | null
+          emergency_contact: string | null
+          id: string
+          name: string
+          phone: string
+          user_id: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          email?: string | null
+          emergency_contact?: string | null
+          id?: string
+          name: string
+          phone: string
+          user_id?: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          email?: string | null
+          emergency_contact?: string | null
+          id?: string
+          name?: string
+          phone?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       fosters: {
         Row: {
           animal_type: string
