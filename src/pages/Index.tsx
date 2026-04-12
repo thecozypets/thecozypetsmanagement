@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PawPrint, LayoutDashboard, Users, Dog, CalendarCheck, LogOut, Settings, Globe, Sun, Moon, Heart } from 'lucide-react';
 import { useTheme } from 'next-themes';
-import { useOwners, useDogs, useBoardings, useFosters } from '@/hooks/useBoardingStore';
+import { useOwners, useDogs, useBoardings, useFosters, useFosterOwners, useFosterDogs } from '@/hooks/useBoardingStore';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import Dashboard from '@/components/Dashboard';
@@ -23,6 +23,8 @@ const Index = () => {
   const { dogs, addDog, updateDog, deleteDog } = useDogs();
   const { boardings, addBoarding, updateBoarding, deleteBoarding } = useBoardings();
   const { fosters, addFoster, updateFoster, deleteFoster } = useFosters();
+  const { fosterOwners, addFosterOwner, updateFosterOwner, deleteFosterOwner } = useFosterOwners();
+  const { fosterDogs, addFosterDog, updateFosterDog, deleteFosterDog } = useFosterDogs();
   const [tab, setTab] = useState('dashboard');
   const [boardingSubTab, setBoardingSubTab] = useState('boardings');
   const [fosterSubTab, setFosterSubTab] = useState('fosters');
@@ -33,14 +35,14 @@ const Index = () => {
 
   const openDetailByOwner = (ownerId: string) => {
     const owner = owners.find((o) => o.id === ownerId);
-    if (owner) {setDetailOwner(owner);setFocusDogId(null);setDetailOpen(true);}
+    if (owner) { setDetailOwner(owner); setFocusDogId(null); setDetailOpen(true); }
   };
 
   const openDetailByDog = (dogId: string) => {
     const dog = dogs.find((d) => d.id === dogId);
     if (dog) {
       const owner = owners.find((o) => o.id === dog.ownerId);
-      if (owner) {setDetailOwner(owner);setFocusDogId(dogId);setDetailOpen(true);}
+      if (owner) { setDetailOwner(owner); setFocusDogId(dogId); setDetailOpen(true); }
     }
   };
 
@@ -48,14 +50,27 @@ const Index = () => {
     const b = boardings.find((x) => x.id === boardingId);
     if (b) {
       const owner = owners.find((o) => o.id === b.ownerId);
-      if (owner) {setDetailOwner(owner);setFocusDogId(b.dogId);setDetailOpen(true);}
+      if (owner) { setDetailOwner(owner); setFocusDogId(b.dogId); setDetailOpen(true); }
+    }
+  };
+
+  const openFosterDetailByOwner = (ownerId: string) => {
+    const owner = fosterOwners.find((o) => o.id === ownerId);
+    if (owner) { setDetailOwner(owner); setFocusDogId(null); setDetailOpen(true); }
+  };
+
+  const openFosterDetailByDog = (dogId: string) => {
+    const dog = fosterDogs.find((d) => d.id === dogId);
+    if (dog) {
+      const owner = fosterOwners.find((o) => o.id === dog.ownerId);
+      if (owner) { setDetailOwner(owner); setFocusDogId(dogId); setDetailOpen(true); }
     }
   };
 
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border bg-card sticky top-0 z-50">
-        <div className="container max-w-7xl mx-auto px-4 py-4 flex items-center justify-between text-sm">
+        <div className="container max-w-[1600px] mx-auto px-4 py-4 flex items-center justify-between text-sm">
           <div className="flex items-center gap-3">
             <motion.div initial={{ rotate: -20 }} animate={{ rotate: 0 }} transition={{ type: 'spring', stiffness: 200 }}>
               <PawPrint className="h-8 w-8 text-primary" />
@@ -76,60 +91,77 @@ const Index = () => {
         </div>
       </header>
 
-      <main className="container max-w-7xl mx-auto px-4 py-6">
+      <main className="container max-w-[1600px] mx-auto px-4 py-6">
         <Tabs value={tab} onValueChange={setTab}>
           <TabsList className="mb-6 w-full justify-between bg-secondary/50">
             <div className="flex">
               <TabsTrigger value="dashboard" className="gap-2 font-display"><LayoutDashboard className="h-4 w-4" /> Dashboard</TabsTrigger>
-              <TabsTrigger value="boarding" className="gap-2 font-display"><CalendarCheck className="h-4 w-4" /> Boarding</TabsTrigger>
-              <TabsTrigger value="foster" className="gap-2 font-display"><Heart className="h-4 w-4" /> Foster</TabsTrigger>
+              <TabsTrigger value="main" className="gap-2 font-display"><CalendarCheck className="h-4 w-4" /> Boarding & Foster</TabsTrigger>
               <TabsTrigger value="requests" className="gap-2 font-display"><Globe className="h-4 w-4" /> Online Bookings</TabsTrigger>
             </div>
             <TabsTrigger value="settings" className="font-display" title="Settings"><Settings className="h-4 w-4" /></TabsTrigger>
           </TabsList>
 
           <TabsContent value="dashboard">
-            <Dashboard owners={owners} dogs={dogs} boardings={boardings} fosters={fosters} onClickOwner={openDetailByOwner} onClickDog={openDetailByDog} onClickBoarding={openDetailByBoarding} />
+            <Dashboard
+              owners={owners} dogs={dogs} boardings={boardings}
+              fosters={fosters} fosterOwners={fosterOwners} fosterDogs={fosterDogs}
+              onClickOwner={openDetailByOwner} onClickDog={openDetailByDog} onClickBoarding={openDetailByBoarding}
+              onClickFosterOwner={openFosterDetailByOwner} onClickFosterDog={openFosterDetailByDog}
+            />
           </TabsContent>
 
-          {/* Boarding Section with Sub-tabs */}
-          <TabsContent value="boarding">
-            <Tabs value={boardingSubTab} onValueChange={setBoardingSubTab}>
-              <TabsList className="mb-4 bg-muted/60">
-                <TabsTrigger value="boardings" className="gap-2"><CalendarCheck className="h-4 w-4" /> Boardings</TabsTrigger>
-                <TabsTrigger value="owners" className="gap-2"><Users className="h-4 w-4" /> Owners</TabsTrigger>
-                <TabsTrigger value="dogs" className="gap-2"><Dog className="h-4 w-4" /> Dogs</TabsTrigger>
-              </TabsList>
-              <TabsContent value="boardings">
-                <BoardingManager boardings={boardings} dogs={dogs} owners={owners} onAdd={addBoarding} onUpdate={updateBoarding} onDelete={deleteBoarding} onClickBoarding={openDetailByBoarding} onClickDog={openDetailByDog} onClickOwner={openDetailByOwner} />
-              </TabsContent>
-              <TabsContent value="owners">
-                <OwnerManager owners={owners} onAdd={addOwner} onUpdate={updateOwner} onDelete={deleteOwner} onClickOwner={openDetailByOwner} />
-              </TabsContent>
-              <TabsContent value="dogs">
-                <DogManager dogs={dogs} owners={owners} onAdd={addDog} onUpdate={updateDog} onDelete={deleteDog} onClickDog={openDetailByDog} onClickOwner={openDetailByOwner} />
-              </TabsContent>
-            </Tabs>
-          </TabsContent>
+          {/* Side-by-side Boarding & Foster */}
+          <TabsContent value="main">
+            <div className="grid lg:grid-cols-2 gap-6">
+              {/* Boarding Column */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <CalendarCheck className="h-5 w-5 text-primary" />
+                  <h2 className="font-display font-bold text-xl">Boarding</h2>
+                </div>
+                <Tabs value={boardingSubTab} onValueChange={setBoardingSubTab}>
+                  <TabsList className="bg-muted/60 w-full">
+                    <TabsTrigger value="boardings" className="gap-1.5 flex-1"><CalendarCheck className="h-3.5 w-3.5" /> Boardings</TabsTrigger>
+                    <TabsTrigger value="owners" className="gap-1.5 flex-1"><Users className="h-3.5 w-3.5" /> Owners</TabsTrigger>
+                    <TabsTrigger value="dogs" className="gap-1.5 flex-1"><Dog className="h-3.5 w-3.5" /> Dogs</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="boardings">
+                    <BoardingManager boardings={boardings} dogs={dogs} owners={owners} onAdd={addBoarding} onUpdate={updateBoarding} onDelete={deleteBoarding} onClickBoarding={openDetailByBoarding} onClickDog={openDetailByDog} onClickOwner={openDetailByOwner} />
+                  </TabsContent>
+                  <TabsContent value="owners">
+                    <OwnerManager owners={owners} onAdd={addOwner} onUpdate={updateOwner} onDelete={deleteOwner} onClickOwner={openDetailByOwner} />
+                  </TabsContent>
+                  <TabsContent value="dogs">
+                    <DogManager dogs={dogs} owners={owners} onAdd={addDog} onUpdate={updateDog} onDelete={deleteDog} onClickDog={openDetailByDog} onClickOwner={openDetailByOwner} />
+                  </TabsContent>
+                </Tabs>
+              </div>
 
-          {/* Foster Section with Sub-tabs */}
-          <TabsContent value="foster">
-            <Tabs value={fosterSubTab} onValueChange={setFosterSubTab}>
-              <TabsList className="mb-4 bg-muted/60">
-                <TabsTrigger value="fosters" className="gap-2"><Heart className="h-4 w-4" /> Fosters</TabsTrigger>
-                <TabsTrigger value="owners" className="gap-2"><Users className="h-4 w-4" /> Owners</TabsTrigger>
-                <TabsTrigger value="dogs" className="gap-2"><Dog className="h-4 w-4" /> Dogs</TabsTrigger>
-              </TabsList>
-              <TabsContent value="fosters">
-                <FosterManager fosters={fosters} dogs={dogs} owners={owners} onAdd={addFoster} onUpdate={updateFoster} onDelete={deleteFoster} onClickDog={openDetailByDog} onClickOwner={openDetailByOwner} />
-              </TabsContent>
-              <TabsContent value="owners">
-                <OwnerManager owners={owners} onAdd={addOwner} onUpdate={updateOwner} onDelete={deleteOwner} onClickOwner={openDetailByOwner} />
-              </TabsContent>
-              <TabsContent value="dogs">
-                <DogManager dogs={dogs} owners={owners} onAdd={addDog} onUpdate={updateDog} onDelete={deleteDog} onClickDog={openDetailByDog} onClickOwner={openDetailByOwner} />
-              </TabsContent>
-            </Tabs>
+              {/* Foster Column */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Heart className="h-5 w-5 text-destructive" />
+                  <h2 className="font-display font-bold text-xl">Foster</h2>
+                </div>
+                <Tabs value={fosterSubTab} onValueChange={setFosterSubTab}>
+                  <TabsList className="bg-muted/60 w-full">
+                    <TabsTrigger value="fosters" className="gap-1.5 flex-1"><Heart className="h-3.5 w-3.5" /> Fosters</TabsTrigger>
+                    <TabsTrigger value="owners" className="gap-1.5 flex-1"><Users className="h-3.5 w-3.5" /> Owners</TabsTrigger>
+                    <TabsTrigger value="dogs" className="gap-1.5 flex-1"><Dog className="h-3.5 w-3.5" /> Dogs</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="fosters">
+                    <FosterManager fosters={fosters} dogs={fosterDogs} owners={fosterOwners} onAdd={addFoster} onUpdate={updateFoster} onDelete={deleteFoster} onClickDog={openFosterDetailByDog} onClickOwner={openFosterDetailByOwner} />
+                  </TabsContent>
+                  <TabsContent value="owners">
+                    <OwnerManager owners={fosterOwners} onAdd={addFosterOwner} onUpdate={updateFosterOwner} onDelete={deleteFosterOwner} onClickOwner={openFosterDetailByOwner} />
+                  </TabsContent>
+                  <TabsContent value="dogs">
+                    <DogManager dogs={fosterDogs} owners={fosterOwners} onAdd={addFosterDog} onUpdate={updateFosterDog} onDelete={deleteFosterDog} onClickDog={openFosterDetailByDog} onClickOwner={openFosterDetailByOwner} />
+                  </TabsContent>
+                </Tabs>
+              </div>
+            </div>
           </TabsContent>
 
           <TabsContent value="requests">
@@ -142,16 +174,15 @@ const Index = () => {
       </main>
 
       <DetailPanel open={detailOpen}
-      onOpenChange={setDetailOpen}
-      owner={detailOwner}
-      dogs={dogs}
-      boardings={boardings}
-      allOwners={owners}
-      allDogs={dogs}
-      focusDogId={focusDogId} />
-      
-    </div>);
-
+        onOpenChange={setDetailOpen}
+        owner={detailOwner}
+        dogs={[...dogs, ...fosterDogs]}
+        boardings={boardings}
+        allOwners={[...owners, ...fosterOwners]}
+        allDogs={[...dogs, ...fosterDogs]}
+        focusDogId={focusDogId} />
+    </div>
+  );
 };
 
 export default Index;
