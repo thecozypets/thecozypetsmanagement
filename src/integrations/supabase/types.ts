@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       boardings: {
         Row: {
+          additional_cost: number
           check_in_date: string
           check_out_date: string
           created_at: string
@@ -35,6 +36,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          additional_cost?: number
           check_in_date: string
           check_out_date: string
           created_at?: string
@@ -54,6 +56,7 @@ export type Database = {
           user_id?: string
         }
         Update: {
+          additional_cost?: number
           check_in_date?: string
           check_out_date?: string
           created_at?: string

@@ -42,6 +42,7 @@ export interface Boarding {
   kennelNumber: string;
   dailyRate: number;
   totalCost: number;
+  additionalCost: number;
   specialRequests: string;
   feedingSchedule: string;
   notes: string;

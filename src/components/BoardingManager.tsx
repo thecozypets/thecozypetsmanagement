@@ -23,6 +23,7 @@ interface BoardingFormData {
   kennelNumber: string;
   dailyRate: number;
   totalCost: number;
+  additionalCost: number;
   specialRequests: string;
   feedingSchedule: string;
   notes: string;
@@ -31,7 +32,7 @@ interface BoardingFormData {
   paymentMethod: PaymentMethod;
 }
 
-const emptyForm: BoardingFormData = { dogId: '', ownerId: '', checkInDate: '', checkInTime: '', checkOutDate: '', checkOutTime: '', status: 'reserved', kennelNumber: '', dailyRate: 0, totalCost: 0, specialRequests: '', feedingSchedule: '', notes: '', paymentStatus: 'outstanding', paidAmount: 0, paymentMethod: '' };
+const emptyForm: BoardingFormData = { dogId: '', ownerId: '', checkInDate: '', checkInTime: '', checkOutDate: '', checkOutTime: '', status: 'reserved', kennelNumber: '', dailyRate: 0, totalCost: 0, additionalCost: 0, specialRequests: '', feedingSchedule: '', notes: '', paymentStatus: 'outstanding', paidAmount: 0, paymentMethod: '' };
 
 const formatTime12 = (time24: string) => {
   if (!time24) return '';
@@ -88,7 +89,7 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
   };
 
   const startEdit = (b: Boarding) => {
-    setForm({ dogId: b.dogId, ownerId: b.ownerId, checkInDate: b.checkInDate, checkInTime: b.checkInTime || '', checkOutDate: b.checkOutDate, checkOutTime: b.checkOutTime || '', status: b.status, kennelNumber: b.kennelNumber, dailyRate: b.dailyRate, totalCost: b.totalCost, specialRequests: b.specialRequests, feedingSchedule: b.feedingSchedule, notes: b.notes, paymentStatus: b.paymentStatus || 'outstanding', paidAmount: b.paidAmount || 0, paymentMethod: b.paymentMethod || '' });
+    setForm({ dogId: b.dogId, ownerId: b.ownerId, checkInDate: b.checkInDate, checkInTime: b.checkInTime || '', checkOutDate: b.checkOutDate, checkOutTime: b.checkOutTime || '', status: b.status, kennelNumber: b.kennelNumber, dailyRate: b.dailyRate, totalCost: b.totalCost, additionalCost: b.additionalCost || 0, specialRequests: b.specialRequests, feedingSchedule: b.feedingSchedule, notes: b.notes, paymentStatus: b.paymentStatus || 'outstanding', paidAmount: b.paidAmount || 0, paymentMethod: b.paymentMethod || '' });
     setEditingId(b.id);
     setOpen(true);
   };
@@ -161,10 +162,14 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
                   <Input type="time" value={form.checkOutTime} onChange={e => setForm(p => ({ ...p, checkOutTime: e.target.value }))} />
                 </div>
               </div>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-4 gap-4">
                 <div><Label>Kennel #</Label><Input value={form.kennelNumber} onChange={e => setForm(p => ({ ...p, kennelNumber: e.target.value }))} /></div>
                 <div><Label>Daily Rate (₹)</Label><Input type="number" min={0} step={0.01} value={form.dailyRate} onChange={e => setForm(p => updateCost({ ...p, dailyRate: +e.target.value }))} /></div>
                 <div><Label>Total Cost</Label><Input readOnly value={`₹${form.totalCost.toFixed(2)}`} className="bg-muted" /></div>
+                <div><Label>Additional Cost (₹)</Label><Input type="number" min={0} step={0.01} value={form.additionalCost} onChange={e => setForm(p => ({ ...p, additionalCost: +e.target.value }))} /></div>
+              </div>
+              <div>
+                <Label className="font-bold">Total Amount: ₹{(form.totalCost + form.additionalCost).toFixed(2)}</Label>
               </div>
               <div>
                 <Label>Status</Label>
@@ -251,7 +256,7 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
                       <div className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" /> In: {b.checkInDate}{b.checkInTime ? ` ${formatTime12(b.checkInTime)}` : ''}</div>
                       <div className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" /> Out: {b.checkOutDate}{b.checkOutTime ? ` ${formatTime12(b.checkOutTime)}` : ''}</div>
                       {b.kennelNumber && <div>Kennel: #{b.kennelNumber}</div>}
-                       <div className="flex items-center gap-1.5"><DollarSign className="h-3.5 w-3.5" /> ₹{b.totalCost.toFixed(2)}</div>
+                       <div className="flex items-center gap-1.5"><DollarSign className="h-3.5 w-3.5" /> Total Amount: ₹{(b.totalCost + (b.additionalCost || 0)).toFixed(2)}</div>
                       <div>
                         <Badge variant="outline" className={`text-xs ${b.paymentStatus === 'paid' ? 'border-success/50 text-success-foreground' : b.paymentStatus === 'partly-paid' ? 'border-warning/50 text-warning-foreground' : 'border-destructive/50 text-destructive'}`}>
                           {b.paymentStatus === 'partly-paid' ? `Partly ₹${b.paidAmount}` : b.paymentStatus}

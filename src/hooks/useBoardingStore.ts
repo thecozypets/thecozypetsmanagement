@@ -128,6 +128,7 @@ export function useBoardings() {
         checkOutTime: checkOutParts[1]?.slice(0, 5) || '',
         status: r.status, kennelNumber: r.kennel_number || '',
         dailyRate: Number(r.daily_rate), totalCost: Number(r.total_cost),
+        additionalCost: Number((r as any).additional_cost || 0),
         specialRequests: r.special_requests || '', feedingSchedule: r.feeding_schedule || '',
         notes: r.notes || '',
         paymentStatus: ((r as any).payment_status || 'outstanding') as any,
@@ -149,7 +150,8 @@ export function useBoardings() {
       dog_id: boarding.dogId, owner_id: boarding.ownerId, check_in_date: checkInFull,
       check_out_date: checkOutFull, status: boarding.status,
       kennel_number: boarding.kennelNumber || null, daily_rate: boarding.dailyRate,
-      total_cost: boarding.totalCost, special_requests: boarding.specialRequests || null,
+      total_cost: boarding.totalCost, additional_cost: (boarding as any).additionalCost || 0,
+      special_requests: boarding.specialRequests || null,
       feeding_schedule: boarding.feedingSchedule || null, notes: boarding.notes || null,
       payment_status: (boarding as any).paymentStatus || 'outstanding',
       paid_amount: (boarding as any).paidAmount || 0,
@@ -171,6 +173,7 @@ export function useBoardings() {
     if (d.kennelNumber !== undefined) update.kennel_number = d.kennelNumber;
     if (d.dailyRate !== undefined) update.daily_rate = d.dailyRate;
     if (d.totalCost !== undefined) update.total_cost = d.totalCost;
+    if ((d as any).additionalCost !== undefined) update.additional_cost = (d as any).additionalCost;
     if (d.specialRequests !== undefined) update.special_requests = d.specialRequests;
     if (d.feedingSchedule !== undefined) update.feeding_schedule = d.feedingSchedule;
     if (d.notes !== undefined) update.notes = d.notes;
