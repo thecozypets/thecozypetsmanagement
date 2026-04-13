@@ -37,7 +37,7 @@ export default function Dashboard({ owners, dogs, boardings, fosters, fosterOwne
   const bCompleted = boardings.filter(b => b.status === 'checked-out');
   const bCancelled = boardings.filter(b => b.status === 'cancelled');
   const bPaid = boardings.filter(b => b.status !== 'cancelled');
-  const bRevenue = bPaid.reduce((s, b) => s + b.totalCost, 0);
+  const bRevenue = bPaid.reduce((s, b) => s + b.totalCost + (b.additionalCost || 0), 0);
   const bPaidAmt = bPaid.reduce((s, b) => s + (b.paidAmount || 0), 0);
 
   const fActive = fosters.filter(f => f.status === 'checked-in');
@@ -112,7 +112,7 @@ export default function Dashboard({ owners, dogs, boardings, fosters, fosterOwne
                 </div>
                 <div className="text-right">
                   <Badge className={`text-xs ${statusColors[b.status]}`}>{b.status}</Badge>
-                  <p className="text-sm font-bold mt-1">₹{b.totalCost.toFixed(2)}</p>
+                  <p className="text-sm font-bold mt-1">₹{(b.totalCost + ((b as Boarding).additionalCost || 0)).toFixed(2)}</p>
                 </div>
               </div>
             </CardContent>
@@ -135,7 +135,7 @@ export default function Dashboard({ owners, dogs, boardings, fosters, fosterOwne
               <p className="font-semibold text-sm">🐕 {getDogName(b.dogId, dogList)}</p>
               <p className="text-xs text-muted-foreground">{b.checkInDate} → {b.checkOutDate}</p>
             </div>
-            <p className="font-bold text-sm">₹{b.totalCost.toFixed(2)}</p>
+            <p className="font-bold text-sm">₹{(b.totalCost + ((b as Boarding).additionalCost || 0)).toFixed(2)}</p>
           </CardContent>
         </Card>
       ))}

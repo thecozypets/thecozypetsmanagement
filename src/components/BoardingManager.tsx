@@ -256,7 +256,7 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
                       <div className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" /> In: {b.checkInDate}{b.checkInTime ? ` ${formatTime12(b.checkInTime)}` : ''}</div>
                       <div className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" /> Out: {b.checkOutDate}{b.checkOutTime ? ` ${formatTime12(b.checkOutTime)}` : ''}</div>
                       {b.kennelNumber && <div>Kennel: #{b.kennelNumber}</div>}
-                       <div className="flex items-center gap-1.5"><DollarSign className="h-3.5 w-3.5" /> ₹{b.totalCost.toFixed(2)}</div>
+                       <div className="flex items-center gap-1.5"><DollarSign className="h-3.5 w-3.5" /> Total Amount: ₹{(b.totalCost + (b.additionalCost || 0)).toFixed(2)}</div>
                       <div>
                         <Badge variant="outline" className={`text-xs ${b.paymentStatus === 'paid' ? 'border-success/50 text-success-foreground' : b.paymentStatus === 'partly-paid' ? 'border-warning/50 text-warning-foreground' : 'border-destructive/50 text-destructive'}`}>
                           {b.paymentStatus === 'partly-paid' ? `Partly ₹${b.paidAmount}` : b.paymentStatus}
