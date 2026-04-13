@@ -45,7 +45,7 @@ export default function Dashboard({ owners, dogs, boardings, fosters, fosterOwne
   const fCompleted = fosters.filter(f => f.status === 'checked-out');
   const fCancelled = fosters.filter(f => f.status === 'cancelled');
   const fPaid = fosters.filter(f => f.status !== 'cancelled');
-  const fRevenue = fPaid.reduce((s, f) => s + f.totalCost, 0);
+  const fRevenue = fPaid.reduce((s, f) => s + f.totalCost + (f.additionalCost || 0), 0);
   const fPaidAmt = fPaid.reduce((s, f) => s + (f.paidAmount || 0), 0);
 
   const getDogName = (id: string, list: Dog[]) => list.find(d => d.id === id)?.name || 'Unknown';
