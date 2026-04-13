@@ -7,7 +7,7 @@ export function useOwners() {
   const [owners, setOwners] = useState<Owner[]>([]);
 
   const fetchOwners = useCallback(async () => {
-    const { data, error } = await supabase.from('owners').select('*');
+    const { data, error } = await supabase.from('owners').select('*').order('created_at', { ascending: false });
     if (error) { toast.error('Failed to load owners'); return; }
     setOwners((data || []).map(r => ({
       id: r.id, name: r.name, phone: r.phone, email: r.email || '',
@@ -54,7 +54,7 @@ export function useDogs() {
   const [dogs, setDogs] = useState<Dog[]>([]);
 
   const fetchDogs = useCallback(async () => {
-    const { data, error } = await supabase.from('dogs').select('*');
+    const { data, error } = await supabase.from('dogs').select('*').order('created_at', { ascending: false });
     if (error) { toast.error('Failed to load dogs'); return; }
     setDogs((data || []).map(r => ({
       id: r.id, name: r.name, breed: r.breed, age: r.age, weight: Number(r.weight),
@@ -115,7 +115,7 @@ export function useBoardings() {
   const [boardings, setBoardings] = useState<Boarding[]>([]);
 
   const fetchBoardings = useCallback(async () => {
-    const { data, error } = await supabase.from('boardings').select('*');
+    const { data, error } = await supabase.from('boardings').select('*').order('created_at', { ascending: false });
     if (error) { toast.error('Failed to load boardings'); return; }
     setBoardings((data || []).map(r => {
       const checkInParts = (r.check_in_date || '').split('T');
@@ -198,7 +198,7 @@ export function useFosters() {
   const [fosters, setFosters] = useState<Foster[]>([]);
 
   const fetchFosters = useCallback(async () => {
-    const { data, error } = await supabase.from('fosters').select('*');
+    const { data, error } = await supabase.from('fosters').select('*').order('created_at', { ascending: false });
     if (error) { toast.error('Failed to load fosters'); return; }
     setFosters((data || []).map((r: any) => {
       const checkInParts = (r.check_in_date || '').split('T');
@@ -280,7 +280,7 @@ export function useFosterOwners() {
   const [owners, setOwners] = useState<Owner[]>([]);
 
   const fetchOwners = useCallback(async () => {
-    const { data, error } = await supabase.from('foster_owners' as any).select('*');
+    const { data, error } = await supabase.from('foster_owners' as any).select('*').order('created_at', { ascending: false });
     if (error) { toast.error('Failed to load foster owners'); return; }
     setOwners((data || []).map((r: any) => ({
       id: r.id, name: r.name, phone: r.phone, email: r.email || '',
@@ -327,7 +327,7 @@ export function useFosterDogs() {
   const [dogs, setDogs] = useState<Dog[]>([]);
 
   const fetchDogs = useCallback(async () => {
-    const { data, error } = await supabase.from('foster_dogs' as any).select('*');
+    const { data, error } = await supabase.from('foster_dogs' as any).select('*').order('created_at', { ascending: false });
     if (error) { toast.error('Failed to load foster dogs'); return; }
     setDogs((data || []).map((r: any) => ({
       id: r.id, name: r.name, breed: r.breed, age: r.age, weight: Number(r.weight),
