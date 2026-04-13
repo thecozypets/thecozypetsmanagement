@@ -350,6 +350,7 @@ export type Database = {
       }
       fosters: {
         Row: {
+          additional_cost: number
           animal_type: string
           check_in_date: string
           check_out_date: string
@@ -370,6 +371,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          additional_cost?: number
           animal_type?: string
           check_in_date: string
           check_out_date: string
@@ -390,6 +392,7 @@ export type Database = {
           user_id?: string
         }
         Update: {
+          additional_cost?: number
           animal_type?: string
           check_in_date?: string
           check_out_date?: string

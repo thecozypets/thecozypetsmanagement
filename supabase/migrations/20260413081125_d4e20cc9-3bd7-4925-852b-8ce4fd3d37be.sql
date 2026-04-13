@@ -1,0 +1,1 @@
+ALTER TABLE public.fosters ADD COLUMN additional_cost numeric NOT NULL DEFAULT 0;
