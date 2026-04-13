@@ -23,6 +23,7 @@ interface FosterFormData {
   kennelNumber: string;
   dailyRate: number;
   totalCost: number;
+  additionalCost: number;
   specialRequests: string;
   feedingSchedule: string;
   notes: string;
@@ -31,7 +32,7 @@ interface FosterFormData {
   paymentMethod: PaymentMethod;
 }
 
-const emptyForm: FosterFormData = { dogId: '', ownerId: '', animalType: 'dog', checkInDate: '', checkInTime: '', checkOutDate: '', checkOutTime: '', status: 'reserved', kennelNumber: '', dailyRate: 0, totalCost: 0, specialRequests: '', feedingSchedule: '', notes: '', paymentStatus: 'outstanding', paidAmount: 0, paymentMethod: '' };
+const emptyForm: FosterFormData = { dogId: '', ownerId: '', animalType: 'dog', checkInDate: '', checkInTime: '', checkOutDate: '', checkOutTime: '', status: 'reserved', kennelNumber: '', dailyRate: 0, totalCost: 0, additionalCost: 0, specialRequests: '', feedingSchedule: '', notes: '', paymentStatus: 'outstanding', paidAmount: 0, paymentMethod: '' };
 
 const formatTime12 = (time24: string) => {
   if (!time24) return '';
@@ -87,7 +88,7 @@ export default function FosterManager({ fosters, dogs, owners, onAdd, onUpdate, 
   };
 
   const startEdit = (f: Foster) => {
-    setForm({ dogId: f.dogId, ownerId: f.ownerId, animalType: f.animalType, checkInDate: f.checkInDate, checkInTime: f.checkInTime || '', checkOutDate: f.checkOutDate, checkOutTime: f.checkOutTime || '', status: f.status, kennelNumber: f.kennelNumber, dailyRate: f.dailyRate, totalCost: f.totalCost, specialRequests: f.specialRequests, feedingSchedule: f.feedingSchedule, notes: f.notes, paymentStatus: f.paymentStatus || 'outstanding', paidAmount: f.paidAmount || 0, paymentMethod: f.paymentMethod || '' });
+    setForm({ dogId: f.dogId, ownerId: f.ownerId, animalType: f.animalType, checkInDate: f.checkInDate, checkInTime: f.checkInTime || '', checkOutDate: f.checkOutDate, checkOutTime: f.checkOutTime || '', status: f.status, kennelNumber: f.kennelNumber, dailyRate: f.dailyRate, totalCost: f.totalCost, additionalCost: f.additionalCost || 0, specialRequests: f.specialRequests, feedingSchedule: f.feedingSchedule, notes: f.notes, paymentStatus: f.paymentStatus || 'outstanding', paidAmount: f.paidAmount || 0, paymentMethod: f.paymentMethod || '' });
     setEditingId(f.id);
     setOpen(true);
   };
