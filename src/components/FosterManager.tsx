@@ -171,10 +171,14 @@ export default function FosterManager({ fosters, dogs, owners, onAdd, onUpdate, 
                 <div><Label>Check-out Date *</Label><Input required type="date" value={form.checkOutDate} onChange={e => setForm(p => updateCost({ ...p, checkOutDate: e.target.value }))} /></div>
                 <div><Label>Check-out Time</Label><Input type="time" value={form.checkOutTime} onChange={e => setForm(p => ({ ...p, checkOutTime: e.target.value }))} /></div>
               </div>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 gap-4">
                 <div><Label>Kennel #</Label><Input value={form.kennelNumber} onChange={e => setForm(p => ({ ...p, kennelNumber: e.target.value }))} /></div>
                 <div><Label>Daily Rate (₹)</Label><Input type="number" min={0} step={0.01} value={form.dailyRate} onChange={e => setForm(p => updateCost({ ...p, dailyRate: +e.target.value }))} /></div>
+              </div>
+              <div className="grid grid-cols-3 gap-4">
                 <div><Label>Total Cost</Label><Input readOnly value={`₹${form.totalCost.toFixed(2)}`} className="bg-muted" /></div>
+                <div><Label>Additional Cost (₹)</Label><Input type="number" min={0} step={0.01} value={form.additionalCost} onChange={e => setForm(p => ({ ...p, additionalCost: +e.target.value }))} /></div>
+                <div><Label className="font-bold">Total Amount</Label><Input readOnly value={`₹${(form.totalCost + form.additionalCost).toFixed(2)}`} className="bg-muted font-bold" /></div>
               </div>
               <div>
                 <Label>Status</Label>
@@ -256,7 +260,7 @@ export default function FosterManager({ fosters, dogs, owners, onAdd, onUpdate, 
                       <div className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" /> In: {f.checkInDate}{f.checkInTime ? ` ${formatTime12(f.checkInTime)}` : ''}</div>
                       <div className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" /> Out: {f.checkOutDate}{f.checkOutTime ? ` ${formatTime12(f.checkOutTime)}` : ''}</div>
                       {f.kennelNumber && <div>Kennel: #{f.kennelNumber}</div>}
-                      <div className="flex items-center gap-1.5"><DollarSign className="h-3.5 w-3.5" /> ₹{f.totalCost.toFixed(2)}</div>
+                      <div className="flex items-center gap-1.5"><DollarSign className="h-3.5 w-3.5" /> ₹{(f.totalCost + (f.additionalCost || 0)).toFixed(2)}</div>
                       <div>
                         <Badge variant="outline" className={`text-xs ${f.paymentStatus === 'paid' ? 'border-success/50 text-success-foreground' : f.paymentStatus === 'partly-paid' ? 'border-warning/50 text-warning-foreground' : 'border-destructive/50 text-destructive'}`}>
                           {f.paymentStatus === 'partly-paid' ? `Partly ₹${f.paidAmount}` : f.paymentStatus}
