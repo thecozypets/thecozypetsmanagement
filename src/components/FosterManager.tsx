@@ -67,6 +67,7 @@ export default function FosterManager({ fosters, dogs, owners, onAdd, onUpdate, 
   const [open, setOpen] = useState(false);
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [filterAnimal, setFilterAnimal] = useState<string>('all');
+  const [invoiceFoster, setInvoiceFoster] = useState<Foster | null>(null);
 
   const calcDays = (checkIn: string, checkOut: string) => {
     if (!checkIn || !checkOut) return 0;
