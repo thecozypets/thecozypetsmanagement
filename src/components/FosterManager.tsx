@@ -279,6 +279,13 @@ export default function FosterManager({ fosters, dogs, owners, onAdd, onUpdate, 
           </AnimatePresence>
         </div>
       )}
+      <FosterInvoiceModal
+        open={!!invoiceFoster}
+        onOpenChange={(o) => { if (!o) setInvoiceFoster(null); }}
+        foster={invoiceFoster}
+        dog={invoiceFoster ? dogs.find(d => d.id === invoiceFoster.dogId) || null : null}
+        owner={invoiceFoster ? owners.find(o => o.id === invoiceFoster.ownerId) || null : null}
+      />
     </div>
   );
 }
