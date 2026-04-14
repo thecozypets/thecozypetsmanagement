@@ -57,7 +57,7 @@ export function useDogs() {
     const { data, error } = await supabase.from('dogs').select('*').order('created_at', { ascending: false });
     if (error) { toast.error('Failed to load dogs'); return; }
     setDogs((data || []).map(r => ({
-      id: r.id, name: r.name, breed: r.breed, age: r.age, weight: Number(r.weight),
+      id: r.id, name: r.name, breed: r.breed, age: r.age, ageMonths: (r as any).age_months || 0, weight: Number(r.weight),
       gender: r.gender as 'male' | 'female', ownerId: r.owner_id,
       specialNeeds: r.special_needs || '', feedingInstructions: r.feeding_instructions || '',
       medications: r.medications || '', vaccinated: r.vaccinated, neutered: r.neutered,
@@ -71,7 +71,7 @@ export function useDogs() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { toast.error('Not authenticated'); return null; }
     const { data, error } = await supabase.from('dogs').insert({
-      name: dog.name, breed: dog.breed, age: dog.age, weight: dog.weight,
+      name: dog.name, breed: dog.breed, age: dog.age, age_months: dog.ageMonths || 0, weight: dog.weight,
       gender: dog.gender, owner_id: dog.ownerId, special_needs: dog.specialNeeds || null,
       feeding_instructions: dog.feedingInstructions || null, medications: dog.medications || null,
       vaccinated: dog.vaccinated, neutered: dog.neutered, photo_url: dog.photoUrl || null,
@@ -87,6 +87,7 @@ export function useDogs() {
     if (d.name !== undefined) update.name = d.name;
     if (d.breed !== undefined) update.breed = d.breed;
     if (d.age !== undefined) update.age = d.age;
+    if ((d as any).ageMonths !== undefined) update.age_months = (d as any).ageMonths;
     if (d.weight !== undefined) update.weight = d.weight;
     if (d.gender !== undefined) update.gender = d.gender;
     if (d.ownerId !== undefined) update.owner_id = d.ownerId;
@@ -330,7 +331,7 @@ export function useFosterDogs() {
     const { data, error } = await supabase.from('foster_dogs' as any).select('*').order('created_at', { ascending: false });
     if (error) { toast.error('Failed to load foster dogs'); return; }
     setDogs((data || []).map((r: any) => ({
-      id: r.id, name: r.name, breed: r.breed, age: r.age, weight: Number(r.weight),
+      id: r.id, name: r.name, breed: r.breed, age: r.age, ageMonths: r.age_months || 0, weight: Number(r.weight),
       gender: r.gender as 'male' | 'female', ownerId: r.owner_id,
       specialNeeds: r.special_needs || '', feedingInstructions: r.feeding_instructions || '',
       medications: r.medications || '', vaccinated: r.vaccinated, neutered: r.neutered,
@@ -344,7 +345,7 @@ export function useFosterDogs() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { toast.error('Not authenticated'); return null; }
     const { data, error } = await supabase.from('foster_dogs' as any).insert({
-      name: dog.name, breed: dog.breed, age: dog.age, weight: dog.weight,
+      name: dog.name, breed: dog.breed, age: dog.age, age_months: dog.ageMonths || 0, weight: dog.weight,
       gender: dog.gender, owner_id: dog.ownerId, special_needs: dog.specialNeeds || null,
       feeding_instructions: dog.feedingInstructions || null, medications: dog.medications || null,
       vaccinated: dog.vaccinated, neutered: dog.neutered, photo_url: dog.photoUrl || null,
@@ -360,6 +361,7 @@ export function useFosterDogs() {
     if (d.name !== undefined) update.name = d.name;
     if (d.breed !== undefined) update.breed = d.breed;
     if (d.age !== undefined) update.age = d.age;
+    if ((d as any).ageMonths !== undefined) update.age_months = (d as any).ageMonths;
     if (d.weight !== undefined) update.weight = d.weight;
     if (d.gender !== undefined) update.gender = d.gender;
     if (d.ownerId !== undefined) update.owner_id = d.ownerId;

@@ -13,6 +13,7 @@ export interface Dog {
   name: string;
   breed: string;
   age: number;
+  ageMonths: number;
   weight: number;
   gender: 'male' | 'female';
   ownerId: string;
