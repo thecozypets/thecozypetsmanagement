@@ -8,8 +8,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Heart, Pencil, Trash2, Calendar, DollarSign, Cat, Dog as DogIcon } from 'lucide-react';
+import { Heart, Pencil, Trash2, Calendar, DollarSign, Cat, Dog as DogIcon, FileText } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import FosterInvoiceModal from './FosterInvoiceModal';
 
 interface FosterFormData {
   dogId: string;
@@ -66,6 +67,7 @@ export default function FosterManager({ fosters, dogs, owners, onAdd, onUpdate, 
   const [open, setOpen] = useState(false);
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [filterAnimal, setFilterAnimal] = useState<string>('all');
+  const [invoiceFoster, setInvoiceFoster] = useState<Foster | null>(null);
 
   const calcDays = (checkIn: string, checkOut: string) => {
     if (!checkIn || !checkOut) return 0;
@@ -252,6 +254,7 @@ export default function FosterManager({ fosters, dogs, owners, onAdd, onUpdate, 
                       </div>
                       <div className="flex items-center gap-1">
                         <Badge className={statusColors[f.status]}>{f.status}</Badge>
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setInvoiceFoster(f)}><FileText className="h-4 w-4" /></Button>
                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => startEdit(f)}><Pencil className="h-4 w-4" /></Button>
                         <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => onDelete(f.id)}><Trash2 className="h-4 w-4" /></Button>
                       </div>
@@ -276,6 +279,13 @@ export default function FosterManager({ fosters, dogs, owners, onAdd, onUpdate, 
           </AnimatePresence>
         </div>
       )}
+      <FosterInvoiceModal
+        open={!!invoiceFoster}
+        onOpenChange={(o) => { if (!o) setInvoiceFoster(null); }}
+        foster={invoiceFoster}
+        dog={invoiceFoster ? dogs.find(d => d.id === invoiceFoster.dogId) || null : null}
+        owner={invoiceFoster ? owners.find(o => o.id === invoiceFoster.ownerId) || null : null}
+      />
     </div>
   );
 }
