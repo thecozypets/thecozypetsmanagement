@@ -106,7 +106,7 @@ export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner 
               <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1px', color: '#2563eb', fontWeight: 600, marginBottom: '8px' }}>Pet Details</div>
               <p style={{ fontSize: '14px', fontWeight: 600 }}>🐕 {dog.name}</p>
               <p style={{ fontSize: '13px', color: '#555' }}>Breed: {dog.breed}</p>
-              <p style={{ fontSize: '13px', color: '#555' }}>Age: {dog.age} yrs | Weight: {dog.weight} kg</p>
+              <p style={{ fontSize: '13px', color: '#555' }}>Age: {dog.age} yrs {dog.ageMonths ? `${dog.ageMonths} months` : ''} | Weight: {dog.weight} kg</p>
               {boarding.kennelNumber && <p style={{ fontSize: '13px', color: '#555' }}>Kennel: #{boarding.kennelNumber}</p>}
             </div>
           </div>

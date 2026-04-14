@@ -89,7 +89,7 @@ export default function DetailPanel({ open, onOpenChange, owner, dogs, boardings
                         )}
                         <div className="flex-1 min-w-0">
                           <h4 className="font-display font-bold">{dog.name}</h4>
-                          <p className="text-sm text-muted-foreground">{dog.breed} · {dog.age}y · {dog.weight}kg · {dog.gender === 'male' ? '♂' : '♀'}</p>
+                          <p className="text-sm text-muted-foreground">{dog.breed} · {dog.age}y {dog.ageMonths ? `${dog.ageMonths}m` : ''} · {dog.weight}kg · {dog.gender === 'male' ? '♂' : '♀'}</p>
                           <div className="flex gap-1.5 flex-wrap mt-1.5">
                             <Badge variant={dog.vaccinated ? 'default' : 'destructive'} className="text-xs">{dog.vaccinated ? '✓ Vaccinated' : '✗ Not Vaccinated'}</Badge>
                             {dog.neutered && <Badge variant="secondary" className="text-xs">Neutered</Badge>}
