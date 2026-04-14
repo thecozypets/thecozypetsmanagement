@@ -254,6 +254,7 @@ export default function FosterManager({ fosters, dogs, owners, onAdd, onUpdate, 
                       </div>
                       <div className="flex items-center gap-1">
                         <Badge className={statusColors[f.status]}>{f.status}</Badge>
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setInvoiceFoster(f)}><FileText className="h-4 w-4" /></Button>
                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => startEdit(f)}><Pencil className="h-4 w-4" /></Button>
                         <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => onDelete(f.id)}><Trash2 className="h-4 w-4" /></Button>
                       </div>
