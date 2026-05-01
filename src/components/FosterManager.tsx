@@ -109,10 +109,10 @@ export default function FosterManager({ fosters, dogs, owners, onAdd, onUpdate, 
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
-        <div className="flex gap-2">
+      <div className="flex flex-col sm:flex-row gap-3 justify-between items-stretch sm:items-center">
+        <div className="flex gap-2 w-full sm:w-auto">
           <Select value={filterStatus} onValueChange={setFilterStatus}>
-            <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="flex-1 sm:w-40"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Status</SelectItem>
               <SelectItem value="reserved">Reserved</SelectItem>
@@ -122,7 +122,7 @@ export default function FosterManager({ fosters, dogs, owners, onAdd, onUpdate, 
             </SelectContent>
           </Select>
           <Select value={filterAnimal} onValueChange={setFilterAnimal}>
-            <SelectTrigger className="w-32"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="flex-1 sm:w-32"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Animals</SelectItem>
               <SelectItem value="dog">🐕 Dogs</SelectItem>
@@ -132,7 +132,7 @@ export default function FosterManager({ fosters, dogs, owners, onAdd, onUpdate, 
         </div>
         <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) { setForm(emptyForm); setEditingId(null); } }}>
           <DialogTrigger asChild>
-            <Button><Heart className="mr-2 h-4 w-4" /> New Foster</Button>
+            <Button className="w-full sm:w-auto"><Heart className="mr-2 h-4 w-4" /> New Foster</Button>
           </DialogTrigger>
           <DialogContent className="max-h-[85vh] overflow-y-auto">
             <DialogHeader>
