@@ -70,11 +70,11 @@ export default function DogManager({ dogs, owners, onAdd, onUpdate, onDelete, on
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
-        <Input placeholder="Search dogs..." value={search} onChange={e => setSearch(e.target.value)} className="max-w-xs" />
+      <div className="flex flex-col sm:flex-row gap-3 justify-between items-stretch sm:items-center">
+        <Input placeholder="Search dogs..." value={search} onChange={e => setSearch(e.target.value)} className="w-full sm:max-w-xs" />
         <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) { setForm(emptyForm); setEditingId(null); } }}>
           <DialogTrigger asChild>
-            <Button><Plus className="mr-2 h-4 w-4" /> Add Dog</Button>
+            <Button className="w-full sm:w-auto"><Plus className="mr-2 h-4 w-4" /> Add Dog</Button>
           </DialogTrigger>
           <DialogContent className="max-h-[85vh] overflow-y-auto">
             <DialogHeader>
