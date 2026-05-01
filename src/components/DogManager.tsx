@@ -81,15 +81,13 @@ export default function DogManager({ dogs, owners, onAdd, onUpdate, onDelete, on
               <DialogTitle className="font-display">{editingId ? 'Edit Dog' : 'Add New Dog'}</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div><Label>Name *</Label><Input required value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} /></div>
                 <div><Label>Breed *</Label><Input required value={form.breed} onChange={e => setForm(p => ({ ...p, breed: e.target.value }))} /></div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="grid grid-cols-2 gap-2">
-                  <div><Label>Age (years)</Label><Input type="number" min={0} value={form.age} onChange={e => setForm(p => ({ ...p, age: +e.target.value }))} /></div>
-                  <div><Label>Months</Label><Input type="number" min={0} max={11} value={form.ageMonths} onChange={e => setForm(p => ({ ...p, ageMonths: Math.min(11, Math.max(0, +e.target.value)) }))} /></div>
-                </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+                <div><Label>Age (years)</Label><Input type="number" min={0} value={form.age} onChange={e => setForm(p => ({ ...p, age: +e.target.value }))} /></div>
+                <div><Label>Months</Label><Input type="number" min={0} max={11} value={form.ageMonths} onChange={e => setForm(p => ({ ...p, ageMonths: Math.min(11, Math.max(0, +e.target.value)) }))} /></div>
                 <div><Label>Weight (kg)</Label><Input type="number" min={0} step={0.1} value={form.weight} onChange={e => setForm(p => ({ ...p, weight: +e.target.value }))} /></div>
                 <div>
                   <Label>Gender</Label>
