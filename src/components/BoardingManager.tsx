@@ -194,7 +194,7 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
                     <SelectContent>
                       <SelectItem value="paid">Paid</SelectItem>
                       <SelectItem value="partly-paid">Partly Paid</SelectItem>
-                      <SelectItem value="outstanding">Outstanding</SelectItem>
+                      {form.status !== 'cancelled' && <SelectItem value="outstanding">Outstanding</SelectItem>}
                     </SelectContent>
                   </Select>
                 </div>

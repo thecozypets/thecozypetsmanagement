@@ -203,7 +203,7 @@ export default function FosterManager({ fosters, dogs, owners, onAdd, onUpdate, 
                     <SelectContent>
                       <SelectItem value="paid">Paid</SelectItem>
                       <SelectItem value="partly-paid">Partly Paid</SelectItem>
-                      <SelectItem value="outstanding">Outstanding</SelectItem>
+                      {form.status !== 'cancelled' && <SelectItem value="outstanding">Outstanding</SelectItem>}
                     </SelectContent>
                   </Select>
                 </div>
