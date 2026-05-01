@@ -118,9 +118,9 @@ const Index = () => {
             </div>
             <Tabs value={boardingSubTab} onValueChange={setBoardingSubTab}>
               <TabsList className="bg-muted/60 w-full">
-                <TabsTrigger value="owners" className="gap-1.5 flex-1"><Users className="h-3.5 w-3.5" /> Owners</TabsTrigger>
-                <TabsTrigger value="dogs" className="gap-1.5 flex-1"><Dog className="h-3.5 w-3.5" /> Dogs</TabsTrigger>
-                <TabsTrigger value="boardings" className="gap-1.5 flex-1"><CalendarCheck className="h-3.5 w-3.5" /> Boardings</TabsTrigger>
+                <TabsTrigger value="owners" className="gap-1 sm:gap-1.5 flex-1 text-xs sm:text-sm px-1"><Users className="h-3.5 w-3.5" /> Owners</TabsTrigger>
+                <TabsTrigger value="dogs" className="gap-1 sm:gap-1.5 flex-1 text-xs sm:text-sm px-1"><Dog className="h-3.5 w-3.5" /> Dogs</TabsTrigger>
+                <TabsTrigger value="boardings" className="gap-1 sm:gap-1.5 flex-1 text-xs sm:text-sm px-1"><CalendarCheck className="h-3.5 w-3.5" /> Boardings</TabsTrigger>
               </TabsList>
               <TabsContent value="owners">
                 <OwnerManager owners={owners} onAdd={addOwner} onUpdate={updateOwner} onDelete={deleteOwner} onClickOwner={openDetailByOwner} />
@@ -141,9 +141,9 @@ const Index = () => {
             </div>
             <Tabs value={fosterSubTab} onValueChange={setFosterSubTab}>
               <TabsList className="bg-muted/60 w-full">
-                <TabsTrigger value="owners" className="gap-1.5 flex-1"><Users className="h-3.5 w-3.5" /> Owners</TabsTrigger>
-                <TabsTrigger value="dogs" className="gap-1.5 flex-1"><Dog className="h-3.5 w-3.5" /> Dogs</TabsTrigger>
-                <TabsTrigger value="fosters" className="gap-1.5 flex-1"><Heart className="h-3.5 w-3.5" /> Fosters</TabsTrigger>
+                <TabsTrigger value="owners" className="gap-1 sm:gap-1.5 flex-1 text-xs sm:text-sm px-1"><Users className="h-3.5 w-3.5" /> Owners</TabsTrigger>
+                <TabsTrigger value="dogs" className="gap-1 sm:gap-1.5 flex-1 text-xs sm:text-sm px-1"><Dog className="h-3.5 w-3.5" /> Dogs</TabsTrigger>
+                <TabsTrigger value="fosters" className="gap-1 sm:gap-1.5 flex-1 text-xs sm:text-sm px-1"><Heart className="h-3.5 w-3.5" /> Fosters</TabsTrigger>
               </TabsList>
               <TabsContent value="owners">
                 <OwnerManager owners={fosterOwners} onAdd={addFosterOwner} onUpdate={updateFosterOwner} onDelete={deleteFosterOwner} onClickOwner={openFosterDetailByOwner} />
