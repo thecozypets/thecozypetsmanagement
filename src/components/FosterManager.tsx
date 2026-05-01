@@ -240,19 +240,19 @@ export default function FosterManager({ fosters, dogs, owners, onAdd, onUpdate, 
             {filtered.map(f => (
               <motion.div key={f.id} layout initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }}>
                 <Card className="hover:shadow-md transition-shadow">
-                  <CardContent className="p-5">
-                    <div className="flex justify-between items-start mb-3">
-                      <div>
-                        <h3 className="font-display font-bold text-lg">
+                  <CardContent className="p-4 sm:p-5">
+                    <div className="flex justify-between items-start mb-3 gap-2">
+                      <div className="min-w-0">
+                        <h3 className="font-display font-bold text-base sm:text-lg">
                           {f.animalType === 'cat' ? '🐱' : '🐕'}{' '}
-                          <span className="cursor-pointer hover:text-primary transition-colors" onClick={() => onClickDog(f.dogId)}>{getDogName(f.dogId)}</span>
+                          <span className="cursor-pointer hover:text-primary transition-colors break-words" onClick={() => onClickDog(f.dogId)}>{getDogName(f.dogId)}</span>
                           <Badge variant="outline" className="ml-2 text-xs capitalize">{f.animalType}</Badge>
                         </h3>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-sm text-muted-foreground truncate">
                           Owner: <span className="cursor-pointer hover:text-primary transition-colors" onClick={() => onClickOwner(f.ownerId)}>{getOwnerName(f.ownerId)}</span>
                         </p>
                       </div>
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-0.5 sm:gap-1 flex-wrap justify-end shrink-0">
                         <Badge className={statusColors[f.status]}>{f.status}</Badge>
                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setInvoiceFoster(f)}><FileText className="h-4 w-4" /></Button>
                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => startEdit(f)}><Pencil className="h-4 w-4" /></Button>
