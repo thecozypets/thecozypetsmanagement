@@ -106,9 +106,9 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
+      <div className="flex flex-col sm:flex-row gap-3 justify-between items-stretch sm:items-center">
         <Select value={filterStatus} onValueChange={setFilterStatus}>
-          <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="w-full sm:w-44"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Bookings</SelectItem>
             <SelectItem value="reserved">Reserved</SelectItem>
@@ -119,7 +119,7 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
         </Select>
         <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) { setForm(emptyForm); setEditingId(null); } }}>
           <DialogTrigger asChild>
-            <Button><CalendarPlus className="mr-2 h-4 w-4" /> New Booking</Button>
+            <Button className="w-full sm:w-auto"><CalendarPlus className="mr-2 h-4 w-4" /> New Booking</Button>
           </DialogTrigger>
           <DialogContent className="max-h-[85vh] overflow-y-auto">
             <DialogHeader>
