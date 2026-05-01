@@ -106,9 +106,9 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
+      <div className="flex flex-col sm:flex-row gap-3 justify-between items-stretch sm:items-center">
         <Select value={filterStatus} onValueChange={setFilterStatus}>
-          <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="w-full sm:w-44"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Bookings</SelectItem>
             <SelectItem value="reserved">Reserved</SelectItem>
@@ -119,14 +119,14 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
         </Select>
         <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) { setForm(emptyForm); setEditingId(null); } }}>
           <DialogTrigger asChild>
-            <Button><CalendarPlus className="mr-2 h-4 w-4" /> New Booking</Button>
+            <Button className="w-full sm:w-auto"><CalendarPlus className="mr-2 h-4 w-4" /> New Booking</Button>
           </DialogTrigger>
           <DialogContent className="max-h-[85vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="font-display">{editingId ? 'Edit Booking' : 'New Booking'}</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
                   <Label>Dog *</Label>
                   <Select required value={form.dogId} onValueChange={handleDogChange}>
@@ -142,7 +142,7 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
                   </Select>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
                   <Label>Check-in Date *</Label>
                   <Input required type="date" value={form.checkInDate} onChange={e => setForm(p => updateCost({ ...p, checkInDate: e.target.value }))} />
@@ -152,7 +152,7 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
                   <Input type="time" value={form.checkInTime} onChange={e => setForm(p => ({ ...p, checkInTime: e.target.value }))} />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
                   <Label>Check-out Date *</Label>
                   <Input required type="date" value={form.checkOutDate} onChange={e => setForm(p => updateCost({ ...p, checkOutDate: e.target.value }))} />
@@ -162,7 +162,7 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
                   <Input type="time" value={form.checkOutTime} onChange={e => setForm(p => ({ ...p, checkOutTime: e.target.value }))} />
                 </div>
               </div>
-              <div className="grid grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
                 <div><Label>Kennel #</Label><Input value={form.kennelNumber} onChange={e => setForm(p => ({ ...p, kennelNumber: e.target.value }))} /></div>
                 <div><Label>Daily Rate (₹)</Label><Input type="number" min={0} step={0.01} value={form.dailyRate} onChange={e => setForm(p => updateCost({ ...p, dailyRate: +e.target.value }))} /></div>
                 <div><Label>Total Cost</Label><Input readOnly value={`₹${form.totalCost.toFixed(2)}`} className="bg-muted" /></div>
@@ -186,7 +186,7 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
               <div><Label>Feeding Schedule</Label><Input value={form.feedingSchedule} onChange={e => setForm(p => ({ ...p, feedingSchedule: e.target.value }))} /></div>
               
               {/* Payment Details */}
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                 <div>
                   <Label>Payment Status</Label>
                   <Select value={form.paymentStatus} onValueChange={(v: PaymentStatus) => setForm(p => ({ ...p, paymentStatus: v, paidAmount: v === 'paid' ? p.totalCost : v === 'outstanding' ? 0 : p.paidAmount }))}>
@@ -235,17 +235,17 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
             {filtered.map(b => (
               <motion.div key={b.id} layout initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }}>
                 <Card className="hover:shadow-md transition-shadow">
-                  <CardContent className="p-5">
-                    <div className="flex justify-between items-start mb-3">
-                      <div>
-                        <h3 className="font-display font-bold text-lg">
+                  <CardContent className="p-4 sm:p-5">
+                    <div className="flex justify-between items-start mb-3 gap-2">
+                      <div className="min-w-0">
+                        <h3 className="font-display font-bold text-base sm:text-lg truncate">
                           🐕 <span className="cursor-pointer hover:text-primary transition-colors" onClick={() => onClickDog(b.dogId)}>{getDogName(b.dogId)}</span>
                         </h3>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-sm text-muted-foreground truncate">
                           Owner: <span className="cursor-pointer hover:text-primary transition-colors" onClick={() => onClickOwner(b.ownerId)}>{getOwnerName(b.ownerId)}</span>
                         </p>
                       </div>
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-0.5 sm:gap-1 flex-wrap justify-end shrink-0">
                         <Badge className={`cursor-pointer ${statusColors[b.status]}`} onClick={() => onClickBoarding(b.id)}>{b.status}</Badge>
                         <Button variant="ghost" size="icon" className="h-8 w-8" title="Invoice" onClick={() => setInvoiceBoarding(b)}><FileText className="h-4 w-4" /></Button>
                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => startEdit(b)}><Pencil className="h-4 w-4" /></Button>

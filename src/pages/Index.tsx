@@ -70,37 +70,36 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border bg-card sticky top-0 z-50">
-        <div className="container max-w-[1600px] mx-auto px-4 py-4 flex items-center justify-between text-sm">
-          <div className="flex items-center gap-3">
+        <div className="container max-w-[1600px] mx-auto px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between text-sm gap-2">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <motion.div initial={{ rotate: -20 }} animate={{ rotate: 0 }} transition={{ type: 'spring', stiffness: 200 }}>
-              <PawPrint className="h-8 w-8 text-primary" />
+              <PawPrint className="h-7 w-7 sm:h-8 sm:w-8 text-primary shrink-0" />
             </motion.div>
-            <div>
-              <h1 className="font-bold text-foreground text-2xl font-serif">The Cozy Pets</h1>
-              <p className="text-xs text-muted-foreground"></p>
+            <div className="min-w-0">
+              <h1 className="font-bold text-foreground text-lg sm:text-2xl font-serif truncate">The Cozy Pets</h1>
             </div>
           </div>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 shrink-0">
             <Button variant="ghost" size="icon" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} className="text-muted-foreground" title="Toggle theme">
               {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </Button>
-            <Button variant="ghost" size="sm" onClick={signOut} className="gap-2 text-muted-foreground">
-              <LogOut className="h-4 w-4" /> Sign Out
+            <Button variant="ghost" size="sm" onClick={signOut} className="gap-2 text-muted-foreground px-2 sm:px-3" title="Sign Out">
+              <LogOut className="h-4 w-4" /> <span className="hidden sm:inline">Sign Out</span>
             </Button>
           </div>
         </div>
       </header>
 
-      <main className="container max-w-[1600px] mx-auto px-4 py-6">
+      <main className="container max-w-[1600px] mx-auto px-3 sm:px-4 py-4 sm:py-6">
         <Tabs value={tab} onValueChange={setTab}>
-          <TabsList className="mb-6 w-full justify-between bg-secondary/50">
-            <div className="flex">
-              <TabsTrigger value="dashboard" className="gap-2 font-display"><LayoutDashboard className="h-4 w-4" /> Dashboard</TabsTrigger>
-              <TabsTrigger value="boarding" className="gap-2 font-display"><CalendarCheck className="h-4 w-4" /> Boarding</TabsTrigger>
-              <TabsTrigger value="foster" className="gap-2 font-display"><Heart className="h-4 w-4" /> Foster</TabsTrigger>
-              <TabsTrigger value="requests" className="gap-2 font-display"><Globe className="h-4 w-4" /> Online Bookings</TabsTrigger>
+          <TabsList className="mb-4 sm:mb-6 w-full justify-between bg-secondary/50 h-auto flex-wrap gap-1 p-1">
+            <div className="flex flex-1 flex-wrap">
+              <TabsTrigger value="dashboard" className="gap-1.5 sm:gap-2 font-display px-2 sm:px-3"><LayoutDashboard className="h-4 w-4" /> <span className="hidden xs:inline sm:inline">Dashboard</span></TabsTrigger>
+              <TabsTrigger value="boarding" className="gap-1.5 sm:gap-2 font-display px-2 sm:px-3"><CalendarCheck className="h-4 w-4" /> <span className="hidden xs:inline sm:inline">Boarding</span></TabsTrigger>
+              <TabsTrigger value="foster" className="gap-1.5 sm:gap-2 font-display px-2 sm:px-3"><Heart className="h-4 w-4" /> <span className="hidden xs:inline sm:inline">Foster</span></TabsTrigger>
+              <TabsTrigger value="requests" className="gap-1.5 sm:gap-2 font-display px-2 sm:px-3"><Globe className="h-4 w-4" /> <span className="hidden sm:inline">Online Bookings</span></TabsTrigger>
             </div>
-            <TabsTrigger value="settings" className="font-display" title="Settings"><Settings className="h-4 w-4" /></TabsTrigger>
+            <TabsTrigger value="settings" className="font-display px-2 sm:px-3" title="Settings"><Settings className="h-4 w-4" /></TabsTrigger>
           </TabsList>
 
           <TabsContent value="dashboard">
@@ -119,9 +118,9 @@ const Index = () => {
             </div>
             <Tabs value={boardingSubTab} onValueChange={setBoardingSubTab}>
               <TabsList className="bg-muted/60 w-full">
-                <TabsTrigger value="owners" className="gap-1.5 flex-1"><Users className="h-3.5 w-3.5" /> Owners</TabsTrigger>
-                <TabsTrigger value="dogs" className="gap-1.5 flex-1"><Dog className="h-3.5 w-3.5" /> Dogs</TabsTrigger>
-                <TabsTrigger value="boardings" className="gap-1.5 flex-1"><CalendarCheck className="h-3.5 w-3.5" /> Boardings</TabsTrigger>
+                <TabsTrigger value="owners" className="gap-1 sm:gap-1.5 flex-1 text-xs sm:text-sm px-1"><Users className="h-3.5 w-3.5" /> Owners</TabsTrigger>
+                <TabsTrigger value="dogs" className="gap-1 sm:gap-1.5 flex-1 text-xs sm:text-sm px-1"><Dog className="h-3.5 w-3.5" /> Dogs</TabsTrigger>
+                <TabsTrigger value="boardings" className="gap-1 sm:gap-1.5 flex-1 text-xs sm:text-sm px-1"><CalendarCheck className="h-3.5 w-3.5" /> Boardings</TabsTrigger>
               </TabsList>
               <TabsContent value="owners">
                 <OwnerManager owners={owners} onAdd={addOwner} onUpdate={updateOwner} onDelete={deleteOwner} onClickOwner={openDetailByOwner} />
@@ -142,9 +141,9 @@ const Index = () => {
             </div>
             <Tabs value={fosterSubTab} onValueChange={setFosterSubTab}>
               <TabsList className="bg-muted/60 w-full">
-                <TabsTrigger value="owners" className="gap-1.5 flex-1"><Users className="h-3.5 w-3.5" /> Owners</TabsTrigger>
-                <TabsTrigger value="dogs" className="gap-1.5 flex-1"><Dog className="h-3.5 w-3.5" /> Dogs</TabsTrigger>
-                <TabsTrigger value="fosters" className="gap-1.5 flex-1"><Heart className="h-3.5 w-3.5" /> Fosters</TabsTrigger>
+                <TabsTrigger value="owners" className="gap-1 sm:gap-1.5 flex-1 text-xs sm:text-sm px-1"><Users className="h-3.5 w-3.5" /> Owners</TabsTrigger>
+                <TabsTrigger value="dogs" className="gap-1 sm:gap-1.5 flex-1 text-xs sm:text-sm px-1"><Dog className="h-3.5 w-3.5" /> Dogs</TabsTrigger>
+                <TabsTrigger value="fosters" className="gap-1 sm:gap-1.5 flex-1 text-xs sm:text-sm px-1"><Heart className="h-3.5 w-3.5" /> Fosters</TabsTrigger>
               </TabsList>
               <TabsContent value="owners">
                 <OwnerManager owners={fosterOwners} onAdd={addFosterOwner} onUpdate={updateFosterOwner} onDelete={deleteFosterOwner} onClickOwner={openFosterDetailByOwner} />

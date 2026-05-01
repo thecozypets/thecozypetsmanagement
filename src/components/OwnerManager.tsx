@@ -53,11 +53,11 @@ export default function OwnerManager({ owners, onAdd, onUpdate, onDelete, onClic
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
-        <Input placeholder="Search owners..." value={search} onChange={e => setSearch(e.target.value)} className="max-w-xs" />
+      <div className="flex flex-col sm:flex-row gap-3 justify-between items-stretch sm:items-center">
+        <Input placeholder="Search owners..." value={search} onChange={e => setSearch(e.target.value)} className="w-full sm:max-w-xs" />
         <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) { setForm(emptyForm); setEditingId(null); } }}>
           <DialogTrigger asChild>
-            <Button><UserPlus className="mr-2 h-4 w-4" /> Add Owner</Button>
+            <Button className="w-full sm:w-auto"><UserPlus className="mr-2 h-4 w-4" /> Add Owner</Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>

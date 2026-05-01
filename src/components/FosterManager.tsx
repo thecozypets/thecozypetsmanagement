@@ -109,10 +109,10 @@ export default function FosterManager({ fosters, dogs, owners, onAdd, onUpdate, 
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
-        <div className="flex gap-2">
+      <div className="flex flex-col sm:flex-row gap-3 justify-between items-stretch sm:items-center">
+        <div className="flex gap-2 w-full sm:w-auto">
           <Select value={filterStatus} onValueChange={setFilterStatus}>
-            <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="flex-1 sm:w-40"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Status</SelectItem>
               <SelectItem value="reserved">Reserved</SelectItem>
@@ -122,7 +122,7 @@ export default function FosterManager({ fosters, dogs, owners, onAdd, onUpdate, 
             </SelectContent>
           </Select>
           <Select value={filterAnimal} onValueChange={setFilterAnimal}>
-            <SelectTrigger className="w-32"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="flex-1 sm:w-32"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Animals</SelectItem>
               <SelectItem value="dog">🐕 Dogs</SelectItem>
@@ -132,7 +132,7 @@ export default function FosterManager({ fosters, dogs, owners, onAdd, onUpdate, 
         </div>
         <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) { setForm(emptyForm); setEditingId(null); } }}>
           <DialogTrigger asChild>
-            <Button><Heart className="mr-2 h-4 w-4" /> New Foster</Button>
+            <Button className="w-full sm:w-auto"><Heart className="mr-2 h-4 w-4" /> New Foster</Button>
           </DialogTrigger>
           <DialogContent className="max-h-[85vh] overflow-y-auto">
             <DialogHeader>
@@ -149,7 +149,7 @@ export default function FosterManager({ fosters, dogs, owners, onAdd, onUpdate, 
                   </SelectContent>
                 </Select>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
                   <Label>Pet *</Label>
                   <Select required value={form.dogId} onValueChange={handleDogChange}>
@@ -165,19 +165,19 @@ export default function FosterManager({ fosters, dogs, owners, onAdd, onUpdate, 
                   </Select>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div><Label>Check-in Date *</Label><Input required type="date" value={form.checkInDate} onChange={e => setForm(p => updateCost({ ...p, checkInDate: e.target.value }))} /></div>
                 <div><Label>Check-in Time</Label><Input type="time" value={form.checkInTime} onChange={e => setForm(p => ({ ...p, checkInTime: e.target.value }))} /></div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div><Label>Check-out Date *</Label><Input required type="date" value={form.checkOutDate} onChange={e => setForm(p => updateCost({ ...p, checkOutDate: e.target.value }))} /></div>
                 <div><Label>Check-out Time</Label><Input type="time" value={form.checkOutTime} onChange={e => setForm(p => ({ ...p, checkOutTime: e.target.value }))} /></div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div><Label>Kennel #</Label><Input value={form.kennelNumber} onChange={e => setForm(p => ({ ...p, kennelNumber: e.target.value }))} /></div>
                 <div><Label>Daily Rate (₹)</Label><Input type="number" min={0} step={0.01} value={form.dailyRate} onChange={e => setForm(p => updateCost({ ...p, dailyRate: +e.target.value }))} /></div>
               </div>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                 <div><Label>Total Cost</Label><Input readOnly value={`₹${form.totalCost.toFixed(2)}`} className="bg-muted" /></div>
                 <div><Label>Additional Cost (₹)</Label><Input type="number" min={0} step={0.01} value={form.additionalCost} onChange={e => setForm(p => ({ ...p, additionalCost: +e.target.value }))} /></div>
                 <div><Label className="font-bold">Total Amount</Label><Input readOnly value={`₹${(form.totalCost + form.additionalCost).toFixed(2)}`} className="bg-muted font-bold" /></div>
@@ -195,7 +195,7 @@ export default function FosterManager({ fosters, dogs, owners, onAdd, onUpdate, 
                 </Select>
               </div>
               <div><Label>Feeding Schedule</Label><Input value={form.feedingSchedule} onChange={e => setForm(p => ({ ...p, feedingSchedule: e.target.value }))} /></div>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                 <div>
                   <Label>Payment Status</Label>
                   <Select value={form.paymentStatus} onValueChange={(v: PaymentStatus) => setForm(p => ({ ...p, paymentStatus: v, paidAmount: v === 'paid' ? p.totalCost : v === 'outstanding' ? 0 : p.paidAmount }))}>
@@ -240,19 +240,19 @@ export default function FosterManager({ fosters, dogs, owners, onAdd, onUpdate, 
             {filtered.map(f => (
               <motion.div key={f.id} layout initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }}>
                 <Card className="hover:shadow-md transition-shadow">
-                  <CardContent className="p-5">
-                    <div className="flex justify-between items-start mb-3">
-                      <div>
-                        <h3 className="font-display font-bold text-lg">
+                  <CardContent className="p-4 sm:p-5">
+                    <div className="flex justify-between items-start mb-3 gap-2">
+                      <div className="min-w-0">
+                        <h3 className="font-display font-bold text-base sm:text-lg">
                           {f.animalType === 'cat' ? '🐱' : '🐕'}{' '}
-                          <span className="cursor-pointer hover:text-primary transition-colors" onClick={() => onClickDog(f.dogId)}>{getDogName(f.dogId)}</span>
+                          <span className="cursor-pointer hover:text-primary transition-colors break-words" onClick={() => onClickDog(f.dogId)}>{getDogName(f.dogId)}</span>
                           <Badge variant="outline" className="ml-2 text-xs capitalize">{f.animalType}</Badge>
                         </h3>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-sm text-muted-foreground truncate">
                           Owner: <span className="cursor-pointer hover:text-primary transition-colors" onClick={() => onClickOwner(f.ownerId)}>{getOwnerName(f.ownerId)}</span>
                         </p>
                       </div>
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-0.5 sm:gap-1 flex-wrap justify-end shrink-0">
                         <Badge className={statusColors[f.status]}>{f.status}</Badge>
                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setInvoiceFoster(f)}><FileText className="h-4 w-4" /></Button>
                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => startEdit(f)}><Pencil className="h-4 w-4" /></Button>

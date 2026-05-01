@@ -169,7 +169,7 @@ export default function Dashboard({ owners, dogs, boardings, fosters, fosterOwne
     keys: { owners: DrilldownType; dogs: DrilldownType; active: DrilldownType; revenue: DrilldownType; reserved: DrilldownType; completed: DrilldownType; cancelled: DrilldownType }
   ) => (
     <Card>
-      <CardContent className="p-5">
+      <CardContent className="p-4 sm:p-5">
         <div className="flex items-center gap-2 mb-4">{icon}<h3 className="font-display font-bold text-lg">{title}</h3></div>
         <div className="grid grid-cols-2 gap-3 mb-4">
           <Card className="cursor-pointer hover:ring-1 hover:ring-primary/50 transition-all" onClick={() => setDrilldown(keys.owners)}>
@@ -234,7 +234,7 @@ export default function Dashboard({ owners, dogs, boardings, fosters, fosterOwne
       {/* Recent Activity */}
       <div className="grid lg:grid-cols-2 gap-6">
         <Card>
-          <CardContent className="p-5">
+          <CardContent className="p-4 sm:p-5">
             <h3 className="font-display font-bold text-lg mb-4">Recent Boardings</h3>
             {boardings.length === 0 ? <p className="text-muted-foreground text-sm">No boardings yet</p> : (
               <div className="space-y-3">
@@ -252,7 +252,7 @@ export default function Dashboard({ owners, dogs, boardings, fosters, fosterOwne
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="p-5">
+          <CardContent className="p-4 sm:p-5">
             <h3 className="font-display font-bold text-lg mb-4">Recent Fosters</h3>
             {fosters.length === 0 ? <p className="text-muted-foreground text-sm">No fosters yet</p> : (
               <div className="space-y-3">
