@@ -184,7 +184,7 @@ export default function FosterManager({ fosters, dogs, owners, onAdd, onUpdate, 
               </div>
               <div>
                 <Label>Status</Label>
-                <Select value={form.status} onValueChange={(v: BoardingStatus) => setForm(p => ({ ...p, status: v }))}>
+                <Select value={form.status} onValueChange={(v: BoardingStatus) => setForm(p => ({ ...p, status: v, paymentStatus: v === 'cancelled' && p.paymentStatus === 'outstanding' ? 'paid' : p.paymentStatus }))}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="reserved">Reserved</SelectItem>
