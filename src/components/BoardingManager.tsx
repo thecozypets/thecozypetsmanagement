@@ -173,7 +173,7 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
               </div>
               <div>
                 <Label>Status</Label>
-                <Select value={form.status} onValueChange={(v: BoardingStatus) => setForm(p => ({ ...p, status: v }))}>
+                <Select value={form.status} onValueChange={(v: BoardingStatus) => setForm(p => ({ ...p, status: v, paymentStatus: v === 'cancelled' && p.paymentStatus === 'outstanding' ? 'paid' : p.paymentStatus }))}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="reserved">Reserved</SelectItem>
@@ -194,7 +194,7 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
                     <SelectContent>
                       <SelectItem value="paid">Paid</SelectItem>
                       <SelectItem value="partly-paid">Partly Paid</SelectItem>
-                      <SelectItem value="outstanding">Outstanding</SelectItem>
+                      {form.status !== 'cancelled' && <SelectItem value="outstanding">Outstanding</SelectItem>}
                     </SelectContent>
                   </Select>
                 </div>
