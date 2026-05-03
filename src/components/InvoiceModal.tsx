@@ -21,10 +21,8 @@ export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner 
 
   if (!boarding || !dog || !owner) return null;
 
-  const days = (() => {
-    const diff = new Date(boarding.checkOutDate).getTime() - new Date(boarding.checkInDate).getTime();
-    return Math.max(1, Math.ceil(diff / (1000 * 60 * 60 * 24)));
-  })();
+  const bill = calcBilling(boarding);
+  const days = bill.days;
 
   const invoiceNumber = `INV-${boarding.id.slice(0, 8).toUpperCase()}`;
   const invoiceDate = new Date().toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' });
