@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { CalendarPlus, Pencil, Trash2, Calendar, DollarSign, FileText } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import InvoiceModal from './InvoiceModal';
+import { calcBilling } from '@/lib/billing';
 
 interface BoardingFormData {
   dogId: string;
