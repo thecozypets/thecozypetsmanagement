@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Heart, Pencil, Trash2, Calendar, DollarSign, Cat, Dog as DogIcon, FileText } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import FosterInvoiceModal from './FosterInvoiceModal';
+import { calcBilling } from '@/lib/billing';
 
 interface FosterFormData {
   dogId: string;
