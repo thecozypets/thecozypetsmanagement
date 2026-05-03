@@ -136,7 +136,7 @@ export default function Dashboard({ owners, dogs, boardings, fosters, fosterOwne
               <p className="font-semibold text-sm">🐕 {getDogName(b.dogId, dogList)}</p>
               <p className="text-xs text-muted-foreground">{b.checkInDate} → {b.checkOutDate}</p>
             </div>
-            <p className="font-bold text-sm">₹{(b.totalCost + ((b as Boarding).additionalCost || 0)).toFixed(2)}</p>
+            <p className="font-bold text-sm">₹{calcBilling(b).total.toFixed(2)}</p>
           </CardContent>
         </Card>
       ))}
