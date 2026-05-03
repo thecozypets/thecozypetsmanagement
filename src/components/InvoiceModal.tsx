@@ -142,6 +142,14 @@ export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner 
                 <td style={{ padding: '10px 14px', fontSize: '13px', borderBottom: '1px solid #e5e7eb', textAlign: 'right' }}>₹{boarding.dailyRate.toFixed(2)}</td>
                 <td style={{ padding: '10px 14px', fontSize: '13px', borderBottom: '1px solid #e5e7eb', textAlign: 'right' }}>₹{boarding.totalCost.toFixed(2)}</td>
               </tr>
+              {(boarding.additionalCost || 0) > 0 && (
+                <tr>
+                  <td style={{ padding: '10px 14px', fontSize: '13px', borderBottom: '1px solid #e5e7eb' }}>Additional Charges</td>
+                  <td style={{ padding: '10px 14px', fontSize: '13px', borderBottom: '1px solid #e5e7eb', textAlign: 'center' }}>-</td>
+                  <td style={{ padding: '10px 14px', fontSize: '13px', borderBottom: '1px solid #e5e7eb', textAlign: 'right' }}>-</td>
+                  <td style={{ padding: '10px 14px', fontSize: '13px', borderBottom: '1px solid #e5e7eb', textAlign: 'right' }}>₹{boarding.additionalCost.toFixed(2)}</td>
+                </tr>
+              )}
               {boarding.feedingSchedule &&
               <tr>
                   <td colSpan={4} style={{ padding: '8px 14px', fontSize: '12px', borderBottom: '1px solid #e5e7eb', color: '#666' }}>
@@ -160,29 +168,34 @@ export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner 
           </table>
 
           {/* Totals & Payment */}
+          {(() => {
+            const totalAmount = boarding.totalCost + (boarding.additionalCost || 0);
+            return (
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px' }}>
             <table style={{ width: '280px', borderCollapse: 'collapse' }}>
               <tbody>
                 <tr>
-                  <td style={{ padding: '6px 14px', fontSize: '13px' }}>Subtotal</td>
+                  <td style={{ padding: '6px 14px', fontSize: '13px' }}>Stay Cost</td>
                   <td style={{ padding: '6px 14px', fontSize: '13px', textAlign: 'right' }}>₹{boarding.totalCost.toFixed(2)}</td>
                 </tr>
+                {(boarding.additionalCost || 0) > 0 && (
+                  <tr>
+                    <td style={{ padding: '6px 14px', fontSize: '13px' }}>Additional Cost</td>
+                    <td style={{ padding: '6px 14px', fontSize: '13px', textAlign: 'right' }}>₹{boarding.additionalCost.toFixed(2)}</td>
+                  </tr>
+                )}
                 <tr>
-                  <td style={{ padding: '6px 14px', fontSize: '13px' }}>Tax (0%)</td>
-                  <td style={{ padding: '6px 14px', fontSize: '13px', textAlign: 'right' }}>₹0.00</td>
-                </tr>
-                <tr>
-                  <td style={{ padding: '10px 14px', fontSize: '16px', fontWeight: 700, color: '#2563eb', borderTop: '2px solid #2563eb' }}>Total</td>
-                  <td style={{ padding: '10px 14px', fontSize: '16px', fontWeight: 700, color: '#2563eb', borderTop: '2px solid #2563eb', textAlign: 'right' }}>₹{boarding.totalCost.toFixed(2)}</td>
+                  <td style={{ padding: '10px 14px', fontSize: '16px', fontWeight: 700, color: '#2563eb', borderTop: '2px solid #2563eb' }}>Total Amount</td>
+                  <td style={{ padding: '10px 14px', fontSize: '16px', fontWeight: 700, color: '#2563eb', borderTop: '2px solid #2563eb', textAlign: 'right' }}>₹{totalAmount.toFixed(2)}</td>
                 </tr>
                 <tr>
                   <td style={{ padding: '6px 14px', fontSize: '13px', color: '#16a34a' }}>Paid</td>
                   <td style={{ padding: '6px 14px', fontSize: '13px', textAlign: 'right', color: '#16a34a' }}>₹{(boarding.paidAmount || 0).toFixed(2)}</td>
                 </tr>
-                {(boarding.totalCost - (boarding.paidAmount || 0)) > 0 && (
+                {(totalAmount - (boarding.paidAmount || 0)) > 0 && (
                   <tr>
                     <td style={{ padding: '6px 14px', fontSize: '13px', color: '#dc2626', fontWeight: 600 }}>Outstanding</td>
-                    <td style={{ padding: '6px 14px', fontSize: '13px', textAlign: 'right', color: '#dc2626', fontWeight: 600 }}>₹{(boarding.totalCost - (boarding.paidAmount || 0)).toFixed(2)}</td>
+                    <td style={{ padding: '6px 14px', fontSize: '13px', textAlign: 'right', color: '#dc2626', fontWeight: 600 }}>₹{(totalAmount - (boarding.paidAmount || 0)).toFixed(2)}</td>
                   </tr>
                 )}
                 <tr>
