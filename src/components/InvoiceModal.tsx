@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Printer, Download } from 'lucide-react';
+import { calcBilling } from '@/lib/billing';
 
 interface Props {
   open: boolean;
