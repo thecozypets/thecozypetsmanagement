@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Printer, Download } from 'lucide-react';
+import { calcBilling } from '@/lib/billing';
 
 interface Props {
   open: boolean;
@@ -20,10 +21,8 @@ export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner 
 
   if (!boarding || !dog || !owner) return null;
 
-  const days = (() => {
-    const diff = new Date(boarding.checkOutDate).getTime() - new Date(boarding.checkInDate).getTime();
-    return Math.max(1, Math.ceil(diff / (1000 * 60 * 60 * 24)));
-  })();
+  const bill = calcBilling(boarding);
+  const days = bill.days;
 
   const invoiceNumber = `INV-${boarding.id.slice(0, 8).toUpperCase()}`;
   const invoiceDate = new Date().toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' });
@@ -139,15 +138,15 @@ export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner 
                   {boarding.kennelNumber && <span style={{ color: '#888' }}> (Kennel #{boarding.kennelNumber})</span>}
                 </td>
                 <td style={{ padding: '10px 14px', fontSize: '13px', borderBottom: '1px solid #e5e7eb', textAlign: 'center' }}>{days}</td>
-                <td style={{ padding: '10px 14px', fontSize: '13px', borderBottom: '1px solid #e5e7eb', textAlign: 'right' }}>₹{boarding.dailyRate.toFixed(2)}</td>
-                <td style={{ padding: '10px 14px', fontSize: '13px', borderBottom: '1px solid #e5e7eb', textAlign: 'right' }}>₹{boarding.totalCost.toFixed(2)}</td>
+                <td style={{ padding: '10px 14px', fontSize: '13px', borderBottom: '1px solid #e5e7eb', textAlign: 'right' }}>₹{bill.dailyRate.toFixed(2)}</td>
+                <td style={{ padding: '10px 14px', fontSize: '13px', borderBottom: '1px solid #e5e7eb', textAlign: 'right' }}>₹{bill.subtotal.toFixed(2)}</td>
               </tr>
-              {(boarding.additionalCost || 0) > 0 && (
+              {bill.additional > 0 && (
                 <tr>
-                  <td style={{ padding: '10px 14px', fontSize: '13px', borderBottom: '1px solid #e5e7eb' }}>Additional Charges</td>
+                  <td style={{ padding: '10px 14px', fontSize: '13px', borderBottom: '1px solid #e5e7eb' }}>Extra Amount</td>
                   <td style={{ padding: '10px 14px', fontSize: '13px', borderBottom: '1px solid #e5e7eb', textAlign: 'center' }}>-</td>
                   <td style={{ padding: '10px 14px', fontSize: '13px', borderBottom: '1px solid #e5e7eb', textAlign: 'right' }}>-</td>
-                  <td style={{ padding: '10px 14px', fontSize: '13px', borderBottom: '1px solid #e5e7eb', textAlign: 'right' }}>₹{boarding.additionalCost.toFixed(2)}</td>
+                  <td style={{ padding: '10px 14px', fontSize: '13px', borderBottom: '1px solid #e5e7eb', textAlign: 'right' }}>₹{bill.additional.toFixed(2)}</td>
                 </tr>
               )}
               {boarding.feedingSchedule &&
@@ -168,34 +167,37 @@ export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner 
           </table>
 
           {/* Totals & Payment */}
-          {(() => {
-            const totalAmount = boarding.totalCost + (boarding.additionalCost || 0);
-            return (
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px' }}>
-            <table style={{ width: '280px', borderCollapse: 'collapse' }}>
+            <table style={{ width: '300px', borderCollapse: 'collapse' }}>
               <tbody>
                 <tr>
-                  <td style={{ padding: '6px 14px', fontSize: '13px' }}>Stay Cost</td>
-                  <td style={{ padding: '6px 14px', fontSize: '13px', textAlign: 'right' }}>₹{boarding.totalCost.toFixed(2)}</td>
+                  <td style={{ padding: '6px 14px', fontSize: '13px' }}>{bill.days} days × ₹{bill.dailyRate.toFixed(2)}</td>
+                  <td style={{ padding: '6px 14px', fontSize: '13px', textAlign: 'right' }}>₹{bill.subtotal.toFixed(2)}</td>
                 </tr>
-                {(boarding.additionalCost || 0) > 0 && (
+                {bill.additional > 0 && (
                   <tr>
-                    <td style={{ padding: '6px 14px', fontSize: '13px' }}>Additional Cost</td>
-                    <td style={{ padding: '6px 14px', fontSize: '13px', textAlign: 'right' }}>₹{boarding.additionalCost.toFixed(2)}</td>
+                    <td style={{ padding: '6px 14px', fontSize: '13px' }}>Extra Amount</td>
+                    <td style={{ padding: '6px 14px', fontSize: '13px', textAlign: 'right' }}>₹{bill.additional.toFixed(2)}</td>
                   </tr>
                 )}
                 <tr>
                   <td style={{ padding: '10px 14px', fontSize: '16px', fontWeight: 700, color: '#2563eb', borderTop: '2px solid #2563eb' }}>Total Amount</td>
-                  <td style={{ padding: '10px 14px', fontSize: '16px', fontWeight: 700, color: '#2563eb', borderTop: '2px solid #2563eb', textAlign: 'right' }}>₹{totalAmount.toFixed(2)}</td>
+                  <td style={{ padding: '10px 14px', fontSize: '16px', fontWeight: 700, color: '#2563eb', borderTop: '2px solid #2563eb', textAlign: 'right' }}>₹{bill.total.toFixed(2)}</td>
                 </tr>
                 <tr>
                   <td style={{ padding: '6px 14px', fontSize: '13px', color: '#16a34a' }}>Paid</td>
-                  <td style={{ padding: '6px 14px', fontSize: '13px', textAlign: 'right', color: '#16a34a' }}>₹{(boarding.paidAmount || 0).toFixed(2)}</td>
+                  <td style={{ padding: '6px 14px', fontSize: '13px', textAlign: 'right', color: '#16a34a' }}>₹{bill.paid.toFixed(2)}</td>
                 </tr>
-                {(totalAmount - (boarding.paidAmount || 0)) > 0 && (
+                {bill.remaining > 0 && (
                   <tr>
-                    <td style={{ padding: '6px 14px', fontSize: '13px', color: '#dc2626', fontWeight: 600 }}>Outstanding</td>
-                    <td style={{ padding: '6px 14px', fontSize: '13px', textAlign: 'right', color: '#dc2626', fontWeight: 600 }}>₹{(totalAmount - (boarding.paidAmount || 0)).toFixed(2)}</td>
+                    <td style={{ padding: '6px 14px', fontSize: '13px', color: '#dc2626', fontWeight: 600 }}>Remaining</td>
+                    <td style={{ padding: '6px 14px', fontSize: '13px', textAlign: 'right', color: '#dc2626', fontWeight: 600 }}>₹{bill.remaining.toFixed(2)}</td>
+                  </tr>
+                )}
+                {boarding.paymentMethod && (
+                  <tr>
+                    <td style={{ padding: '6px 14px', fontSize: '12px', color: '#888' }}>Mode of Payment</td>
+                    <td style={{ padding: '6px 14px', fontSize: '12px', textAlign: 'right', textTransform: 'uppercase', fontWeight: 600 }}>{boarding.paymentMethod}</td>
                   </tr>
                 )}
                 <tr>
@@ -207,17 +209,9 @@ export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner 
                     }}>{boarding.paymentStatus || 'outstanding'}</span>
                   </td>
                 </tr>
-                {boarding.paymentMethod && (
-                  <tr>
-                    <td style={{ padding: '6px 14px', fontSize: '12px', color: '#888' }}>Payment Method</td>
-                    <td style={{ padding: '6px 14px', fontSize: '12px', textAlign: 'right', textTransform: 'uppercase', fontWeight: 600 }}>{boarding.paymentMethod}</td>
-                  </tr>
-                )}
               </tbody>
             </table>
           </div>
-            );
-          })()}
 
           {/* Notes */}
           {boarding.notes &&

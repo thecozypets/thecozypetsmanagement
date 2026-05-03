@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Printer, Download } from 'lucide-react';
+import { calcBilling } from '@/lib/billing';
 
 interface Props {
   open: boolean;
@@ -20,12 +21,9 @@ export default function FosterInvoiceModal({ open, onOpenChange, foster, dog, ow
 
   if (!foster || !dog || !owner) return null;
 
-  const days = (() => {
-    const diff = new Date(foster.checkOutDate).getTime() - new Date(foster.checkInDate).getTime();
-    return Math.max(1, Math.ceil(diff / (1000 * 60 * 60 * 24)));
-  })();
-
-  const totalAmount = foster.totalCost + (foster.additionalCost || 0);
+  const bill = calcBilling(foster);
+  const days = bill.days;
+  const totalAmount = bill.total;
   const invoiceNumber = `FINV-${foster.id.slice(0, 8).toUpperCase()}`;
   const invoiceDate = new Date().toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' });
 
@@ -143,14 +141,14 @@ export default function FosterInvoiceModal({ open, onOpenChange, foster, dog, ow
                 </td>
                 <td style={{ padding: '10px 14px', fontSize: '13px', borderBottom: '1px solid #e5e7eb', textAlign: 'center' }}>{days}</td>
                 <td style={{ padding: '10px 14px', fontSize: '13px', borderBottom: '1px solid #e5e7eb', textAlign: 'right' }}>₹{foster.dailyRate.toFixed(2)}</td>
-                <td style={{ padding: '10px 14px', fontSize: '13px', borderBottom: '1px solid #e5e7eb', textAlign: 'right' }}>₹{foster.totalCost.toFixed(2)}</td>
+                <td style={{ padding: '10px 14px', fontSize: '13px', borderBottom: '1px solid #e5e7eb', textAlign: 'right' }}>₹{bill.subtotal.toFixed(2)}</td>
               </tr>
-              {(foster.additionalCost || 0) > 0 && (
+              {bill.additional > 0 && (
                 <tr>
-                  <td style={{ padding: '10px 14px', fontSize: '13px', borderBottom: '1px solid #e5e7eb' }}>Additional Charges</td>
+                  <td style={{ padding: '10px 14px', fontSize: '13px', borderBottom: '1px solid #e5e7eb' }}>Extra Amount</td>
                   <td style={{ padding: '10px 14px', fontSize: '13px', borderBottom: '1px solid #e5e7eb', textAlign: 'center' }}>-</td>
                   <td style={{ padding: '10px 14px', fontSize: '13px', borderBottom: '1px solid #e5e7eb', textAlign: 'right' }}>-</td>
-                  <td style={{ padding: '10px 14px', fontSize: '13px', borderBottom: '1px solid #e5e7eb', textAlign: 'right' }}>₹{foster.additionalCost.toFixed(2)}</td>
+                  <td style={{ padding: '10px 14px', fontSize: '13px', borderBottom: '1px solid #e5e7eb', textAlign: 'right' }}>₹{bill.additional.toFixed(2)}</td>
                 </tr>
               )}
               {foster.feedingSchedule && (
@@ -172,30 +170,36 @@ export default function FosterInvoiceModal({ open, onOpenChange, foster, dog, ow
 
           {/* Totals & Payment */}
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px' }}>
-            <table style={{ width: '280px', borderCollapse: 'collapse' }}>
+            <table style={{ width: '300px', borderCollapse: 'collapse' }}>
               <tbody>
                 <tr>
-                  <td style={{ padding: '6px 14px', fontSize: '13px' }}>Stay Cost</td>
-                  <td style={{ padding: '6px 14px', fontSize: '13px', textAlign: 'right' }}>₹{foster.totalCost.toFixed(2)}</td>
+                  <td style={{ padding: '6px 14px', fontSize: '13px' }}>{bill.days} days × ₹{bill.dailyRate.toFixed(2)}</td>
+                  <td style={{ padding: '6px 14px', fontSize: '13px', textAlign: 'right' }}>₹{bill.subtotal.toFixed(2)}</td>
                 </tr>
-                {(foster.additionalCost || 0) > 0 && (
+                {bill.additional > 0 && (
                   <tr>
-                    <td style={{ padding: '6px 14px', fontSize: '13px' }}>Additional Cost</td>
-                    <td style={{ padding: '6px 14px', fontSize: '13px', textAlign: 'right' }}>₹{foster.additionalCost.toFixed(2)}</td>
+                    <td style={{ padding: '6px 14px', fontSize: '13px' }}>Extra Amount</td>
+                    <td style={{ padding: '6px 14px', fontSize: '13px', textAlign: 'right' }}>₹{bill.additional.toFixed(2)}</td>
                   </tr>
                 )}
                 <tr>
                   <td style={{ padding: '10px 14px', fontSize: '16px', fontWeight: 700, color: '#2563eb', borderTop: '2px solid #2563eb' }}>Total Amount</td>
-                  <td style={{ padding: '10px 14px', fontSize: '16px', fontWeight: 700, color: '#2563eb', borderTop: '2px solid #2563eb', textAlign: 'right' }}>₹{totalAmount.toFixed(2)}</td>
+                  <td style={{ padding: '10px 14px', fontSize: '16px', fontWeight: 700, color: '#2563eb', borderTop: '2px solid #2563eb', textAlign: 'right' }}>₹{bill.total.toFixed(2)}</td>
                 </tr>
                 <tr>
                   <td style={{ padding: '6px 14px', fontSize: '13px', color: '#16a34a' }}>Paid</td>
-                  <td style={{ padding: '6px 14px', fontSize: '13px', textAlign: 'right', color: '#16a34a' }}>₹{(foster.paidAmount || 0).toFixed(2)}</td>
+                  <td style={{ padding: '6px 14px', fontSize: '13px', textAlign: 'right', color: '#16a34a' }}>₹{bill.paid.toFixed(2)}</td>
                 </tr>
-                {(totalAmount - (foster.paidAmount || 0)) > 0 && (
+                {bill.remaining > 0 && (
                   <tr>
-                    <td style={{ padding: '6px 14px', fontSize: '13px', color: '#dc2626', fontWeight: 600 }}>Outstanding</td>
-                    <td style={{ padding: '6px 14px', fontSize: '13px', textAlign: 'right', color: '#dc2626', fontWeight: 600 }}>₹{(totalAmount - (foster.paidAmount || 0)).toFixed(2)}</td>
+                    <td style={{ padding: '6px 14px', fontSize: '13px', color: '#dc2626', fontWeight: 600 }}>Remaining</td>
+                    <td style={{ padding: '6px 14px', fontSize: '13px', textAlign: 'right', color: '#dc2626', fontWeight: 600 }}>₹{bill.remaining.toFixed(2)}</td>
+                  </tr>
+                )}
+                {foster.paymentMethod && (
+                  <tr>
+                    <td style={{ padding: '6px 14px', fontSize: '12px', color: '#888' }}>Mode of Payment</td>
+                    <td style={{ padding: '6px 14px', fontSize: '12px', textAlign: 'right', textTransform: 'uppercase', fontWeight: 600 }}>{foster.paymentMethod}</td>
                   </tr>
                 )}
                 <tr>
@@ -207,12 +211,6 @@ export default function FosterInvoiceModal({ open, onOpenChange, foster, dog, ow
                     }}>{foster.paymentStatus || 'outstanding'}</span>
                   </td>
                 </tr>
-                {foster.paymentMethod && (
-                  <tr>
-                    <td style={{ padding: '6px 14px', fontSize: '12px', color: '#888' }}>Payment Method</td>
-                    <td style={{ padding: '6px 14px', fontSize: '12px', textAlign: 'right', textTransform: 'uppercase', fontWeight: 600 }}>{foster.paymentMethod}</td>
-                  </tr>
-                )}
               </tbody>
             </table>
           </div>

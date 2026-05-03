@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Badge } from '@/components/ui/badge';
 import { Users, PawPrint, CalendarCheck, DollarSign, Phone, Mail, Heart } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { calcBilling } from '@/lib/billing';
 
 const statusColors: Record<BoardingStatus, string> = {
   'reserved': 'bg-warning/20 text-warning-foreground border-warning/30',
@@ -37,16 +38,16 @@ export default function Dashboard({ owners, dogs, boardings, fosters, fosterOwne
   const bCompleted = boardings.filter(b => b.status === 'checked-out');
   const bCancelled = boardings.filter(b => b.status === 'cancelled');
   const bPaid = boardings.filter(b => b.status !== 'cancelled');
-  const bRevenue = bPaid.reduce((s, b) => s + b.totalCost + (b.additionalCost || 0), 0);
-  const bPaidAmt = bPaid.reduce((s, b) => s + (b.paidAmount || 0), 0);
+  const bRevenue = bPaid.reduce((s, b) => s + calcBilling(b).total, 0);
+  const bPaidAmt = bPaid.reduce((s, b) => s + calcBilling(b).paid, 0);
 
   const fActive = fosters.filter(f => f.status === 'checked-in');
   const fReserved = fosters.filter(f => f.status === 'reserved');
   const fCompleted = fosters.filter(f => f.status === 'checked-out');
   const fCancelled = fosters.filter(f => f.status === 'cancelled');
   const fPaid = fosters.filter(f => f.status !== 'cancelled');
-  const fRevenue = fPaid.reduce((s, f) => s + f.totalCost + (f.additionalCost || 0), 0);
-  const fPaidAmt = fPaid.reduce((s, f) => s + (f.paidAmount || 0), 0);
+  const fRevenue = fPaid.reduce((s, f) => s + calcBilling(f).total, 0);
+  const fPaidAmt = fPaid.reduce((s, f) => s + calcBilling(f).paid, 0);
 
   const getDogName = (id: string, list: Dog[]) => list.find(d => d.id === id)?.name || 'Unknown';
   const getOwnerName = (id: string, list: Owner[]) => list.find(o => o.id === id)?.name || 'Unknown';
@@ -112,7 +113,7 @@ export default function Dashboard({ owners, dogs, boardings, fosters, fosterOwne
                 </div>
                 <div className="text-right">
                   <Badge className={`text-xs ${statusColors[b.status]}`}>{b.status}</Badge>
-                  <p className="text-sm font-bold mt-1">₹{(b.totalCost + ((b as Boarding).additionalCost || 0)).toFixed(2)}</p>
+                  <p className="text-sm font-bold mt-1">₹{calcBilling(b).total.toFixed(2)}</p>
                 </div>
               </div>
             </CardContent>
@@ -135,7 +136,7 @@ export default function Dashboard({ owners, dogs, boardings, fosters, fosterOwne
               <p className="font-semibold text-sm">🐕 {getDogName(b.dogId, dogList)}</p>
               <p className="text-xs text-muted-foreground">{b.checkInDate} → {b.checkOutDate}</p>
             </div>
-            <p className="font-bold text-sm">₹{(b.totalCost + ((b as Boarding).additionalCost || 0)).toFixed(2)}</p>
+            <p className="font-bold text-sm">₹{calcBilling(b).total.toFixed(2)}</p>
           </CardContent>
         </Card>
       ))}
