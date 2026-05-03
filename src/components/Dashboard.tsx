@@ -38,16 +38,16 @@ export default function Dashboard({ owners, dogs, boardings, fosters, fosterOwne
   const bCompleted = boardings.filter(b => b.status === 'checked-out');
   const bCancelled = boardings.filter(b => b.status === 'cancelled');
   const bPaid = boardings.filter(b => b.status !== 'cancelled');
-  const bRevenue = bPaid.reduce((s, b) => s + b.totalCost + (b.additionalCost || 0), 0);
-  const bPaidAmt = bPaid.reduce((s, b) => s + (b.paidAmount || 0), 0);
+  const bRevenue = bPaid.reduce((s, b) => s + calcBilling(b).total, 0);
+  const bPaidAmt = bPaid.reduce((s, b) => s + calcBilling(b).paid, 0);
 
   const fActive = fosters.filter(f => f.status === 'checked-in');
   const fReserved = fosters.filter(f => f.status === 'reserved');
   const fCompleted = fosters.filter(f => f.status === 'checked-out');
   const fCancelled = fosters.filter(f => f.status === 'cancelled');
   const fPaid = fosters.filter(f => f.status !== 'cancelled');
-  const fRevenue = fPaid.reduce((s, f) => s + f.totalCost + (f.additionalCost || 0), 0);
-  const fPaidAmt = fPaid.reduce((s, f) => s + (f.paidAmount || 0), 0);
+  const fRevenue = fPaid.reduce((s, f) => s + calcBilling(f).total, 0);
+  const fPaidAmt = fPaid.reduce((s, f) => s + calcBilling(f).paid, 0);
 
   const getDogName = (id: string, list: Dog[]) => list.find(d => d.id === id)?.name || 'Unknown';
   const getOwnerName = (id: string, list: Owner[]) => list.find(o => o.id === id)?.name || 'Unknown';
