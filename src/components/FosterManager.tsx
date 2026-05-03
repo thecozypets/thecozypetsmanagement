@@ -296,18 +296,30 @@ export default function FosterManager({ fosters, dogs, owners, onAdd, onUpdate, 
                         <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => onDelete(f.id)}><Trash2 className="h-4 w-4" /></Button>
                       </div>
                     </div>
-                    <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
-                      <div className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" /> In: {f.checkInDate}{f.checkInTime ? ` ${formatTime12(f.checkInTime)}` : ''}</div>
-                      <div className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" /> Out: {f.checkOutDate}{f.checkOutTime ? ` ${formatTime12(f.checkOutTime)}` : ''}</div>
-                      {f.kennelNumber && <div>Kennel: #{f.kennelNumber}</div>}
-                      <div className="flex items-center gap-1.5"><DollarSign className="h-3.5 w-3.5" /> ₹{(f.totalCost + (f.additionalCost || 0)).toFixed(2)}</div>
-                      <div>
-                        <Badge variant="outline" className={`text-xs ${f.paymentStatus === 'paid' ? 'border-success/50 text-success-foreground' : f.paymentStatus === 'partly-paid' ? 'border-warning/50 text-warning-foreground' : 'border-destructive/50 text-destructive'}`}>
-                          {f.paymentStatus === 'partly-paid' ? `Partly ₹${f.paidAmount}` : f.paymentStatus}
-                        </Badge>
-                        {f.paymentMethod && <span className="text-xs ml-1 uppercase">{f.paymentMethod}</span>}
-                      </div>
-                    </div>
+                    {(() => {
+                      const bill = calcBilling(f);
+                      return (
+                        <>
+                          <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
+                            <div className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" /> In: {f.checkInDate}{f.checkInTime ? ` ${formatTime12(f.checkInTime)}` : ''}</div>
+                            <div className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" /> Out: {f.checkOutDate}{f.checkOutTime ? ` ${formatTime12(f.checkOutTime)}` : ''}</div>
+                            {f.kennelNumber && <div>Kennel: #{f.kennelNumber}</div>}
+                            <div className="flex items-center gap-1.5"><DollarSign className="h-3.5 w-3.5" /> {bill.days}d × ₹{bill.dailyRate}{bill.additional > 0 ? ` + ₹${bill.additional}` : ''}</div>
+                          </div>
+                          <div className="grid grid-cols-3 gap-1 mt-2 pt-2 border-t text-xs">
+                            <div><div className="text-muted-foreground">Total</div><div className="font-bold">₹{bill.total.toFixed(2)}</div></div>
+                            <div><div className="text-muted-foreground">Paid</div><div className="font-bold text-success">₹{bill.paid.toFixed(2)}</div></div>
+                            <div><div className="text-muted-foreground">Remaining</div><div className="font-bold text-destructive">₹{bill.remaining.toFixed(2)}</div></div>
+                          </div>
+                          <div className="flex items-center gap-2 mt-2">
+                            <Badge variant="outline" className={`text-xs ${f.paymentStatus === 'paid' ? 'border-success/50 text-success-foreground' : f.paymentStatus === 'partly-paid' ? 'border-warning/50 text-warning-foreground' : 'border-destructive/50 text-destructive'}`}>
+                              {f.paymentStatus}
+                            </Badge>
+                            {f.paymentMethod && <span className="text-xs uppercase text-muted-foreground">{f.paymentMethod}</span>}
+                          </div>
+                        </>
+                      );
+                    })()}
                     {f.notes && <p className="text-xs text-muted-foreground mt-2 italic">{f.notes}</p>}
                   </CardContent>
                 </Card>
