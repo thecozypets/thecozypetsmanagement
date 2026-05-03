@@ -167,11 +167,30 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
                 <div><Label>Kennel #</Label><Input value={form.kennelNumber} onChange={e => setForm(p => ({ ...p, kennelNumber: e.target.value }))} /></div>
                 <div><Label>Daily Rate (₹)</Label><Input type="number" min={0} step={0.01} value={form.dailyRate} onChange={e => setForm(p => updateCost({ ...p, dailyRate: +e.target.value }))} /></div>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-                <div><Label>Total Cost (₹)</Label><Input type="number" min={0} step={0.01} value={form.totalCost} onChange={e => setForm(p => ({ ...p, totalCost: +e.target.value }))} /></div>
-                <div><Label>Additional Amount (₹)</Label><Input type="number" min={0} step={0.01} value={form.additionalCost} onChange={e => setForm(p => ({ ...p, additionalCost: +e.target.value }))} /></div>
-                <div><Label className="font-bold">Total Amount to be Paid</Label><Input readOnly value={`₹${(form.totalCost + form.additionalCost).toFixed(2)}`} className="bg-muted font-bold" /></div>
-              </div>
+
+              {/* Cost Breakdown */}
+              {(() => {
+                const bill = calcBilling(form);
+                return (
+                  <div className="rounded-lg border bg-muted/30 p-3 sm:p-4 space-y-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Days × Daily Rate</Label>
+                        <Input readOnly value={`${bill.days} × ₹${bill.dailyRate.toFixed(2)} = ₹${bill.subtotal.toFixed(2)}`} className="bg-background" />
+                      </div>
+                      <div>
+                        <Label>Extra Amount (₹)</Label>
+                        <Input type="number" min={0} step={0.01} value={form.additionalCost} onChange={e => setForm(p => ({ ...p, additionalCost: +e.target.value }))} />
+                      </div>
+                    </div>
+                    <div className="flex justify-between items-center pt-2 border-t">
+                      <span className="font-display font-bold">Total Amount</span>
+                      <span className="font-display font-bold text-lg text-primary">₹{bill.total.toFixed(2)}</span>
+                    </div>
+                  </div>
+                );
+              })()}
+
               <div>
                 <Label>Status</Label>
                 <Select value={form.status} onValueChange={(v: BoardingStatus) => setForm(p => ({ ...p, status: v, paymentStatus: v === 'cancelled' && p.paymentStatus === 'outstanding' ? 'paid' : p.paymentStatus }))}>
@@ -185,36 +204,48 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
                 </Select>
               </div>
               <div><Label>Feeding Schedule</Label><Input value={form.feedingSchedule} onChange={e => setForm(p => ({ ...p, feedingSchedule: e.target.value }))} /></div>
-              
-              {/* Payment Details */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-                <div>
-                  <Label>Payment Status</Label>
-                  <Select value={form.paymentStatus} onValueChange={(v: PaymentStatus) => setForm(p => ({ ...p, paymentStatus: v, paidAmount: v === 'paid' ? (p.totalCost + (p.additionalCost || 0)) : v === 'outstanding' ? 0 : p.paidAmount }))}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="paid">Paid</SelectItem>
-                      <SelectItem value="partly-paid">Partly Paid</SelectItem>
-                      {form.status !== 'cancelled' && <SelectItem value="outstanding">Outstanding</SelectItem>}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label>Paid Amount (₹)</Label>
-                  <Input type="number" min={0} step={0.01} value={form.paidAmount} disabled={form.paymentStatus === 'paid' || form.paymentStatus === 'outstanding'} onChange={e => setForm(p => ({ ...p, paidAmount: +e.target.value }))} />
-                </div>
-                <div>
-                  <Label>Payment Method</Label>
-                  <Select value={form.paymentMethod || 'none'} onValueChange={(v) => setForm(p => ({ ...p, paymentMethod: v === 'none' ? '' : v as PaymentMethod }))}>
-                    <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">Not set</SelectItem>
-                      <SelectItem value="upi">UPI</SelectItem>
-                      <SelectItem value="cash">Cash</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
+
+              {/* Payment Section */}
+              {(() => {
+                const bill = calcBilling(form);
+                return (
+                  <div className="rounded-lg border bg-muted/30 p-3 sm:p-4 space-y-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div>
+                        <Label>Payment Status</Label>
+                        <Select value={form.paymentStatus} onValueChange={(v: PaymentStatus) => setForm(p => ({ ...p, paymentStatus: v, paidAmount: v === 'paid' ? bill.total : v === 'outstanding' ? 0 : p.paidAmount }))}>
+                          <SelectTrigger><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="paid">Paid</SelectItem>
+                            <SelectItem value="partly-paid">Partly Paid</SelectItem>
+                            {form.status !== 'cancelled' && <SelectItem value="outstanding">Outstanding</SelectItem>}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label>Mode of Payment</Label>
+                        <Select value={form.paymentMethod || 'none'} onValueChange={(v) => setForm(p => ({ ...p, paymentMethod: v === 'none' ? '' : v as PaymentMethod }))}>
+                          <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="none">Not set</SelectItem>
+                            <SelectItem value="upi">UPI</SelectItem>
+                            <SelectItem value="cash">Cash</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label>Paid Amount (₹)</Label>
+                        <Input type="number" min={0} step={0.01} value={form.paidAmount} disabled={form.paymentStatus === 'paid' || form.paymentStatus === 'outstanding'} onChange={e => setForm(p => ({ ...p, paidAmount: +e.target.value }))} />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2 text-sm pt-2 border-t">
+                      <div className="text-center"><div className="text-xs text-muted-foreground">Total</div><div className="font-bold">₹{bill.total.toFixed(2)}</div></div>
+                      <div className="text-center"><div className="text-xs text-muted-foreground">Paid</div><div className="font-bold text-success">₹{bill.paid.toFixed(2)}</div></div>
+                      <div className="text-center"><div className="text-xs text-muted-foreground">Remaining</div><div className="font-bold text-destructive">₹{bill.remaining.toFixed(2)}</div></div>
+                    </div>
+                  </div>
+                );
+              })()}
 
               <div><Label>Special Requests</Label><Textarea value={form.specialRequests} onChange={e => setForm(p => ({ ...p, specialRequests: e.target.value }))} /></div>
               <div><Label>Notes</Label><Textarea value={form.notes} onChange={e => setForm(p => ({ ...p, notes: e.target.value }))} /></div>
