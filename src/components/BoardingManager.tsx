@@ -162,14 +162,14 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
                   <Input type="time" value={form.checkOutTime} onChange={e => setForm(p => ({ ...p, checkOutTime: e.target.value }))} />
                 </div>
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div><Label>Kennel #</Label><Input value={form.kennelNumber} onChange={e => setForm(p => ({ ...p, kennelNumber: e.target.value }))} /></div>
                 <div><Label>Daily Rate (₹)</Label><Input type="number" min={0} step={0.01} value={form.dailyRate} onChange={e => setForm(p => updateCost({ ...p, dailyRate: +e.target.value }))} /></div>
-                <div><Label>Total Cost</Label><Input readOnly value={`₹${form.totalCost.toFixed(2)}`} className="bg-muted" /></div>
-                <div><Label>Additional Cost (₹)</Label><Input type="number" min={0} step={0.01} value={form.additionalCost} onChange={e => setForm(p => ({ ...p, additionalCost: +e.target.value }))} /></div>
               </div>
-              <div>
-                <Label className="font-bold">Total Amount: ₹{(form.totalCost + form.additionalCost).toFixed(2)}</Label>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+                <div><Label>Total Cost (₹)</Label><Input type="number" min={0} step={0.01} value={form.totalCost} onChange={e => setForm(p => ({ ...p, totalCost: +e.target.value }))} /></div>
+                <div><Label>Additional Amount (₹)</Label><Input type="number" min={0} step={0.01} value={form.additionalCost} onChange={e => setForm(p => ({ ...p, additionalCost: +e.target.value }))} /></div>
+                <div><Label className="font-bold">Total Amount to be Paid</Label><Input readOnly value={`₹${(form.totalCost + form.additionalCost).toFixed(2)}`} className="bg-muted font-bold" /></div>
               </div>
               <div>
                 <Label>Status</Label>
