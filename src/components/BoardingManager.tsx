@@ -284,18 +284,30 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
                         <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => onDelete(b.id)}><Trash2 className="h-4 w-4" /></Button>
                       </div>
                     </div>
-                    <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
-                      <div className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" /> In: {b.checkInDate}{b.checkInTime ? ` ${formatTime12(b.checkInTime)}` : ''}</div>
-                      <div className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" /> Out: {b.checkOutDate}{b.checkOutTime ? ` ${formatTime12(b.checkOutTime)}` : ''}</div>
-                      {b.kennelNumber && <div>Kennel: #{b.kennelNumber}</div>}
-                       <div className="flex items-center gap-1.5"><DollarSign className="h-3.5 w-3.5" /> Total Amount: ₹{(b.totalCost + (b.additionalCost || 0)).toFixed(2)}</div>
-                      <div>
-                        <Badge variant="outline" className={`text-xs ${b.paymentStatus === 'paid' ? 'border-success/50 text-success-foreground' : b.paymentStatus === 'partly-paid' ? 'border-warning/50 text-warning-foreground' : 'border-destructive/50 text-destructive'}`}>
-                          {b.paymentStatus === 'partly-paid' ? `Partly ₹${b.paidAmount}` : b.paymentStatus}
-                        </Badge>
-                        {b.paymentMethod && <span className="text-xs ml-1 uppercase">{b.paymentMethod}</span>}
-                      </div>
-                    </div>
+                    {(() => {
+                      const bill = calcBilling(b);
+                      return (
+                        <>
+                          <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
+                            <div className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" /> In: {b.checkInDate}{b.checkInTime ? ` ${formatTime12(b.checkInTime)}` : ''}</div>
+                            <div className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" /> Out: {b.checkOutDate}{b.checkOutTime ? ` ${formatTime12(b.checkOutTime)}` : ''}</div>
+                            {b.kennelNumber && <div>Kennel: #{b.kennelNumber}</div>}
+                            <div className="flex items-center gap-1.5"><DollarSign className="h-3.5 w-3.5" /> {bill.days}d × ₹{bill.dailyRate}{bill.additional > 0 ? ` + ₹${bill.additional}` : ''}</div>
+                          </div>
+                          <div className="grid grid-cols-3 gap-1 mt-2 pt-2 border-t text-xs">
+                            <div><div className="text-muted-foreground">Total</div><div className="font-bold">₹{bill.total.toFixed(2)}</div></div>
+                            <div><div className="text-muted-foreground">Paid</div><div className="font-bold text-success">₹{bill.paid.toFixed(2)}</div></div>
+                            <div><div className="text-muted-foreground">Remaining</div><div className="font-bold text-destructive">₹{bill.remaining.toFixed(2)}</div></div>
+                          </div>
+                          <div className="flex items-center gap-2 mt-2">
+                            <Badge variant="outline" className={`text-xs ${b.paymentStatus === 'paid' ? 'border-success/50 text-success-foreground' : b.paymentStatus === 'partly-paid' ? 'border-warning/50 text-warning-foreground' : 'border-destructive/50 text-destructive'}`}>
+                              {b.paymentStatus}
+                            </Badge>
+                            {b.paymentMethod && <span className="text-xs uppercase text-muted-foreground">{b.paymentMethod}</span>}
+                          </div>
+                        </>
+                      );
+                    })()}
                     {b.notes && <p className="text-xs text-muted-foreground mt-2 italic">{b.notes}</p>}
                   </CardContent>
                 </Card>
