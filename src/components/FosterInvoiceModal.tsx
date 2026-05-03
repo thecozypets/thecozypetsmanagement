@@ -21,12 +21,9 @@ export default function FosterInvoiceModal({ open, onOpenChange, foster, dog, ow
 
   if (!foster || !dog || !owner) return null;
 
-  const days = (() => {
-    const diff = new Date(foster.checkOutDate).getTime() - new Date(foster.checkInDate).getTime();
-    return Math.max(1, Math.ceil(diff / (1000 * 60 * 60 * 24)));
-  })();
-
-  const totalAmount = foster.totalCost + (foster.additionalCost || 0);
+  const bill = calcBilling(foster);
+  const days = bill.days;
+  const totalAmount = bill.total;
   const invoiceNumber = `FINV-${foster.id.slice(0, 8).toUpperCase()}`;
   const invoiceDate = new Date().toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' });
 
