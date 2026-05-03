@@ -216,6 +216,8 @@ export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner 
               </tbody>
             </table>
           </div>
+            );
+          })()}
 
           {/* Notes */}
           {boarding.notes &&
