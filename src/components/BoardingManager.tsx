@@ -189,7 +189,7 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                 <div>
                   <Label>Payment Status</Label>
-                  <Select value={form.paymentStatus} onValueChange={(v: PaymentStatus) => setForm(p => ({ ...p, paymentStatus: v, paidAmount: v === 'paid' ? p.totalCost : v === 'outstanding' ? 0 : p.paidAmount }))}>
+                  <Select value={form.paymentStatus} onValueChange={(v: PaymentStatus) => setForm(p => ({ ...p, paymentStatus: v, paidAmount: v === 'paid' ? (p.totalCost + (p.additionalCost || 0)) : v === 'outstanding' ? 0 : p.paidAmount }))}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="paid">Paid</SelectItem>
