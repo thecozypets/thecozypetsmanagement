@@ -113,7 +113,7 @@ export default function Dashboard({ owners, dogs, boardings, fosters, fosterOwne
                 </div>
                 <div className="text-right">
                   <Badge className={`text-xs ${statusColors[b.status]}`}>{b.status}</Badge>
-                  <p className="text-sm font-bold mt-1">₹{(b.totalCost + ((b as Boarding).additionalCost || 0)).toFixed(2)}</p>
+                  <p className="text-sm font-bold mt-1">₹{calcBilling(b).total.toFixed(2)}</p>
                 </div>
               </div>
             </CardContent>
