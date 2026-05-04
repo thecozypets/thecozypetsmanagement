@@ -8,6 +8,8 @@ export interface Owner {
   createdAt: string;
 }
 
+export type AnimalType = 'dog' | 'cat';
+
 export interface Dog {
   id: string;
   name: string;
