@@ -79,14 +79,30 @@ export default function DogManager({ dogs, owners, onAdd, onUpdate, onDelete, on
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row gap-3 justify-between items-stretch sm:items-center">
-        <Input placeholder="Search dogs..." value={search} onChange={e => setSearch(e.target.value)} className="w-full sm:max-w-xs" />
-        <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) { setForm(emptyForm); setEditingId(null); } }}>
-          <DialogTrigger asChild>
-            <Button className="w-full sm:w-auto"><Plus className="mr-2 h-4 w-4" /> Add Dog</Button>
-          </DialogTrigger>
+        <div className="flex gap-2 w-full sm:w-auto sm:max-w-md">
+          <Input placeholder={`Search ${labelPlural.toLowerCase()}...`} value={search} onChange={e => setSearch(e.target.value)} className="flex-1" />
+          {enableAnimalType && (
+            <Select value={filterAnimal} onValueChange={setFilterAnimal}>
+              <SelectTrigger className="w-32"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="dog">🐕 Dogs</SelectItem>
+                <SelectItem value="cat">🐱 Cats</SelectItem>
+              </SelectContent>
+            </Select>
+          )}
+        </div>
+        <div className="flex gap-2 w-full sm:w-auto">
+          <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) { setForm(emptyForm); setEditingId(null); } }}>
+            <DialogTrigger asChild>
+              <Button className="w-full sm:w-auto" onClick={() => setForm(p => ({ ...p, animalType: 'dog' }))}><Plus className="mr-2 h-4 w-4" /> Add Dog</Button>
+            </DialogTrigger>
+            {enableAnimalType && (
+              <Button variant="secondary" className="w-full sm:w-auto" onClick={() => { setForm({ ...emptyForm, animalType: 'cat' }); setEditingId(null); setOpen(true); }}><Cat className="mr-2 h-4 w-4" /> Add Cat</Button>
+            )}
           <DialogContent className="max-h-[85vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle className="font-display">{editingId ? 'Edit Dog' : 'Add New Dog'}</DialogTitle>
+              <DialogTitle className="font-display">{editingId ? `Edit ${labelSingular}` : `Add New ${labelSingular}`}</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
