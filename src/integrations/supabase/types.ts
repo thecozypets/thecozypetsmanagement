@@ -257,6 +257,7 @@ export type Database = {
         Row: {
           age: number
           age_months: number
+          animal_type: string
           breed: string
           created_at: string
           feeding_instructions: string | null
@@ -276,6 +277,7 @@ export type Database = {
         Insert: {
           age?: number
           age_months?: number
+          animal_type?: string
           breed?: string
           created_at?: string
           feeding_instructions?: string | null
@@ -295,6 +297,7 @@ export type Database = {
         Update: {
           age?: number
           age_months?: number
+          animal_type?: string
           breed?: string
           created_at?: string
           feeding_instructions?: string | null

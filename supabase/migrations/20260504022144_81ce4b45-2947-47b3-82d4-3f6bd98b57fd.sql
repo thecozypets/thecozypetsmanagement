@@ -1,0 +1,1 @@
+ALTER TABLE public.foster_dogs ADD COLUMN IF NOT EXISTS animal_type text NOT NULL DEFAULT 'dog';
