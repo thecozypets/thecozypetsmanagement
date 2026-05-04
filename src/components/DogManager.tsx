@@ -43,7 +43,7 @@ interface Props {
   enableAnimalType?: boolean;
 }
 
-export default function DogManager({ dogs, owners, onAdd, onUpdate, onDelete, onClickDog, onClickOwner }: Props) {
+export default function DogManager({ dogs, owners, onAdd, onUpdate, onDelete, onClickDog, onClickOwner, enableAnimalType = false }: Props) {
   const [form, setForm] = useState<DogFormData>(emptyForm);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
