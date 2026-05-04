@@ -184,10 +184,11 @@ export default function DogManager({ dogs, owners, onAdd, onUpdate, onDelete, on
                   )}
                 </div>
               )}
-              <Button type="submit" className="w-full">{editingId ? 'Update' : 'Add Dog'}</Button>
+              <Button type="submit" className="w-full">{editingId ? 'Update' : `Add ${labelSingular}`}</Button>
             </form>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
 
       {filtered.length === 0 ? (
