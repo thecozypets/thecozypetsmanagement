@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Dog, Owner } from '@/types/boarding';
+import { Dog, Owner, AnimalType } from '@/types/boarding';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
