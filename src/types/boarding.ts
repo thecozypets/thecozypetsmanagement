@@ -56,7 +56,6 @@ export interface Boarding {
   createdAt: string;
 }
 
-export type AnimalType = 'dog' | 'cat';
 
 export interface Foster {
   id: string;
