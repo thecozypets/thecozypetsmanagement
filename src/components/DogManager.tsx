@@ -9,7 +9,7 @@ import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { PawPrint, Pencil, Trash2, Plus } from 'lucide-react';
+import { PawPrint, Pencil, Trash2, Plus, Cat } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface DogFormData {
