@@ -214,7 +214,7 @@ export default function DogManager({ dogs, owners, onAdd, onUpdate, onDelete, on
                           </div>
                         )}
                         <div>
-                          <h3 className="font-display font-bold text-lg hover:text-primary transition-colors">{dog.name}</h3>
+                          <h3 className="font-display font-bold text-lg hover:text-primary transition-colors">{enableAnimalType && (dog.animalType === 'cat' ? '🐱 ' : '🐕 ')}{dog.name}</h3>
                           <p className="text-sm text-muted-foreground">{dog.breed} · {dog.age}y {dog.ageMonths ? `${dog.ageMonths}m` : ''} · {dog.weight}kg</p>
                         </div>
                       </div>
