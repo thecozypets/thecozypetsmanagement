@@ -335,7 +335,8 @@ export function useFosterDogs() {
       gender: r.gender as 'male' | 'female', ownerId: r.owner_id,
       specialNeeds: r.special_needs || '', feedingInstructions: r.feeding_instructions || '',
       medications: r.medications || '', vaccinated: r.vaccinated, neutered: r.neutered,
-      photoUrl: r.photo_url || '', vaccinePhotoUrl: r.vaccine_photo_url || '', createdAt: r.created_at,
+      photoUrl: r.photo_url || '', vaccinePhotoUrl: r.vaccine_photo_url || '',
+      animalType: (r.animal_type || 'dog') as AnimalType, createdAt: r.created_at,
     })));
   }, []);
 
