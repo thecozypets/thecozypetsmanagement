@@ -149,7 +149,7 @@ const Index = () => {
                 <OwnerManager owners={fosterOwners} onAdd={addFosterOwner} onUpdate={updateFosterOwner} onDelete={deleteFosterOwner} onClickOwner={openFosterDetailByOwner} />
               </TabsContent>
               <TabsContent value="dogs">
-                <DogManager dogs={fosterDogs} owners={fosterOwners} onAdd={addFosterDog} onUpdate={updateFosterDog} onDelete={deleteFosterDog} onClickDog={openFosterDetailByDog} onClickOwner={openFosterDetailByOwner} />
+                <DogManager dogs={fosterDogs} owners={fosterOwners} onAdd={addFosterDog} onUpdate={updateFosterDog} onDelete={deleteFosterDog} onClickDog={openFosterDetailByDog} onClickOwner={openFosterDetailByOwner} enableAnimalType />
               </TabsContent>
               <TabsContent value="fosters">
                 <FosterManager fosters={fosters} dogs={fosterDogs} owners={fosterOwners} onAdd={addFoster} onUpdate={updateFoster} onDelete={deleteFoster} onClickDog={openFosterDetailByDog} onClickOwner={openFosterDetailByOwner} />

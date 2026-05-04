@@ -8,6 +8,8 @@ export interface Owner {
   createdAt: string;
 }
 
+export type AnimalType = 'dog' | 'cat';
+
 export interface Dog {
   id: string;
   name: string;
@@ -24,6 +26,7 @@ export interface Dog {
   neutered: boolean;
   photoUrl: string;
   vaccinePhotoUrl: string;
+  animalType?: AnimalType;
   createdAt: string;
 }
 
@@ -53,7 +56,6 @@ export interface Boarding {
   createdAt: string;
 }
 
-export type AnimalType = 'dog' | 'cat';
 
 export interface Foster {
   id: string;
