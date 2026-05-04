@@ -372,6 +372,7 @@ export function useFosterDogs() {
     if (d.vaccinated !== undefined) update.vaccinated = d.vaccinated;
     if (d.neutered !== undefined) update.neutered = d.neutered;
     if (d.photoUrl !== undefined) update.photo_url = d.photoUrl;
+    if ((d as any).animalType !== undefined) update.animal_type = (d as any).animalType;
     if (d.vaccinePhotoUrl !== undefined) update.vaccine_photo_url = d.vaccinePhotoUrl;
     const { error } = await supabase.from('foster_dogs' as any).update(update).eq('id', id);
     if (error) { toast.error('Failed to update foster dog'); return; }
