@@ -246,7 +246,7 @@ export default function FosterManager({ fosters, dogs, owners, onAdd, onUpdate, 
                       </div>
                       <div>
                         <Label>Paid Amount (₹)</Label>
-                        <Input type="number" min={0} step={0.01} value={form.paidAmount} disabled={form.paymentStatus === 'paid' || form.paymentStatus === 'outstanding'} onChange={e => setForm(p => ({ ...p, paidAmount: +e.target.value }))} />
+                        <Input type="number" min={0} step={0.01} value={form.paidAmount} onChange={e => setForm(p => ({ ...p, paidAmount: +e.target.value }))} />
                       </div>
                     </div>
                     <div className="grid grid-cols-3 gap-2 text-sm pt-2 border-t">
