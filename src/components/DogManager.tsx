@@ -27,9 +27,10 @@ interface DogFormData {
   neutered: boolean;
   photoUrl: string;
   vaccinePhotoUrl: string;
+  animalType?: AnimalType;
 }
 
-const emptyForm: DogFormData = { name: '', breed: '', age: 0, ageMonths: 0, weight: 0, gender: 'male', ownerId: '', specialNeeds: '', feedingInstructions: '', medications: '', vaccinated: false, neutered: false, photoUrl: '', vaccinePhotoUrl: '' };
+const emptyForm: DogFormData = { name: '', breed: '', age: 0, ageMonths: 0, weight: 0, gender: 'male', ownerId: '', specialNeeds: '', feedingInstructions: '', medications: '', vaccinated: false, neutered: false, photoUrl: '', vaccinePhotoUrl: '', animalType: 'dog' };
 
 interface Props {
   dogs: Dog[];
@@ -39,6 +40,7 @@ interface Props {
   onDelete: (id: string) => void;
   onClickDog: (dogId: string) => void;
   onClickOwner: (ownerId: string) => void;
+  enableAnimalType?: boolean;
 }
 
 export default function DogManager({ dogs, owners, onAdd, onUpdate, onDelete, onClickDog, onClickOwner }: Props) {
