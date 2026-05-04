@@ -58,10 +58,12 @@ export default function DogManager({ dogs, owners, onAdd, onUpdate, onDelete, on
   };
 
   const startEdit = (dog: Dog) => {
-    setForm({ name: dog.name, breed: dog.breed, age: dog.age, ageMonths: dog.ageMonths || 0, weight: dog.weight, gender: dog.gender, ownerId: dog.ownerId, specialNeeds: dog.specialNeeds, feedingInstructions: dog.feedingInstructions, medications: dog.medications, vaccinated: dog.vaccinated, neutered: dog.neutered, photoUrl: dog.photoUrl || '', vaccinePhotoUrl: dog.vaccinePhotoUrl || '' });
+    setForm({ name: dog.name, breed: dog.breed, age: dog.age, ageMonths: dog.ageMonths || 0, weight: dog.weight, gender: dog.gender, ownerId: dog.ownerId, specialNeeds: dog.specialNeeds, feedingInstructions: dog.feedingInstructions, medications: dog.medications, vaccinated: dog.vaccinated, neutered: dog.neutered, photoUrl: dog.photoUrl || '', vaccinePhotoUrl: dog.vaccinePhotoUrl || '', animalType: dog.animalType || 'dog' });
     setEditingId(dog.id);
     setOpen(true);
   };
+
+  const [filterAnimal, setFilterAnimal] = useState<string>('all');
 
   const getOwnerName = (id: string) => owners.find(o => o.id === id)?.name || 'Unknown';
 
