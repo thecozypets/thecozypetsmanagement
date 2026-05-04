@@ -68,9 +68,13 @@ export default function DogManager({ dogs, owners, onAdd, onUpdate, onDelete, on
   const getOwnerName = (id: string) => owners.find(o => o.id === id)?.name || 'Unknown';
 
   const filtered = dogs.filter(d =>
-    d.name.toLowerCase().includes(search.toLowerCase()) ||
-    d.breed.toLowerCase().includes(search.toLowerCase())
+    (d.name.toLowerCase().includes(search.toLowerCase()) ||
+    d.breed.toLowerCase().includes(search.toLowerCase())) &&
+    (!enableAnimalType || filterAnimal === 'all' || (d.animalType || 'dog') === filterAnimal)
   );
+
+  const labelSingular = enableAnimalType ? (form.animalType === 'cat' ? 'Cat' : 'Dog') : 'Dog';
+  const labelPlural = enableAnimalType ? 'Pets' : 'Dogs';
 
   return (
     <div className="space-y-6">
