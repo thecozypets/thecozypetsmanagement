@@ -133,17 +133,23 @@ export default function Dashboard({ owners, dogs, boardings, fosters, fosterOwne
         <div className="flex justify-between text-sm text-success"><span>Paid</span><span>₹{paid.toFixed(2)}</span></div>
         <div className="flex justify-between text-sm text-destructive"><span>Outstanding</span><span>₹{(total - paid).toFixed(2)}</span></div>
       </div>
-      {list.map(b => (
+      {list.map(b => {
+        const bill = calcBilling(b);
+        return (
         <Card key={b.id} className="cursor-pointer hover:ring-1 hover:ring-primary/50 transition-all" onClick={() => { setDrilldown(null); onClickBoarding(b.id); }}>
           <CardContent className="p-3 flex justify-between items-center">
             <div>
               <p className="font-semibold text-sm">🐕 {getDogName(b.dogId, dogList)}</p>
               <p className="text-xs text-muted-foreground">{b.checkInDate} → {b.checkOutDate}</p>
             </div>
-            <p className="font-bold text-sm">₹{calcBilling(b).total.toFixed(2)}</p>
+            <div className="text-right">
+              <p className="font-bold text-sm">₹{bill.total.toFixed(2)}</p>
+              <p className="text-xs font-semibold text-success">Paid ₹{bill.paid.toFixed(2)}</p>
+              <p className="text-xs font-semibold text-destructive">Due ₹{bill.remaining.toFixed(2)}</p>
+            </div>
           </CardContent>
         </Card>
-      ))}
+      );})}
     </div>
   );
 
