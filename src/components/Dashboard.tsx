@@ -166,7 +166,7 @@ export default function Dashboard({ owners, dogs, boardings, fosters, fosterOwne
   const renderSectionCard = (
     title: string, icon: React.ReactNode,
     ownerCount: number, dogCount: number,
-    active: number, revenue: number, reserved: number, completed: number, cancelled: number,
+    active: number, revenue: number, paidAmt: number, reserved: number, completed: number, cancelled: number,
     keys: { owners: DrilldownType; dogs: DrilldownType; active: DrilldownType; revenue: DrilldownType; reserved: DrilldownType; completed: DrilldownType; cancelled: DrilldownType }
   ) => (
     <Card>
