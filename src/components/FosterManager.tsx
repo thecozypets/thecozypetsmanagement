@@ -250,9 +250,13 @@ export default function FosterManager({ fosters, dogs, owners, onAdd, onUpdate, 
                       </div>
                     </div>
                     <div className="grid grid-cols-3 gap-2 text-sm pt-2 border-t">
-                      <div className="text-center"><div className="text-xs text-muted-foreground">Total</div><div className="font-bold">₹{bill.total.toFixed(2)}</div></div>
-                      <div className="text-center"><div className="text-xs text-muted-foreground">Paid</div><div className="font-bold text-success">₹{bill.paid.toFixed(2)}</div></div>
-                      <div className="text-center"><div className="text-xs text-muted-foreground">Remaining</div><div className="font-bold text-destructive">₹{bill.remaining.toFixed(2)}</div></div>
+                      <div className="text-center"><div className="text-xs text-muted-foreground">Total</div><div className="font-bold text-base">₹{bill.total.toFixed(2)}</div></div>
+                      <div className="text-center"><div className="text-xs text-muted-foreground">Paid</div><div className="font-bold text-success text-base">₹{bill.paid.toFixed(2)}</div></div>
+                      {bill.remaining > 0 ? (
+                        <div className="text-center"><div className="text-xs text-muted-foreground">Remaining</div><div className="font-bold text-destructive text-base">₹{bill.remaining.toFixed(2)}</div></div>
+                      ) : (
+                        <div className="text-center"><div className="text-xs text-muted-foreground">Status</div><div className="font-bold text-success text-base">Paid ✓</div></div>
+                      )}
                     </div>
                   </div>
                 );
