@@ -198,6 +198,20 @@ export default function Dashboard({ owners, dogs, boardings, fosters, fosterOwne
             </CardContent>
           </Card>
         </div>
+        <div className="grid grid-cols-2 gap-3 mb-4">
+          <Card className="cursor-pointer hover:ring-1 hover:ring-success/50 transition-all border-success/30" onClick={() => setDrilldown(keys.revenue)}>
+            <CardContent className="p-3 text-center">
+              <p className="font-display text-lg font-bold text-success">₹{paidAmt.toFixed(0)}</p>
+              <p className="text-xs text-muted-foreground">Paid</p>
+            </CardContent>
+          </Card>
+          <Card className="cursor-pointer hover:ring-1 hover:ring-destructive/50 transition-all border-destructive/30" onClick={() => setDrilldown(keys.revenue)}>
+            <CardContent className="p-3 text-center">
+              <p className="font-display text-lg font-bold text-destructive">₹{Math.max(0, revenue - paidAmt).toFixed(0)}</p>
+              <p className="text-xs text-muted-foreground">Outstanding</p>
+            </CardContent>
+          </Card>
+        </div>
         <div className="space-y-2">
           {[
             { label: 'Reserved', value: reserved, key: keys.reserved },
