@@ -143,9 +143,9 @@ export default function Dashboard({ owners, dogs, boardings, fosters, fosterOwne
               <p className="text-xs text-muted-foreground">{b.checkInDate} → {b.checkOutDate}</p>
             </div>
             <div className="text-right">
-              <p className="font-bold text-sm">₹{bill.total.toFixed(2)}</p>
-              <p className="text-xs font-semibold text-success">Paid ₹{bill.paid.toFixed(2)}</p>
-              <p className="text-xs font-semibold text-destructive">Due ₹{bill.remaining.toFixed(2)}</p>
+              <p className="font-bold text-base sm:text-sm">₹{bill.total.toFixed(2)}</p>
+              <p className="text-sm sm:text-xs font-bold text-success">Paid ₹{bill.paid.toFixed(2)}</p>
+              {bill.remaining > 0 && <p className="text-sm sm:text-xs font-bold text-destructive">Due ₹{bill.remaining.toFixed(2)}</p>}
             </div>
           </CardContent>
         </Card>
