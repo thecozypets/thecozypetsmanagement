@@ -310,10 +310,14 @@ export default function FosterManager({ fosters, dogs, owners, onAdd, onUpdate, 
                             {f.kennelNumber && <div>Kennel: #{f.kennelNumber}</div>}
                             <div className="flex items-center gap-1.5"><DollarSign className="h-3.5 w-3.5" /> {bill.days}d × ₹{bill.dailyRate}{bill.additional > 0 ? ` + ₹${bill.additional}` : ''}</div>
                           </div>
-                          <div className="grid grid-cols-3 gap-1 mt-2 pt-2 border-t text-xs">
-                            <div><div className="text-muted-foreground">Total</div><div className="font-bold">₹{bill.total.toFixed(2)}</div></div>
-                            <div><div className="text-muted-foreground">Paid</div><div className="font-bold text-success">₹{bill.paid.toFixed(2)}</div></div>
-                            <div><div className="text-muted-foreground">Remaining</div><div className="font-bold text-destructive">₹{bill.remaining.toFixed(2)}</div></div>
+                          <div className="grid grid-cols-3 gap-1 mt-2 pt-2 border-t text-sm sm:text-xs">
+                            <div><div className="text-muted-foreground">Total</div><div className="font-bold text-base sm:text-sm">₹{bill.total.toFixed(2)}</div></div>
+                            <div><div className="text-muted-foreground">Paid</div><div className="font-bold text-success text-base sm:text-sm">₹{bill.paid.toFixed(2)}</div></div>
+                            {bill.remaining > 0 ? (
+                              <div><div className="text-muted-foreground">Remaining</div><div className="font-bold text-destructive text-base sm:text-sm">₹{bill.remaining.toFixed(2)}</div></div>
+                            ) : (
+                              <div><div className="text-muted-foreground">Status</div><div className="font-bold text-success text-base sm:text-sm">Paid ✓</div></div>
+                            )}
                           </div>
                           <div className="flex items-center gap-2 mt-2">
                             <Badge variant="outline" className={`text-xs ${f.paymentStatus === 'paid' ? 'border-success/50 text-success-foreground' : f.paymentStatus === 'partly-paid' ? 'border-warning/50 text-warning-foreground' : 'border-destructive/50 text-destructive'}`}>
