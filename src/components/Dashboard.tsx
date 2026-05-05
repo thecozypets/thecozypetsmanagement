@@ -234,13 +234,13 @@ export default function Dashboard({ owners, dogs, boardings, fosters, fosterOwne
       <div className="grid lg:grid-cols-2 gap-6">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
           {renderSectionCard('Boarding', <CalendarCheck className="h-5 w-5 text-primary" />,
-            owners.length, dogs.length, bActive.length, bRevenue, bReserved.length, bCompleted.length, bCancelled.length,
+            owners.length, dogs.length, bActive.length, bRevenue, bPaidAmt, bReserved.length, bCompleted.length, bCancelled.length,
             { owners: 'b-owners', dogs: 'b-dogs', active: 'b-active', revenue: 'b-revenue', reserved: 'b-reserved', completed: 'b-completed', cancelled: 'b-cancelled' }
           )}
         </motion.div>
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
           {renderSectionCard('Foster', <Heart className="h-5 w-5 text-destructive" />,
-            fosterOwners.length, fosterDogs.length, fActive.length, fRevenue, fReserved.length, fCompleted.length, fCancelled.length,
+            fosterOwners.length, fosterDogs.length, fActive.length, fRevenue, fPaidAmt, fReserved.length, fCompleted.length, fCancelled.length,
             { owners: 'f-owners', dogs: 'f-dogs', active: 'f-active', revenue: 'f-revenue', reserved: 'f-reserved', completed: 'f-completed', cancelled: 'f-cancelled' }
           )}
         </motion.div>
