@@ -166,7 +166,7 @@ export default function Dashboard({ owners, dogs, boardings, fosters, fosterOwne
   const renderSectionCard = (
     title: string, icon: React.ReactNode,
     ownerCount: number, dogCount: number,
-    active: number, revenue: number, reserved: number, completed: number, cancelled: number,
+    active: number, revenue: number, paidAmt: number, reserved: number, completed: number, cancelled: number,
     keys: { owners: DrilldownType; dogs: DrilldownType; active: DrilldownType; revenue: DrilldownType; reserved: DrilldownType; completed: DrilldownType; cancelled: DrilldownType }
   ) => (
     <Card>
@@ -198,6 +198,20 @@ export default function Dashboard({ owners, dogs, boardings, fosters, fosterOwne
             </CardContent>
           </Card>
         </div>
+        <div className="grid grid-cols-2 gap-3 mb-4">
+          <Card className="cursor-pointer hover:ring-1 hover:ring-success/50 transition-all border-success/30" onClick={() => setDrilldown(keys.revenue)}>
+            <CardContent className="p-3 text-center">
+              <p className="font-display text-lg font-bold text-success">₹{paidAmt.toFixed(0)}</p>
+              <p className="text-xs text-muted-foreground">Paid</p>
+            </CardContent>
+          </Card>
+          <Card className="cursor-pointer hover:ring-1 hover:ring-destructive/50 transition-all border-destructive/30" onClick={() => setDrilldown(keys.revenue)}>
+            <CardContent className="p-3 text-center">
+              <p className="font-display text-lg font-bold text-destructive">₹{Math.max(0, revenue - paidAmt).toFixed(0)}</p>
+              <p className="text-xs text-muted-foreground">Outstanding</p>
+            </CardContent>
+          </Card>
+        </div>
         <div className="space-y-2">
           {[
             { label: 'Reserved', value: reserved, key: keys.reserved },
@@ -220,13 +234,13 @@ export default function Dashboard({ owners, dogs, boardings, fosters, fosterOwne
       <div className="grid lg:grid-cols-2 gap-6">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
           {renderSectionCard('Boarding', <CalendarCheck className="h-5 w-5 text-primary" />,
-            owners.length, dogs.length, bActive.length, bRevenue, bReserved.length, bCompleted.length, bCancelled.length,
+            owners.length, dogs.length, bActive.length, bRevenue, bPaidAmt, bReserved.length, bCompleted.length, bCancelled.length,
             { owners: 'b-owners', dogs: 'b-dogs', active: 'b-active', revenue: 'b-revenue', reserved: 'b-reserved', completed: 'b-completed', cancelled: 'b-cancelled' }
           )}
         </motion.div>
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
           {renderSectionCard('Foster', <Heart className="h-5 w-5 text-destructive" />,
-            fosterOwners.length, fosterDogs.length, fActive.length, fRevenue, fReserved.length, fCompleted.length, fCancelled.length,
+            fosterOwners.length, fosterDogs.length, fActive.length, fRevenue, fPaidAmt, fReserved.length, fCompleted.length, fCancelled.length,
             { owners: 'f-owners', dogs: 'f-dogs', active: 'f-active', revenue: 'f-revenue', reserved: 'f-reserved', completed: 'f-completed', cancelled: 'f-cancelled' }
           )}
         </motion.div>
