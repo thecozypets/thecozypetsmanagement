@@ -113,11 +113,11 @@ export default function Dashboard({ owners, dogs, boardings, fosters, fosterOwne
                   <p className="text-xs text-muted-foreground">Owner: {getOwnerName(b.ownerId, ownerList)}</p>
                   <p className="text-xs text-muted-foreground">{b.checkInDate} → {b.checkOutDate}</p>
                 </div>
-                <div className="text-right">
+                <div className="text-right space-y-1">
                   <Badge className={`text-xs ${statusColors[b.status]}`}>{b.status}</Badge>
-                  <p className="text-base sm:text-sm font-bold mt-1">₹{bill.total.toFixed(2)}</p>
-                  <p className="text-sm sm:text-xs font-bold text-success">Paid ₹{bill.paid.toFixed(2)}</p>
-                  {bill.remaining > 0 && <p className="text-sm sm:text-xs font-bold text-destructive">Due ₹{bill.remaining.toFixed(2)}</p>}
+                  <p className="text-lg sm:text-base font-display font-extrabold text-primary">₹{bill.total.toFixed(2)}</p>
+                  <span className="inline-block px-2 py-0.5 rounded-md bg-success/15 text-success text-sm sm:text-xs font-bold">Paid ₹{bill.paid.toFixed(2)}</span>
+                  {bill.remaining > 0 && <span className="block sm:inline-block sm:ml-1 px-2 py-0.5 rounded-md bg-destructive/15 text-destructive text-sm sm:text-xs font-bold">Due ₹{bill.remaining.toFixed(2)}</span>}
                 </div>
               </div>
             </CardContent>
@@ -142,10 +142,10 @@ export default function Dashboard({ owners, dogs, boardings, fosters, fosterOwne
               <p className="font-semibold text-sm">🐕 {getDogName(b.dogId, dogList)}</p>
               <p className="text-xs text-muted-foreground">{b.checkInDate} → {b.checkOutDate}</p>
             </div>
-            <div className="text-right">
-              <p className="font-bold text-base sm:text-sm">₹{bill.total.toFixed(2)}</p>
-              <p className="text-sm sm:text-xs font-bold text-success">Paid ₹{bill.paid.toFixed(2)}</p>
-              {bill.remaining > 0 && <p className="text-sm sm:text-xs font-bold text-destructive">Due ₹{bill.remaining.toFixed(2)}</p>}
+            <div className="text-right space-y-1">
+              <p className="font-display font-extrabold text-lg sm:text-base text-primary">₹{bill.total.toFixed(2)}</p>
+              <span className="inline-block px-2 py-0.5 rounded-md bg-success/15 text-success text-sm sm:text-xs font-bold">Paid ₹{bill.paid.toFixed(2)}</span>
+              {bill.remaining > 0 && <span className="block sm:inline-block sm:ml-1 px-2 py-0.5 rounded-md bg-destructive/15 text-destructive text-sm sm:text-xs font-bold">Due ₹{bill.remaining.toFixed(2)}</span>}
             </div>
           </CardContent>
         </Card>

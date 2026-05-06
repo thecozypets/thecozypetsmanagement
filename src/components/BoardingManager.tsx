@@ -298,20 +298,20 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
                             {b.kennelNumber && <div>Kennel: #{b.kennelNumber}</div>}
                             <div className="flex items-center gap-1.5"><DollarSign className="h-3.5 w-3.5" /> {bill.days}d × ₹{bill.dailyRate}{bill.additional > 0 ? ` + ₹${bill.additional}` : ''}</div>
                           </div>
-                          <div className="grid grid-cols-3 gap-1 mt-2 pt-2 border-t text-sm sm:text-xs">
-                            <div><div className="text-muted-foreground">Total</div><div className="font-bold text-base sm:text-sm">₹{bill.total.toFixed(2)}</div></div>
-                            <div><div className="text-muted-foreground">Paid</div><div className="font-bold text-success text-base sm:text-sm">₹{bill.paid.toFixed(2)}</div></div>
+                          <div className="grid grid-cols-3 gap-2 mt-2 pt-2 border-t">
+                            <div className="rounded-md bg-primary/10 p-2 text-center"><div className="text-[10px] uppercase tracking-wide text-muted-foreground font-semibold">Total</div><div className="font-display font-extrabold text-lg sm:text-base text-primary">₹{bill.total.toFixed(2)}</div></div>
+                            <div className="rounded-md bg-success/15 p-2 text-center"><div className="text-[10px] uppercase tracking-wide text-success/80 font-semibold">Paid</div><div className="font-display font-extrabold text-lg sm:text-base text-success">₹{bill.paid.toFixed(2)}</div></div>
                             {bill.remaining > 0 ? (
-                              <div><div className="text-muted-foreground">Remaining</div><div className="font-bold text-destructive text-base sm:text-sm">₹{bill.remaining.toFixed(2)}</div></div>
+                              <div className="rounded-md bg-destructive/15 p-2 text-center"><div className="text-[10px] uppercase tracking-wide text-destructive/80 font-semibold">Due</div><div className="font-display font-extrabold text-lg sm:text-base text-destructive">₹{bill.remaining.toFixed(2)}</div></div>
                             ) : (
-                              <div><div className="text-muted-foreground">Status</div><div className="font-bold text-success text-base sm:text-sm">Paid ✓</div></div>
+                              <div className="rounded-md bg-success/15 p-2 text-center"><div className="text-[10px] uppercase tracking-wide text-success/80 font-semibold">Status</div><div className="font-display font-extrabold text-lg sm:text-base text-success">Paid ✓</div></div>
                             )}
                           </div>
                           <div className="flex items-center gap-2 mt-2">
-                            <Badge variant="outline" className={`text-xs ${b.paymentStatus === 'paid' ? 'border-success/50 text-success-foreground' : b.paymentStatus === 'partly-paid' ? 'border-warning/50 text-warning-foreground' : 'border-destructive/50 text-destructive'}`}>
+                            <Badge className={`text-xs font-bold uppercase ${b.paymentStatus === 'paid' ? 'bg-success text-success-foreground' : b.paymentStatus === 'partly-paid' ? 'bg-warning text-warning-foreground' : 'bg-destructive text-destructive-foreground'}`}>
                               {b.paymentStatus}
                             </Badge>
-                            {b.paymentMethod && <span className="text-xs uppercase text-muted-foreground">{b.paymentMethod}</span>}
+                            {b.paymentMethod && <span className="text-xs uppercase font-bold text-foreground bg-muted px-2 py-0.5 rounded">{b.paymentMethod}</span>}
                           </div>
                         </>
                       );
