@@ -182,29 +182,29 @@ export default function Dashboard({ owners, dogs, boardings, fosters, fosterOwne
     <Card>
       <CardContent className="p-4 sm:p-5">
         <div className="flex items-center gap-2 mb-4">{icon}<h3 className="font-display font-bold text-lg">{title}</h3></div>
-        <div className="grid grid-cols-2 gap-5 sm:gap-3 mb-4">
+        <div className="grid grid-cols-2 gap-3 mb-4">
           <Card className="cursor-pointer hover:ring-1 hover:ring-primary/50 transition-all" onClick={() => setDrilldown(keys.owners)}>
-            <CardContent className="p-5 sm:p-3 text-center">
-              <p className="font-display text-3xl sm:text-xl font-bold text-primary">{ownerCount}</p>
-              <p className="text-sm sm:text-xs text-muted-foreground mt-1 sm:mt-0">Owners</p>
+            <CardContent className="p-3 text-center">
+              <p className="font-display text-xl font-bold text-primary">{ownerCount}</p>
+              <p className="text-xs text-muted-foreground">Owners</p>
             </CardContent>
           </Card>
           <Card className="cursor-pointer hover:ring-1 hover:ring-primary/50 transition-all" onClick={() => setDrilldown(keys.dogs)}>
-            <CardContent className="p-5 sm:p-3 text-center">
-              <p className="font-display text-3xl sm:text-xl font-bold text-accent">{dogCount}</p>
-              <p className="text-sm sm:text-xs text-muted-foreground mt-1 sm:mt-0">Pets</p>
+            <CardContent className="p-3 text-center">
+              <p className="font-display text-xl font-bold text-accent">{dogCount}</p>
+              <p className="text-xs text-muted-foreground">Pets</p>
             </CardContent>
           </Card>
           <Card className="cursor-pointer hover:ring-1 hover:ring-primary/50 transition-all" onClick={() => setDrilldown(keys.active)}>
-            <CardContent className="p-5 sm:p-3 text-center">
-              <p className="font-display text-3xl sm:text-xl font-bold text-success">{active}</p>
-              <p className="text-sm sm:text-xs text-muted-foreground mt-1 sm:mt-0">Active</p>
+            <CardContent className="p-3 text-center">
+              <p className="font-display text-xl font-bold text-success">{active}</p>
+              <p className="text-xs text-muted-foreground">Active</p>
             </CardContent>
           </Card>
           <Card className="cursor-pointer hover:ring-1 hover:ring-primary/50 transition-all" onClick={() => setDrilldown(keys.revenue)}>
-            <CardContent className="p-5 sm:p-3 text-center">
-              <p className="font-display text-3xl sm:text-xl font-bold text-primary">₹{revenue.toFixed(0)}</p>
-              <p className="text-sm sm:text-xs text-muted-foreground mt-1 sm:mt-0">Revenue</p>
+            <CardContent className="p-3 text-center">
+              <p className="font-display text-xl font-bold text-primary">₹{revenue.toFixed(0)}</p>
+              <p className="text-xs text-muted-foreground">Revenue</p>
             </CardContent>
           </Card>
         </div>
