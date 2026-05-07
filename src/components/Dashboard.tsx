@@ -269,9 +269,9 @@ export default function Dashboard({ owners, dogs, boardings, fosters, fosterOwne
               <div className="space-y-3">
                 {[...fosters].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 5).map(f => (
                   <div key={f.id} className="flex justify-between items-center py-2 border-b border-border last:border-0 cursor-pointer hover:bg-muted/50 rounded px-1 -mx-1 transition-colors">
-                    <div>
-                      <p className="font-medium">{f.animalType === 'cat' ? '🐈' : '🐕'} {getDogName(f.dogId, fosterDogs)}</p>
-                      <p className="text-xs text-muted-foreground">{f.checkInDate} → {f.checkOutDate}</p>
+                    <div className="min-w-0">
+                      <p className="font-bold text-base">{f.animalType === 'cat' ? '🐈' : '🐕'} {getDogName(f.dogId, fosterDogs)}</p>
+                      <p className="text-xs mt-1"><span className="inline-block px-1.5 py-0.5 rounded bg-primary/10 text-primary font-bold mr-1">{f.checkInDate}</span><span className="inline-block px-1.5 py-0.5 rounded bg-accent/15 text-accent-foreground font-bold">{f.checkOutDate}</span></p>
                     </div>
                     <Badge className={`text-xs ${statusColors[f.status]}`}>{f.status}</Badge>
                   </div>
