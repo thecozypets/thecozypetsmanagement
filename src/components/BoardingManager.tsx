@@ -56,10 +56,10 @@ interface Props {
 }
 
 const statusColors: Record<BoardingStatus, string> = {
-  'reserved': 'bg-warning/20 text-warning-foreground border-warning/30',
-  'checked-in': 'bg-success/20 text-success-foreground border-success/30',
-  'checked-out': 'bg-muted text-muted-foreground',
-  'cancelled': 'bg-destructive/20 text-destructive border-destructive/30',
+  'reserved': 'bg-warning text-warning-foreground border-transparent font-bold uppercase tracking-wide',
+  'checked-in': 'bg-success text-success-foreground border-transparent font-bold uppercase tracking-wide',
+  'checked-out': 'bg-muted text-foreground border-transparent font-bold uppercase tracking-wide',
+  'cancelled': 'bg-destructive text-destructive-foreground border-transparent font-bold uppercase tracking-wide',
 };
 
 export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpdate, onDelete, onClickBoarding, onClickDog, onClickOwner }: Props) {
