@@ -100,11 +100,11 @@ export default function OwnerManager({ owners, onAdd, onUpdate, onDelete, onClic
                         <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => onDelete(owner.id)}><Trash2 className="h-4 w-4" /></Button>
                       </div>
                     </div>
-                    <div className="space-y-1.5 text-sm">
-                      <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-primary/10 text-primary font-bold mr-1.5"><Phone className="h-3.5 w-3.5" />{owner.phone}</div>
-                      {owner.email && <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-accent/15 text-accent-foreground font-semibold mr-1.5 break-all"><Mail className="h-3.5 w-3.5" />{owner.email}</div>}
-                      {owner.address && <div className="flex items-center gap-2 text-muted-foreground"><MapPin className="h-3.5 w-3.5" />{owner.address}</div>}
-                      {owner.emergencyContact && <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-destructive/10 text-destructive font-bold"><AlertCircle className="h-3.5 w-3.5" />{owner.emergencyContact}</div>}
+                    <div className="space-y-1.5 text-sm text-muted-foreground">
+                      <div className="flex items-center gap-2"><Phone className="h-3.5 w-3.5" />{owner.phone}</div>
+                      {owner.email && <div className="flex items-center gap-2"><Mail className="h-3.5 w-3.5" />{owner.email}</div>}
+                      {owner.address && <div className="flex items-center gap-2"><MapPin className="h-3.5 w-3.5" />{owner.address}</div>}
+                      {owner.emergencyContact && <div className="flex items-center gap-2"><AlertCircle className="h-3.5 w-3.5" />{owner.emergencyContact}</div>}
                     </div>
                   </CardContent>
                 </Card>
