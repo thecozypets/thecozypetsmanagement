@@ -292,11 +292,11 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
                       const bill = calcBilling(b);
                       return (
                         <>
-                          <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
-                            <div className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" /> In: {b.checkInDate}{b.checkInTime ? ` ${formatTime12(b.checkInTime)}` : ''}</div>
-                            <div className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" /> Out: {b.checkOutDate}{b.checkOutTime ? ` ${formatTime12(b.checkOutTime)}` : ''}</div>
-                            {b.kennelNumber && <div>Kennel: #{b.kennelNumber}</div>}
-                            <div className="flex items-center gap-1.5"><DollarSign className="h-3.5 w-3.5" /> {bill.days}d × ₹{bill.dailyRate}{bill.additional > 0 ? ` + ₹${bill.additional}` : ''}</div>
+                          <div className="grid grid-cols-2 gap-2 text-sm">
+                            <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-primary/10 text-primary font-bold"><Calendar className="h-3.5 w-3.5" /> In: {b.checkInDate}{b.checkInTime ? ` ${formatTime12(b.checkInTime)}` : ''}</div>
+                            <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-accent/15 text-accent-foreground font-bold"><Calendar className="h-3.5 w-3.5" /> Out: {b.checkOutDate}{b.checkOutTime ? ` ${formatTime12(b.checkOutTime)}` : ''}</div>
+                            {b.kennelNumber && <div className="text-muted-foreground">Kennel: #{b.kennelNumber}</div>}
+                            <div className="flex items-center gap-1.5 text-muted-foreground"><DollarSign className="h-3.5 w-3.5" /> {bill.days}d × ₹{bill.dailyRate}{bill.additional > 0 ? ` + ₹${bill.additional}` : ''}</div>
                           </div>
                           <div className="grid grid-cols-3 gap-2 mt-2 pt-2 border-t">
                             <div className="rounded-md bg-primary/10 p-2 text-center"><div className="text-[10px] uppercase tracking-wide text-muted-foreground font-semibold">Total</div><div className="font-display font-extrabold text-lg sm:text-base text-primary">₹{bill.total.toFixed(2)}</div></div>
