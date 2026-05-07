@@ -99,6 +99,25 @@ const Index = () => {
               <TabsTrigger value="boarding" className="gap-1.5 sm:gap-2 font-display px-2 sm:px-3"><CalendarCheck className="h-4 w-4" /> <span className="hidden xs:inline sm:inline">Boarding</span></TabsTrigger>
               <TabsTrigger value="foster" className="gap-1.5 sm:gap-2 font-display px-2 sm:px-3"><Heart className="h-4 w-4" /> <span className="hidden xs:inline sm:inline">Foster</span></TabsTrigger>
               <TabsTrigger value="requests" className="gap-1.5 sm:gap-2 font-display px-2 sm:px-3"><Globe className="h-4 w-4" /> <span className="hidden sm:inline">Online Bookings</span></TabsTrigger>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="gap-1.5 sm:gap-2 font-display px-2 sm:px-3 h-9 text-muted-foreground hover:text-primary"
+                title="Share booking form"
+                onClick={async () => {
+                  const url = `${window.location.origin}/share`;
+                  try {
+                    if (navigator.share) {
+                      await navigator.share({ title: 'Booking Form', url });
+                    } else {
+                      await navigator.clipboard.writeText(url);
+                      toast.success('Form link copied!');
+                    }
+                  } catch {}
+                }}
+              >
+                <Share2 className="h-4 w-4" /> <span className="hidden sm:inline">Share Form</span>
+              </Button>
             </div>
             <TabsTrigger value="settings" className="font-display px-2 sm:px-3" title="Settings"><Settings className="h-4 w-4" /></TabsTrigger>
           </TabsList>
