@@ -56,10 +56,10 @@ interface Props {
 }
 
 const statusColors: Record<BoardingStatus, string> = {
-  'reserved': 'bg-warning/20 text-warning-foreground border-warning/30',
-  'checked-in': 'bg-success/20 text-success-foreground border-success/30',
-  'checked-out': 'bg-muted text-muted-foreground',
-  'cancelled': 'bg-destructive/20 text-destructive border-destructive/30',
+  'reserved': 'bg-warning text-warning-foreground border-transparent font-bold uppercase tracking-wide',
+  'checked-in': 'bg-success text-success-foreground border-transparent font-bold uppercase tracking-wide',
+  'checked-out': 'bg-muted text-foreground border-transparent font-bold uppercase tracking-wide',
+  'cancelled': 'bg-destructive text-destructive-foreground border-transparent font-bold uppercase tracking-wide',
 };
 
 export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpdate, onDelete, onClickBoarding, onClickDog, onClickOwner }: Props) {
@@ -277,8 +277,8 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
                         <h3 className="font-display font-bold text-base sm:text-lg truncate">
                           🐕 <span className="cursor-pointer hover:text-primary transition-colors" onClick={() => onClickDog(b.dogId)}>{getDogName(b.dogId)}</span>
                         </h3>
-                        <p className="text-sm text-muted-foreground truncate">
-                          Owner: <span className="cursor-pointer hover:text-primary transition-colors" onClick={() => onClickOwner(b.ownerId)}>{getOwnerName(b.ownerId)}</span>
+                        <p className="text-sm truncate">
+                          <span className="text-muted-foreground">Owner: </span><span className="cursor-pointer font-bold text-primary hover:underline transition-colors" onClick={() => onClickOwner(b.ownerId)}>{getOwnerName(b.ownerId)}</span>
                         </p>
                       </div>
                       <div className="flex items-center gap-0.5 sm:gap-1 flex-wrap justify-end shrink-0">
@@ -292,11 +292,11 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
                       const bill = calcBilling(b);
                       return (
                         <>
-                          <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
-                            <div className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" /> In: {b.checkInDate}{b.checkInTime ? ` ${formatTime12(b.checkInTime)}` : ''}</div>
-                            <div className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" /> Out: {b.checkOutDate}{b.checkOutTime ? ` ${formatTime12(b.checkOutTime)}` : ''}</div>
-                            {b.kennelNumber && <div>Kennel: #{b.kennelNumber}</div>}
-                            <div className="flex items-center gap-1.5"><DollarSign className="h-3.5 w-3.5" /> {bill.days}d × ₹{bill.dailyRate}{bill.additional > 0 ? ` + ₹${bill.additional}` : ''}</div>
+                          <div className="grid grid-cols-2 gap-2 text-sm">
+                            <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-primary/10 text-primary font-bold"><Calendar className="h-3.5 w-3.5" /> In: {b.checkInDate}{b.checkInTime ? ` ${formatTime12(b.checkInTime)}` : ''}</div>
+                            <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-accent/15 text-accent-foreground font-bold"><Calendar className="h-3.5 w-3.5" /> Out: {b.checkOutDate}{b.checkOutTime ? ` ${formatTime12(b.checkOutTime)}` : ''}</div>
+                            {b.kennelNumber && <div className="text-muted-foreground">Kennel: #{b.kennelNumber}</div>}
+                            <div className="flex items-center gap-1.5 text-muted-foreground"><DollarSign className="h-3.5 w-3.5" /> {bill.days}d × ₹{bill.dailyRate}{bill.additional > 0 ? ` + ₹${bill.additional}` : ''}</div>
                           </div>
                           <div className="grid grid-cols-3 gap-2 mt-2 pt-2 border-t">
                             <div className="rounded-md bg-primary/10 p-2 text-center"><div className="text-[10px] uppercase tracking-wide text-muted-foreground font-semibold">Total</div><div className="font-display font-extrabold text-lg sm:text-base text-primary">₹{bill.total.toFixed(2)}</div></div>

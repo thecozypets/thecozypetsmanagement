@@ -8,10 +8,10 @@ import { motion } from 'framer-motion';
 import { calcBilling } from '@/lib/billing';
 
 const statusColors: Record<BoardingStatus, string> = {
-  'reserved': 'bg-warning/20 text-warning-foreground border-warning/30',
-  'checked-in': 'bg-success/20 text-success-foreground border-success/30',
-  'checked-out': 'bg-muted text-muted-foreground',
-  'cancelled': 'bg-destructive/20 text-destructive border-destructive/30',
+  'reserved': 'bg-warning text-warning-foreground border-transparent font-bold uppercase tracking-wide',
+  'checked-in': 'bg-success text-success-foreground border-transparent font-bold uppercase tracking-wide',
+  'checked-out': 'bg-muted text-foreground border-transparent font-bold uppercase tracking-wide',
+  'cancelled': 'bg-destructive text-destructive-foreground border-transparent font-bold uppercase tracking-wide',
 };
 
 interface Props {
@@ -181,7 +181,7 @@ export default function Dashboard({ owners, dogs, boardings, fosters, fosterOwne
   ) => (
     <Card>
       <CardContent className="p-4 sm:p-5">
-        <div className="flex items-center gap-2 mb-4">{icon}<h3 className="font-display font-bold text-lg">{title}</h3></div>
+        <div className="flex items-center gap-2 mb-4">{icon}<h3 className="font-display font-extrabold text-xl sm:text-2xl">{title}</h3></div>
         <div className="grid grid-cols-2 gap-3 mb-4">
           <Card className="cursor-pointer hover:ring-1 hover:ring-primary/50 transition-all" onClick={() => setDrilldown(keys.owners)}>
             <CardContent className="p-3 text-center">
@@ -246,14 +246,14 @@ export default function Dashboard({ owners, dogs, boardings, fosters, fosterOwne
       <div className="grid lg:grid-cols-2 gap-6">
         <Card>
           <CardContent className="p-4 sm:p-5">
-            <h3 className="font-display font-bold text-lg mb-4">Recent Boardings</h3>
+            <h3 className="font-display font-extrabold text-xl sm:text-2xl mb-4 text-primary">Recent Boardings</h3>
             {boardings.length === 0 ? <p className="text-muted-foreground text-sm">No boardings yet</p> : (
               <div className="space-y-3">
                 {[...boardings].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 5).map(b => (
                   <div key={b.id} className="flex justify-between items-center py-2 border-b border-border last:border-0 cursor-pointer hover:bg-muted/50 rounded px-1 -mx-1 transition-colors" onClick={() => onClickBoarding(b.id)}>
-                    <div>
-                      <p className="font-medium">🐕 {getDogName(b.dogId, dogs)}</p>
-                      <p className="text-xs text-muted-foreground">{b.checkInDate} → {b.checkOutDate}</p>
+                    <div className="min-w-0">
+                      <p className="font-bold text-base">🐕 {getDogName(b.dogId, dogs)}</p>
+                      <p className="text-xs mt-1"><span className="inline-block px-1.5 py-0.5 rounded bg-primary/10 text-primary font-bold mr-1">{b.checkInDate}</span><span className="inline-block px-1.5 py-0.5 rounded bg-accent/15 text-accent-foreground font-bold">{b.checkOutDate}</span></p>
                     </div>
                     <Badge className={`text-xs ${statusColors[b.status]}`}>{b.status}</Badge>
                   </div>
@@ -264,14 +264,14 @@ export default function Dashboard({ owners, dogs, boardings, fosters, fosterOwne
         </Card>
         <Card>
           <CardContent className="p-4 sm:p-5">
-            <h3 className="font-display font-bold text-lg mb-4">Recent Fosters</h3>
+            <h3 className="font-display font-extrabold text-xl sm:text-2xl mb-4 text-primary">Recent Fosters</h3>
             {fosters.length === 0 ? <p className="text-muted-foreground text-sm">No fosters yet</p> : (
               <div className="space-y-3">
                 {[...fosters].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 5).map(f => (
                   <div key={f.id} className="flex justify-between items-center py-2 border-b border-border last:border-0 cursor-pointer hover:bg-muted/50 rounded px-1 -mx-1 transition-colors">
-                    <div>
-                      <p className="font-medium">{f.animalType === 'cat' ? '🐈' : '🐕'} {getDogName(f.dogId, fosterDogs)}</p>
-                      <p className="text-xs text-muted-foreground">{f.checkInDate} → {f.checkOutDate}</p>
+                    <div className="min-w-0">
+                      <p className="font-bold text-base">{f.animalType === 'cat' ? '🐈' : '🐕'} {getDogName(f.dogId, fosterDogs)}</p>
+                      <p className="text-xs mt-1"><span className="inline-block px-1.5 py-0.5 rounded bg-primary/10 text-primary font-bold mr-1">{f.checkInDate}</span><span className="inline-block px-1.5 py-0.5 rounded bg-accent/15 text-accent-foreground font-bold">{f.checkOutDate}</span></p>
                     </div>
                     <Badge className={`text-xs ${statusColors[f.status]}`}>{f.status}</Badge>
                   </div>
