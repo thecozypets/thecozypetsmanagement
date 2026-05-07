@@ -277,8 +277,8 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
                         <h3 className="font-display font-bold text-base sm:text-lg truncate">
                           🐕 <span className="cursor-pointer hover:text-primary transition-colors" onClick={() => onClickDog(b.dogId)}>{getDogName(b.dogId)}</span>
                         </h3>
-                        <p className="text-sm text-muted-foreground truncate">
-                          Owner: <span className="cursor-pointer hover:text-primary transition-colors" onClick={() => onClickOwner(b.ownerId)}>{getOwnerName(b.ownerId)}</span>
+                        <p className="text-sm truncate">
+                          <span className="text-muted-foreground">Owner: </span><span className="cursor-pointer font-bold text-primary hover:underline transition-colors" onClick={() => onClickOwner(b.ownerId)}>{getOwnerName(b.ownerId)}</span>
                         </p>
                       </div>
                       <div className="flex items-center gap-0.5 sm:gap-1 flex-wrap justify-end shrink-0">
