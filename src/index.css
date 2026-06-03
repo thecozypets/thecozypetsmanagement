@@ -6,64 +6,63 @@
 
 @layer base {
   :root {
-    /* Matched to thecozyypets-co.lovable.app */
+    /* Matched to petboard.in - emerald green on clean white */
     --background: 0 0% 100%;
-    --foreground: 225 40% 15%;
+    --foreground: 220 26% 14%;
 
     --card: 0 0% 100%;
-    --card-foreground: 225 40% 15%;
+    --card-foreground: 220 26% 14%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 225 40% 15%;
+    --popover-foreground: 220 26% 14%;
 
-    /* Deep navy */
-    --primary: 225 55% 20%;
-    --primary-foreground: 45 60% 98%;
+    /* Emerald green */
+    --primary: 158 75% 26%;
+    --primary-foreground: 0 0% 100%;
 
-    /* Warm yellow */
-    --secondary: 45 95% 72%;
-    --secondary-foreground: 225 40% 15%;
+    --secondary: 158 40% 95%;
+    --secondary-foreground: 158 75% 22%;
 
-    --muted: 220 20% 96%;
-    --muted-foreground: 225 12% 45%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 9% 46%;
 
-    --accent: 45 95% 72%;
-    --accent-foreground: 225 40% 15%;
+    --accent: 158 75% 26%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 78% 55%;
-    --destructive-foreground: 45 60% 98%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 220 15% 90%;
-    --input: 220 15% 92%;
-    --ring: 225 55% 20%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 158 75% 26%;
 
-    --radius: 1.25rem;
+    --radius: 0.625rem;
 
-    --warning: 45 95% 60%;
-    --warning-foreground: 225 40% 15%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 220 26% 14%;
 
-    --success: 150 55% 45%;
-    --success-foreground: 45 60% 98%;
+    --success: 158 75% 26%;
+    --success-foreground: 0 0% 100%;
 
     /* Brand extras */
-    --cream: 45 70% 97%;
-    --sunshine: 45 95% 65%;
-    --leaf: 45 80% 80%;
-    --berry: 225 50% 25%;
+    --cream: 158 30% 97%;
+    --sunshine: 158 75% 35%;
+    --leaf: 158 60% 85%;
+    --berry: 158 75% 20%;
 
-    --gradient-warm: linear-gradient(135deg, hsl(225 55% 20%) 0%, hsl(45 95% 72%) 100%);
-    --gradient-sunset: linear-gradient(135deg, hsl(45 95% 72%) 0%, hsl(225 55% 20%) 100%);
-    --shadow-soft: 0 10px 30px -10px hsl(225 40% 15% / 0.2);
-    --shadow-paw: 0 20px 50px -15px hsl(225 55% 20% / 0.35);
+    --gradient-warm: linear-gradient(135deg, hsl(158 75% 26%) 0%, hsl(158 60% 40%) 100%);
+    --gradient-sunset: linear-gradient(180deg, hsl(158 75% 26% / 0.03) 0%, hsl(0 0% 100%) 100%);
+    --shadow-soft: 0 10px 30px -10px hsl(220 26% 14% / 0.15);
+    --shadow-paw: 0 20px 50px -15px hsl(158 75% 26% / 0.25);
 
-    --sidebar-background: 225 55% 20%;
-    --sidebar-foreground: 45 60% 98%;
-    --sidebar-primary: 45 95% 65%;
-    --sidebar-primary-foreground: 225 40% 15%;
-    --sidebar-accent: 225 45% 28%;
-    --sidebar-accent-foreground: 45 60% 98%;
-    --sidebar-border: 225 45% 28%;
-    --sidebar-ring: 45 95% 65%;
+    --sidebar-background: 158 75% 26%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 0 0% 100%;
+    --sidebar-primary-foreground: 158 75% 22%;
+    --sidebar-accent: 158 70% 32%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 158 70% 32%;
+    --sidebar-ring: 0 0% 100%;
 
     --font-display: 'Inter', system-ui, sans-serif;
     --font-body: 'Inter', system-ui, sans-serif;
