@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -65,8 +65,8 @@
     --sidebar-border: 225 45% 28%;
     --sidebar-ring: 45 95% 65%;
 
-    --font-display: 'Fredoka', system-ui, sans-serif;
-    --font-body: 'Nunito', system-ui, sans-serif;
+    --font-display: 'Inter', system-ui, sans-serif;
+    --font-body: 'Inter', system-ui, sans-serif;
   }
 
   .dark {
