@@ -37,7 +37,7 @@ export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner 
       <html><head><title>Invoice ${invoiceNumber}</title>
       <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: Arial, sans-serif; padding: 40px; color: #1a1a1a; }
+        body { font-family: 'Inter', Arial, sans-serif; padding: 40px; color: #1a1a1a; }
         @media print { body { padding: 20px; } }
       </style></head><body>${content.innerHTML}</body></html>
     `);
