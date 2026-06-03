@@ -65,8 +65,8 @@
     --sidebar-border: 225 45% 28%;
     --sidebar-ring: 45 95% 65%;
 
-    --font-display: 'Fredoka', system-ui, sans-serif;
-    --font-body: 'Nunito', system-ui, sans-serif;
+    --font-display: 'Inter', system-ui, sans-serif;
+    --font-body: 'Inter', system-ui, sans-serif;
   }
 
   .dark {
