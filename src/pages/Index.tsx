@@ -107,10 +107,10 @@ const Index = () => {
         <Tabs value={tab} onValueChange={setTab}>
           <TabsList className="mb-4 sm:mb-6 w-full justify-between bg-secondary/50 h-auto flex-wrap gap-1 p-1">
             <div className="flex flex-1 flex-wrap">
-              <TabsTrigger value="dashboard" className="gap-1.5 sm:gap-2 font-display px-2 sm:px-3"><LayoutDashboard className="h-4 w-4" /> <span className="hidden xs:inline sm:inline">Dashboard</span></TabsTrigger>
-              <TabsTrigger value="boarding" className="gap-1.5 sm:gap-2 font-display px-2 sm:px-3"><CalendarCheck className="h-4 w-4" /> <span className="hidden xs:inline sm:inline">Boarding</span></TabsTrigger>
-              <TabsTrigger value="foster" className="gap-1.5 sm:gap-2 font-display px-2 sm:px-3"><Heart className="h-4 w-4" /> <span className="hidden xs:inline sm:inline">Foster</span></TabsTrigger>
-              <TabsTrigger value="requests" className="gap-1.5 sm:gap-2 font-display px-2 sm:px-3"><Globe className="h-4 w-4" /> <span className="hidden sm:inline">Online Bookings</span></TabsTrigger>
+              <TabsTrigger value="dashboard" className="gap-1.5 sm:gap-2 font-display px-2 sm:px-3 data-[state=active]:shadow-sm transition-all"><LayoutDashboard className="h-4 w-4" /> <span className="hidden xs:inline sm:inline">Dashboard</span></TabsTrigger>
+              <TabsTrigger value="boarding" className="gap-1.5 sm:gap-2 font-display px-2 sm:px-3 data-[state=active]:shadow-sm transition-all group"><Dog className="h-4 w-4 group-data-[state=active]:animate-wag origin-bottom" /> <span className="hidden xs:inline sm:inline">Boarding</span></TabsTrigger>
+              <TabsTrigger value="foster" className="gap-1.5 sm:gap-2 font-display px-2 sm:px-3 data-[state=active]:shadow-sm transition-all"><Heart className="h-4 w-4" /> <span className="hidden xs:inline sm:inline">Foster</span></TabsTrigger>
+              <TabsTrigger value="requests" className="gap-1.5 sm:gap-2 font-display px-2 sm:px-3 data-[state=active]:shadow-sm transition-all"><Globe className="h-4 w-4" /> <span className="hidden sm:inline">Online Bookings</span></TabsTrigger>
             </div>
             <TabsTrigger value="settings" className="font-display px-2 sm:px-3" title="Settings"><Settings className="h-4 w-4" /></TabsTrigger>
           </TabsList>
