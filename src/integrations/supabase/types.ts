@@ -21,7 +21,6 @@ export type Database = {
           check_out_date: string
           created_at: string
           daily_rate: number
-          discount: number
           dog_id: string
           feeding_schedule: string | null
           id: string
@@ -42,7 +41,6 @@ export type Database = {
           check_out_date: string
           created_at?: string
           daily_rate?: number
-          discount?: number
           dog_id: string
           feeding_schedule?: string | null
           id?: string
@@ -63,7 +61,6 @@ export type Database = {
           check_out_date?: string
           created_at?: string
           daily_rate?: number
-          discount?: number
           dog_id?: string
           feeding_schedule?: string | null
           id?: string
@@ -368,7 +365,6 @@ export type Database = {
           check_out_date: string
           created_at: string
           daily_rate: number
-          discount: number
           dog_id: string
           feeding_schedule: string | null
           id: string
@@ -390,7 +386,6 @@ export type Database = {
           check_out_date: string
           created_at?: string
           daily_rate?: number
-          discount?: number
           dog_id: string
           feeding_schedule?: string | null
           id?: string
@@ -412,7 +407,6 @@ export type Database = {
           check_out_date?: string
           created_at?: string
           daily_rate?: number
-          discount?: number
           dog_id?: string
           feeding_schedule?: string | null
           id?: string

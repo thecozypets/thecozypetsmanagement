@@ -9,7 +9,6 @@ export interface BillableRecord {
   checkOutDate: string;
   dailyRate: number;
   additionalCost?: number;
-  discount?: number;
   paidAmount?: number;
   status?: string;
 }
@@ -19,7 +18,6 @@ export interface Billing {
   dailyRate: number;
   subtotal: number;
   additional: number;
-  discount: number;
   total: number;
   paid: number;
   remaining: number;
@@ -30,9 +28,8 @@ export const calcBilling = (b: BillableRecord): Billing => {
   const dailyRate = b.dailyRate || 0;
   const subtotal = days * dailyRate;
   const additional = b.additionalCost || 0;
-  const discount = Math.max(0, b.discount || 0);
-  const total = Math.max(0, subtotal + additional - discount);
+  const total = subtotal + additional;
   const paid = b.paidAmount || 0;
   const remaining = Math.max(0, total - paid);
-  return { days, dailyRate, subtotal, additional, discount, total, paid, remaining };
+  return { days, dailyRate, subtotal, additional, total, paid, remaining };
 };

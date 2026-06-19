@@ -25,7 +25,6 @@ interface BoardingFormData {
   dailyRate: number;
   totalCost: number;
   additionalCost: number;
-  discount: number;
   specialRequests: string;
   feedingSchedule: string;
   notes: string;
@@ -34,8 +33,7 @@ interface BoardingFormData {
   paymentMethod: PaymentMethod;
 }
 
-const emptyForm: BoardingFormData = { dogId: '', ownerId: '', checkInDate: '', checkInTime: '', checkOutDate: '', checkOutTime: '', status: 'reserved', kennelNumber: '', dailyRate: 0, totalCost: 0, additionalCost: 0, discount: 0, specialRequests: '', feedingSchedule: '', notes: '', paymentStatus: 'outstanding', paidAmount: 0, paymentMethod: '' };
-
+const emptyForm: BoardingFormData = { dogId: '', ownerId: '', checkInDate: '', checkInTime: '', checkOutDate: '', checkOutTime: '', status: 'reserved', kennelNumber: '', dailyRate: 0, totalCost: 0, additionalCost: 0, specialRequests: '', feedingSchedule: '', notes: '', paymentStatus: 'outstanding', paidAmount: 0, paymentMethod: '' };
 
 const formatTime12 = (time24: string) => {
   if (!time24) return '';
@@ -92,7 +90,7 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
   };
 
   const startEdit = (b: Boarding) => {
-    setForm({ dogId: b.dogId, ownerId: b.ownerId, checkInDate: b.checkInDate, checkInTime: b.checkInTime || '', checkOutDate: b.checkOutDate, checkOutTime: b.checkOutTime || '', status: b.status, kennelNumber: b.kennelNumber, dailyRate: b.dailyRate, totalCost: b.totalCost, additionalCost: b.additionalCost || 0, discount: b.discount || 0, specialRequests: b.specialRequests, feedingSchedule: b.feedingSchedule, notes: b.notes, paymentStatus: b.paymentStatus || 'outstanding', paidAmount: b.paidAmount || 0, paymentMethod: b.paymentMethod || '' });
+    setForm({ dogId: b.dogId, ownerId: b.ownerId, checkInDate: b.checkInDate, checkInTime: b.checkInTime || '', checkOutDate: b.checkOutDate, checkOutTime: b.checkOutTime || '', status: b.status, kennelNumber: b.kennelNumber, dailyRate: b.dailyRate, totalCost: b.totalCost, additionalCost: b.additionalCost || 0, specialRequests: b.specialRequests, feedingSchedule: b.feedingSchedule, notes: b.notes, paymentStatus: b.paymentStatus || 'outstanding', paidAmount: b.paidAmount || 0, paymentMethod: b.paymentMethod || '' });
     setEditingId(b.id);
     setOpen(true);
   };
@@ -175,7 +173,7 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
                 const bill = calcBilling(form);
                 return (
                   <div className="rounded-lg border bg-muted/30 p-3 sm:p-4 space-y-3">
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
                         <Label className="text-xs text-muted-foreground">Days × Daily Rate</Label>
                         <Input readOnly value={`${bill.days} × ₹${bill.dailyRate.toFixed(2)} = ₹${bill.subtotal.toFixed(2)}`} className="bg-background" />
@@ -184,23 +182,12 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
                         <Label>Extra Amount (₹)</Label>
                         <Input type="number" min={0} step={0.01} value={form.additionalCost} onChange={e => setForm(p => ({ ...p, additionalCost: +e.target.value }))} />
                       </div>
-                      <div>
-                        <Label>Discount (₹)</Label>
-                        <Input type="number" min={0} step={0.01} value={form.discount} onChange={e => setForm(p => ({ ...p, discount: +e.target.value }))} />
-                      </div>
                     </div>
-                    {bill.discount > 0 && (
-                      <div className="flex justify-between items-center text-sm text-success">
-                        <span>Discount applied</span>
-                        <span>− ₹{bill.discount.toFixed(2)}</span>
-                      </div>
-                    )}
                     <div className="flex justify-between items-center pt-2 border-t">
                       <span className="font-display font-bold">Total Amount</span>
                       <span className="font-display font-bold text-lg text-primary">₹{bill.total.toFixed(2)}</span>
                     </div>
                   </div>
-
                 );
               })()}
 

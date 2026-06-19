@@ -26,7 +26,6 @@ interface FosterFormData {
   dailyRate: number;
   totalCost: number;
   additionalCost: number;
-  discount: number;
   specialRequests: string;
   feedingSchedule: string;
   notes: string;
@@ -35,8 +34,7 @@ interface FosterFormData {
   paymentMethod: PaymentMethod;
 }
 
-const emptyForm: FosterFormData = { dogId: '', ownerId: '', animalType: 'dog', checkInDate: '', checkInTime: '', checkOutDate: '', checkOutTime: '', status: 'reserved', kennelNumber: '', dailyRate: 0, totalCost: 0, additionalCost: 0, discount: 0, specialRequests: '', feedingSchedule: '', notes: '', paymentStatus: 'outstanding', paidAmount: 0, paymentMethod: '' };
-
+const emptyForm: FosterFormData = { dogId: '', ownerId: '', animalType: 'dog', checkInDate: '', checkInTime: '', checkOutDate: '', checkOutTime: '', status: 'reserved', kennelNumber: '', dailyRate: 0, totalCost: 0, additionalCost: 0, specialRequests: '', feedingSchedule: '', notes: '', paymentStatus: 'outstanding', paidAmount: 0, paymentMethod: '' };
 
 const formatTime12 = (time24: string) => {
   if (!time24) return '';
@@ -93,7 +91,7 @@ export default function FosterManager({ fosters, dogs, owners, onAdd, onUpdate, 
   };
 
   const startEdit = (f: Foster) => {
-    setForm({ dogId: f.dogId, ownerId: f.ownerId, animalType: f.animalType, checkInDate: f.checkInDate, checkInTime: f.checkInTime || '', checkOutDate: f.checkOutDate, checkOutTime: f.checkOutTime || '', status: f.status, kennelNumber: f.kennelNumber, dailyRate: f.dailyRate, totalCost: f.totalCost, additionalCost: f.additionalCost || 0, discount: f.discount || 0, specialRequests: f.specialRequests, feedingSchedule: f.feedingSchedule, notes: f.notes, paymentStatus: f.paymentStatus || 'outstanding', paidAmount: f.paidAmount || 0, paymentMethod: f.paymentMethod || '' });
+    setForm({ dogId: f.dogId, ownerId: f.ownerId, animalType: f.animalType, checkInDate: f.checkInDate, checkInTime: f.checkInTime || '', checkOutDate: f.checkOutDate, checkOutTime: f.checkOutTime || '', status: f.status, kennelNumber: f.kennelNumber, dailyRate: f.dailyRate, totalCost: f.totalCost, additionalCost: f.additionalCost || 0, specialRequests: f.specialRequests, feedingSchedule: f.feedingSchedule, notes: f.notes, paymentStatus: f.paymentStatus || 'outstanding', paidAmount: f.paidAmount || 0, paymentMethod: f.paymentMethod || '' });
     setEditingId(f.id);
     setOpen(true);
   };
@@ -186,7 +184,7 @@ export default function FosterManager({ fosters, dogs, owners, onAdd, onUpdate, 
                 const bill = calcBilling(form);
                 return (
                   <div className="rounded-lg border bg-muted/30 p-3 sm:p-4 space-y-3">
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
                         <Label className="text-xs text-muted-foreground">Days × Daily Rate</Label>
                         <Input readOnly value={`${bill.days} × ₹${bill.dailyRate.toFixed(2)} = ₹${bill.subtotal.toFixed(2)}`} className="bg-background" />
@@ -195,23 +193,12 @@ export default function FosterManager({ fosters, dogs, owners, onAdd, onUpdate, 
                         <Label>Extra Amount (₹)</Label>
                         <Input type="number" min={0} step={0.01} value={form.additionalCost} onChange={e => setForm(p => ({ ...p, additionalCost: +e.target.value }))} />
                       </div>
-                      <div>
-                        <Label>Discount (₹)</Label>
-                        <Input type="number" min={0} step={0.01} value={form.discount} onChange={e => setForm(p => ({ ...p, discount: +e.target.value }))} />
-                      </div>
                     </div>
-                    {bill.discount > 0 && (
-                      <div className="flex justify-between items-center text-sm text-success">
-                        <span>Discount applied</span>
-                        <span>− ₹{bill.discount.toFixed(2)}</span>
-                      </div>
-                    )}
                     <div className="flex justify-between items-center pt-2 border-t">
                       <span className="font-display font-bold">Total Amount</span>
                       <span className="font-display font-bold text-lg text-primary">₹{bill.total.toFixed(2)}</span>
                     </div>
                   </div>
-
                 );
               })()}
 

@@ -47,13 +47,11 @@ export interface Boarding {
   dailyRate: number;
   totalCost: number;
   additionalCost: number;
-  discount: number;
   specialRequests: string;
   feedingSchedule: string;
   notes: string;
   paymentStatus: PaymentStatus;
   paidAmount: number;
-
   paymentMethod: PaymentMethod;
   createdAt: string;
 }
@@ -73,13 +71,11 @@ export interface Foster {
   dailyRate: number;
   totalCost: number;
   additionalCost: number;
-  discount: number;
   specialRequests: string;
   feedingSchedule: string;
   notes: string;
   paymentStatus: PaymentStatus;
   paidAmount: number;
-
   paymentMethod: PaymentMethod;
   createdAt: string;
 }
