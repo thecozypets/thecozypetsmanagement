@@ -179,30 +179,38 @@ export default function Dashboard({ owners, dogs, boardings, fosters, fosterOwne
     active: number, revenue: number, reserved: number, completed: number, cancelled: number,
     keys: { owners: DrilldownType; dogs: DrilldownType; active: DrilldownType; revenue: DrilldownType; reserved: DrilldownType; completed: DrilldownType; cancelled: DrilldownType }
   ) => (
-    <Card>
-      <CardContent className="p-4 sm:p-5">
-        <div className="flex items-center gap-2 mb-4">{icon}<h3 className="font-display font-bold text-lg">{title}</h3></div>
+    <Card className="hover-lift overflow-hidden relative">
+      <div className="absolute inset-0 paw-pattern opacity-50 pointer-events-none" />
+      <CardContent className="p-4 sm:p-5 relative">
+        <div className="flex items-center gap-2 mb-4 group">
+          <span className="icon-pop inline-flex">{icon}</span>
+          <h3 className="font-display font-bold text-lg">{title}</h3>
+        </div>
         <div className="grid grid-cols-2 gap-3 mb-4">
-          <Card className="cursor-pointer hover:ring-1 hover:ring-primary/50 transition-all" onClick={() => setDrilldown(keys.owners)}>
+          <Card className="cursor-pointer hover-scale hover:ring-1 hover:ring-primary/50 transition-all" onClick={() => setDrilldown(keys.owners)}>
             <CardContent className="p-3 text-center">
+              <Users className="h-4 w-4 mx-auto mb-1 text-primary/70" />
               <p className="font-display text-xl font-bold text-primary">{ownerCount}</p>
               <p className="text-xs text-muted-foreground">Owners</p>
             </CardContent>
           </Card>
-          <Card className="cursor-pointer hover:ring-1 hover:ring-primary/50 transition-all" onClick={() => setDrilldown(keys.dogs)}>
+          <Card className="cursor-pointer hover-scale hover:ring-1 hover:ring-primary/50 transition-all" onClick={() => setDrilldown(keys.dogs)}>
             <CardContent className="p-3 text-center">
+              <PawPrint className="h-4 w-4 mx-auto mb-1 text-accent/70" />
               <p className="font-display text-xl font-bold text-accent">{dogCount}</p>
               <p className="text-xs text-muted-foreground">Pets</p>
             </CardContent>
           </Card>
-          <Card className="cursor-pointer hover:ring-1 hover:ring-primary/50 transition-all" onClick={() => setDrilldown(keys.active)}>
+          <Card className="cursor-pointer hover-scale hover:ring-1 hover:ring-primary/50 transition-all" onClick={() => setDrilldown(keys.active)}>
             <CardContent className="p-3 text-center">
+              <CalendarCheck className="h-4 w-4 mx-auto mb-1 text-success/70" />
               <p className="font-display text-xl font-bold text-success">{active}</p>
               <p className="text-xs text-muted-foreground">Active</p>
             </CardContent>
           </Card>
-          <Card className="cursor-pointer hover:ring-1 hover:ring-primary/50 transition-all" onClick={() => setDrilldown(keys.revenue)}>
+          <Card className="cursor-pointer hover-scale hover:ring-1 hover:ring-primary/50 transition-all" onClick={() => setDrilldown(keys.revenue)}>
             <CardContent className="p-3 text-center">
+              <DollarSign className="h-4 w-4 mx-auto mb-1 text-primary/70" />
               <p className="font-display text-xl font-bold text-primary">₹{revenue.toFixed(0)}</p>
               <p className="text-xs text-muted-foreground">Revenue</p>
             </CardContent>

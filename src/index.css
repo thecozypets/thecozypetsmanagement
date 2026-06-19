@@ -118,3 +118,22 @@
     letter-spacing: -0.01em;
   }
 }
+
+@layer utilities {
+  .hover-lift {
+    @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-lg;
+  }
+  .hover-scale {
+    @apply transition-transform duration-200 hover:scale-[1.02];
+  }
+  .icon-pop {
+    @apply transition-transform duration-200 group-hover:scale-110 group-hover:rotate-6;
+  }
+  .paw-pattern {
+    background-image: radial-gradient(hsl(var(--primary) / 0.06) 1.5px, transparent 1.5px);
+    background-size: 24px 24px;
+  }
+  .gradient-header {
+    background: linear-gradient(135deg, hsl(var(--primary) / 0.04) 0%, hsl(var(--background)) 60%);
+  }
+}
