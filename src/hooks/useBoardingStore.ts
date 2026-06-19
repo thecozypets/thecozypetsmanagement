@@ -130,6 +130,7 @@ export function useBoardings() {
         status: r.status, kennelNumber: r.kennel_number || '',
         dailyRate: Number(r.daily_rate), totalCost: Number(r.total_cost),
         additionalCost: Number((r as any).additional_cost || 0),
+        discount: Number((r as any).discount || 0),
         specialRequests: r.special_requests || '', feedingSchedule: r.feeding_schedule || '',
         notes: r.notes || '',
         paymentStatus: ((r as any).payment_status || 'outstanding') as any,
@@ -152,6 +153,7 @@ export function useBoardings() {
       check_out_date: checkOutFull, status: boarding.status,
       kennel_number: boarding.kennelNumber || null, daily_rate: boarding.dailyRate,
       total_cost: boarding.totalCost, additional_cost: (boarding as any).additionalCost || 0,
+      discount: (boarding as any).discount || 0,
       special_requests: boarding.specialRequests || null,
       feeding_schedule: boarding.feedingSchedule || null, notes: boarding.notes || null,
       payment_status: (boarding as any).paymentStatus || 'outstanding',
@@ -175,6 +177,7 @@ export function useBoardings() {
     if (d.dailyRate !== undefined) update.daily_rate = d.dailyRate;
     if (d.totalCost !== undefined) update.total_cost = d.totalCost;
     if ((d as any).additionalCost !== undefined) update.additional_cost = (d as any).additionalCost;
+    if ((d as any).discount !== undefined) update.discount = (d as any).discount;
     if (d.specialRequests !== undefined) update.special_requests = d.specialRequests;
     if (d.feedingSchedule !== undefined) update.feeding_schedule = d.feedingSchedule;
     if (d.notes !== undefined) update.notes = d.notes;
@@ -213,6 +216,7 @@ export function useFosters() {
         checkOutTime: checkOutParts[1]?.slice(0, 5) || '',
         status: r.status, kennelNumber: r.kennel_number || '',
         dailyRate: Number(r.daily_rate), totalCost: Number(r.total_cost), additionalCost: Number(r.additional_cost || 0),
+        discount: Number(r.discount || 0),
         specialRequests: r.special_requests || '', feedingSchedule: r.feeding_schedule || '',
         notes: r.notes || '',
         paymentStatus: (r.payment_status || 'outstanding') as any,
@@ -234,7 +238,7 @@ export function useFosters() {
       dog_id: foster.dogId, owner_id: foster.ownerId, animal_type: foster.animalType,
       check_in_date: checkInFull, check_out_date: checkOutFull, status: foster.status,
       kennel_number: foster.kennelNumber || null, daily_rate: foster.dailyRate,
-      total_cost: foster.totalCost, additional_cost: foster.additionalCost || 0, special_requests: foster.specialRequests || null,
+      total_cost: foster.totalCost, additional_cost: foster.additionalCost || 0, discount: (foster as any).discount || 0, special_requests: foster.specialRequests || null,
       feeding_schedule: foster.feedingSchedule || null, notes: foster.notes || null,
       payment_status: foster.paymentStatus || 'outstanding',
       paid_amount: foster.paidAmount || 0, payment_method: foster.paymentMethod || null,
@@ -257,6 +261,7 @@ export function useFosters() {
     if (d.dailyRate !== undefined) update.daily_rate = d.dailyRate;
     if (d.totalCost !== undefined) update.total_cost = d.totalCost;
     if (d.additionalCost !== undefined) update.additional_cost = d.additionalCost;
+    if ((d as any).discount !== undefined) update.discount = (d as any).discount;
     if (d.specialRequests !== undefined) update.special_requests = d.specialRequests;
     if (d.feedingSchedule !== undefined) update.feeding_schedule = d.feedingSchedule;
     if (d.notes !== undefined) update.notes = d.notes;

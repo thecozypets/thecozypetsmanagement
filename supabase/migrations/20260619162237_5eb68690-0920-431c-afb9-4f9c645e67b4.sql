@@ -1,0 +1,2 @@
+ALTER TABLE public.boardings ADD COLUMN IF NOT EXISTS discount numeric NOT NULL DEFAULT 0;
+ALTER TABLE public.fosters ADD COLUMN IF NOT EXISTS discount numeric NOT NULL DEFAULT 0;
