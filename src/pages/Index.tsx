@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { PawPrint, LayoutDashboard, Users, Dog, CalendarCheck, LogOut, Settings, Globe, Sun, Moon, Heart } from 'lucide-react';
+import { PawPrint, LayoutDashboard, Users, Dog, CalendarCheck, LogOut, Settings, Globe, Sun, Moon, Heart, Bone } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { useOwners, useDogs, useBoardings, useFosters, useFosterOwners, useFosterDogs } from '@/hooks/useBoardingStore';
 import { useAuth } from '@/hooks/useAuth';
