@@ -182,6 +182,12 @@ export default function FosterInvoiceModal({ open, onOpenChange, foster, dog, ow
                     <td style={{ padding: '6px 14px', fontSize: '13px', textAlign: 'right' }}>₹{bill.additional.toFixed(2)}</td>
                   </tr>
                 )}
+                {bill.discount > 0 && (
+                  <tr>
+                    <td style={{ padding: '6px 14px', fontSize: '13px', color: '#16a34a' }}>Discount</td>
+                    <td style={{ padding: '6px 14px', fontSize: '13px', textAlign: 'right', color: '#16a34a' }}>− ₹{bill.discount.toFixed(2)}</td>
+                  </tr>
+                )}
                 <tr>
                   <td style={{ padding: '10px 14px', fontSize: '16px', fontWeight: 700, color: '#2563eb', borderTop: '2px solid #2563eb' }}>Total Amount</td>
                   <td style={{ padding: '10px 14px', fontSize: '16px', fontWeight: 700, color: '#2563eb', borderTop: '2px solid #2563eb', textAlign: 'right' }}>₹{bill.total.toFixed(2)}</td>
