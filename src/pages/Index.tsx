@@ -105,7 +105,6 @@ const Index = () => {
 
       <main className="container max-w-[1600px] mx-auto px-3 sm:px-4 py-4 sm:py-6 animate-fade-in">
         <Tabs value={tab} onValueChange={setTab}>
-        <Tabs value={tab} onValueChange={setTab}>
           <TabsList className="mb-4 sm:mb-6 w-full justify-between bg-secondary/50 h-auto flex-wrap gap-1 p-1">
             <div className="flex flex-1 flex-wrap">
               <TabsTrigger value="dashboard" className="gap-1.5 sm:gap-2 font-display px-2 sm:px-3"><LayoutDashboard className="h-4 w-4" /> <span className="hidden xs:inline sm:inline">Dashboard</span></TabsTrigger>
