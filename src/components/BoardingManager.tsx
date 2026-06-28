@@ -331,6 +331,8 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
         boarding={invoiceBoarding}
         dog={invoiceBoarding ? dogs.find(d => d.id === invoiceBoarding.dogId) || null : null}
         owner={invoiceBoarding ? owners.find(o => o.id === invoiceBoarding.ownerId) || null : null}
+        allBoardings={boardings}
+        allDogs={dogs}
       />
     </div>
   );

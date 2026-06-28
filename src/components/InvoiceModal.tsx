@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useMemo } from 'react';
 import { Boarding, Dog, Owner } from '@/types/boarding';
 import { useCompanySettings } from '@/hooks/useCompanySettings';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -13,16 +13,51 @@ interface Props {
   boarding: Boarding | null;
   dog: Dog | null;
   owner: Owner | null;
+  allBoardings?: Boarding[];
+  allDogs?: Dog[];
 }
 
-export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner }: Props) {
+// Two date ranges overlap if a.start <= b.end and b.start <= a.end
+const rangesOverlap = (a1: string, a2: string, b1: string, b2: string) => {
+  if (!a1 || !a2 || !b1 || !b2) return false;
+  return new Date(a1).getTime() <= new Date(b2).getTime() && new Date(b1).getTime() <= new Date(a2).getTime();
+};
+
+export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner, allBoardings = [], allDogs = [] }: Props) {
   const invoiceRef = useRef<HTMLDivElement>(null);
   const { settings } = useCompanySettings();
 
+  // Find all overlapping boardings for the same owner (excluding cancelled)
+  const groupBoardings = useMemo(() => {
+    if (!boarding || !owner) return [];
+    const list = allBoardings.length ? allBoardings : [boarding];
+    const matched = list.filter(b =>
+      b.ownerId === owner.id &&
+      b.status !== 'cancelled' &&
+      rangesOverlap(boarding.checkInDate, boarding.checkOutDate, b.checkInDate, b.checkOutDate)
+    );
+    // Always include the selected boarding, and dedupe
+    const map = new Map<string, Boarding>();
+    matched.forEach(b => map.set(b.id, b));
+    map.set(boarding.id, boarding);
+    return Array.from(map.values());
+  }, [boarding, owner, allBoardings]);
+
   if (!boarding || !dog || !owner) return null;
 
-  const bill = calcBilling(boarding);
-  const days = bill.days;
+  const items = groupBoardings.map(b => {
+    const d = allDogs.find(x => x.id === b.dogId) || (b.id === boarding.id ? dog : null);
+    return { boarding: b, dog: d, bill: calcBilling(b) };
+  });
+
+  const totals = items.reduce((acc, it) => {
+    acc.subtotal += it.bill.subtotal;
+    acc.additional += it.bill.additional;
+    acc.total += it.bill.total;
+    acc.paid += it.bill.paid;
+    return acc;
+  }, { subtotal: 0, additional: 0, total: 0, paid: 0 });
+  const remaining = Math.max(0, totals.total - totals.paid);
 
   const invoiceNumber = `INV-${boarding.id.slice(0, 8).toUpperCase()}`;
   const invoiceDate = new Date().toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' });
@@ -47,12 +82,15 @@ export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner 
   };
 
   const companyName = settings.companyName || 'The Cozy Pets';
+  const multiple = items.length > 1;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="font-display flex items-center gap-2">Invoice Preview</DialogTitle>
+          <DialogTitle className="font-display flex items-center gap-2">
+            Invoice Preview {multiple && <span className="text-xs font-normal text-muted-foreground">({items.length} pets)</span>}
+          </DialogTitle>
         </DialogHeader>
 
         <div className="flex gap-2 mb-4">
@@ -70,13 +108,10 @@ export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner 
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               {settings.logoUrl ?
               <img src={settings.logoUrl} alt="Logo" style={{ height: '48px', maxWidth: '120px', objectFit: 'contain' }} /> :
-
               <span style={{ fontSize: '32px' }}>🐾</span>
               }
               <div>
                 <div style={{ fontSize: '24px', fontWeight: 700, color: '#2563eb' }}>{companyName}</div>
-                <div style={{ fontSize: '12px', color: '#666' }}>
-</div>
                 {settings.companyPhone && <div style={{ fontSize: '12px', color: '#666' }}>📞 {settings.companyPhone}</div>}
                 {settings.companyEmail && <div style={{ fontSize: '12px', color: '#666' }}>✉️ {settings.companyEmail}</div>}
                 {settings.companyAddress && <div style={{ fontSize: '12px', color: '#666', maxWidth: '250px' }}>📍 {settings.companyAddress}</div>}
@@ -92,7 +127,7 @@ export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner 
 
           <Separator className="my-4" />
 
-          {/* Owner & Dog Info */}
+          {/* Owner & Pets Info */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '24px' }}>
             <div>
               <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1px', color: '#2563eb', fontWeight: 600, marginBottom: '8px' }}>Bill To</div>
@@ -102,23 +137,19 @@ export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner 
               {owner.address && <p style={{ fontSize: '13px', color: '#555' }}>{owner.address}</p>}
             </div>
             <div>
-              <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1px', color: '#2563eb', fontWeight: 600, marginBottom: '8px' }}>Pet Details</div>
-              <p style={{ fontSize: '14px', fontWeight: 600 }}>🐕 {dog.name}</p>
-              <p style={{ fontSize: '13px', color: '#555' }}>Breed: {dog.breed}</p>
-              <p style={{ fontSize: '13px', color: '#555' }}>Age: {dog.age} yrs {dog.ageMonths ? `${dog.ageMonths} months` : ''} | Weight: {dog.weight} kg</p>
-              {boarding.kennelNumber && <p style={{ fontSize: '13px', color: '#555' }}>Kennel: #{boarding.kennelNumber}</p>}
+              <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1px', color: '#2563eb', fontWeight: 600, marginBottom: '8px' }}>
+                {multiple ? `Pets (${items.length})` : 'Pet Details'}
+              </div>
+              {items.map(it => it.dog && (
+                <div key={it.boarding.id} style={{ marginBottom: '8px' }}>
+                  <p style={{ fontSize: '14px', fontWeight: 600 }}>🐕 {it.dog.name}</p>
+                  <p style={{ fontSize: '12px', color: '#555' }}>
+                    {it.dog.breed} • {it.dog.age}y {it.dog.ageMonths ? `${it.dog.ageMonths}m` : ''} • {it.dog.weight}kg
+                    {it.boarding.kennelNumber && ` • Kennel #${it.boarding.kennelNumber}`}
+                  </p>
+                </div>
+              ))}
             </div>
-          </div>
-
-          {/* Boarding Details */}
-          <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1px', color: '#2563eb', fontWeight: 600, marginBottom: '8px' }}>Boarding Details</div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', marginBottom: '24px', fontSize: '13px' }}>
-            <div><strong>Check-in:</strong> {boarding.checkInDate}</div>
-            <div><strong>Check-out:</strong> {boarding.checkOutDate}</div>
-            <div><strong>Status:</strong> <span style={{ display: 'inline-block', padding: '2px 8px', borderRadius: '10px', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase',
-                  background: boarding.status === 'reserved' ? '#fef3c7' : boarding.status === 'checked-in' ? '#d1fae5' : boarding.status === 'checked-out' ? '#e5e7eb' : '#fee2e2',
-                  color: boarding.status === 'reserved' ? '#92400e' : boarding.status === 'checked-in' ? '#065f46' : boarding.status === 'checked-out' ? '#374151' : '#991b1b'
-                }}>{boarding.status}</span></div>
           </div>
 
           {/* Line Items Table */}
@@ -132,66 +163,48 @@ export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner 
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td style={{ padding: '10px 14px', fontSize: '13px', borderBottom: '1px solid #e5e7eb' }}>
-                  Dog Boarding - {dog.name}
-                  {boarding.kennelNumber && <span style={{ color: '#888' }}> (Kennel #{boarding.kennelNumber})</span>}
-                </td>
-                <td style={{ padding: '10px 14px', fontSize: '13px', borderBottom: '1px solid #e5e7eb', textAlign: 'center' }}>{days}</td>
-                <td style={{ padding: '10px 14px', fontSize: '13px', borderBottom: '1px solid #e5e7eb', textAlign: 'right' }}>₹{bill.dailyRate.toFixed(2)}</td>
-                <td style={{ padding: '10px 14px', fontSize: '13px', borderBottom: '1px solid #e5e7eb', textAlign: 'right' }}>₹{bill.subtotal.toFixed(2)}</td>
-              </tr>
-              {bill.additional > 0 && (
-                <tr>
-                  <td style={{ padding: '10px 14px', fontSize: '13px', borderBottom: '1px solid #e5e7eb' }}>Extra Amount</td>
-                  <td style={{ padding: '10px 14px', fontSize: '13px', borderBottom: '1px solid #e5e7eb', textAlign: 'center' }}>-</td>
-                  <td style={{ padding: '10px 14px', fontSize: '13px', borderBottom: '1px solid #e5e7eb', textAlign: 'right' }}>-</td>
-                  <td style={{ padding: '10px 14px', fontSize: '13px', borderBottom: '1px solid #e5e7eb', textAlign: 'right' }}>₹{bill.additional.toFixed(2)}</td>
-                </tr>
-              )}
-              {boarding.feedingSchedule &&
-              <tr>
-                  <td colSpan={4} style={{ padding: '8px 14px', fontSize: '12px', borderBottom: '1px solid #e5e7eb', color: '#666' }}>
-                    Feeding Schedule: {boarding.feedingSchedule}
+              {items.map(it => (
+                <tr key={it.boarding.id}>
+                  <td style={{ padding: '10px 14px', fontSize: '13px', borderBottom: '1px solid #e5e7eb' }}>
+                    Dog Boarding - {it.dog?.name || 'Pet'}
+                    {it.boarding.kennelNumber && <span style={{ color: '#888' }}> (Kennel #{it.boarding.kennelNumber})</span>}
+                    <div style={{ fontSize: '11px', color: '#888' }}>{it.boarding.checkInDate} → {it.boarding.checkOutDate}</div>
+                    {it.bill.additional > 0 && <div style={{ fontSize: '11px', color: '#888' }}>+ Extra: ₹{it.bill.additional.toFixed(2)}</div>}
                   </td>
+                  <td style={{ padding: '10px 14px', fontSize: '13px', borderBottom: '1px solid #e5e7eb', textAlign: 'center' }}>{it.bill.days}</td>
+                  <td style={{ padding: '10px 14px', fontSize: '13px', borderBottom: '1px solid #e5e7eb', textAlign: 'right' }}>₹{it.bill.dailyRate.toFixed(2)}</td>
+                  <td style={{ padding: '10px 14px', fontSize: '13px', borderBottom: '1px solid #e5e7eb', textAlign: 'right' }}>₹{it.bill.total.toFixed(2)}</td>
                 </tr>
-              }
-              {boarding.specialRequests &&
-              <tr>
-                  <td colSpan={4} style={{ padding: '8px 14px', fontSize: '12px', borderBottom: '1px solid #e5e7eb', color: '#666' }}>
-                    Special Requests: {boarding.specialRequests}
-                  </td>
-                </tr>
-              }
+              ))}
             </tbody>
           </table>
 
           {/* Totals & Payment */}
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px' }}>
-            <table style={{ width: '300px', borderCollapse: 'collapse' }}>
+            <table style={{ width: '320px', borderCollapse: 'collapse' }}>
               <tbody>
                 <tr>
-                  <td style={{ padding: '6px 14px', fontSize: '13px' }}>{bill.days} days × ₹{bill.dailyRate.toFixed(2)}</td>
-                  <td style={{ padding: '6px 14px', fontSize: '13px', textAlign: 'right' }}>₹{bill.subtotal.toFixed(2)}</td>
+                  <td style={{ padding: '6px 14px', fontSize: '13px' }}>Subtotal</td>
+                  <td style={{ padding: '6px 14px', fontSize: '13px', textAlign: 'right' }}>₹{totals.subtotal.toFixed(2)}</td>
                 </tr>
-                {bill.additional > 0 && (
+                {totals.additional > 0 && (
                   <tr>
                     <td style={{ padding: '6px 14px', fontSize: '13px' }}>Extra Amount</td>
-                    <td style={{ padding: '6px 14px', fontSize: '13px', textAlign: 'right' }}>₹{bill.additional.toFixed(2)}</td>
+                    <td style={{ padding: '6px 14px', fontSize: '13px', textAlign: 'right' }}>₹{totals.additional.toFixed(2)}</td>
                   </tr>
                 )}
                 <tr>
                   <td style={{ padding: '10px 14px', fontSize: '16px', fontWeight: 700, color: '#2563eb', borderTop: '2px solid #2563eb' }}>Total Amount</td>
-                  <td style={{ padding: '10px 14px', fontSize: '16px', fontWeight: 700, color: '#2563eb', borderTop: '2px solid #2563eb', textAlign: 'right' }}>₹{bill.total.toFixed(2)}</td>
+                  <td style={{ padding: '10px 14px', fontSize: '16px', fontWeight: 700, color: '#2563eb', borderTop: '2px solid #2563eb', textAlign: 'right' }}>₹{totals.total.toFixed(2)}</td>
                 </tr>
                 <tr>
                   <td style={{ padding: '6px 14px', fontSize: '13px', color: '#16a34a' }}>Paid</td>
-                  <td style={{ padding: '6px 14px', fontSize: '13px', textAlign: 'right', color: '#16a34a' }}>₹{bill.paid.toFixed(2)}</td>
+                  <td style={{ padding: '6px 14px', fontSize: '13px', textAlign: 'right', color: '#16a34a' }}>₹{totals.paid.toFixed(2)}</td>
                 </tr>
-                {bill.remaining > 0 && (
+                {remaining > 0 && (
                   <tr>
                     <td style={{ padding: '6px 14px', fontSize: '13px', color: '#dc2626', fontWeight: 600 }}>Remaining</td>
-                    <td style={{ padding: '6px 14px', fontSize: '13px', textAlign: 'right', color: '#dc2626', fontWeight: 600 }}>₹{bill.remaining.toFixed(2)}</td>
+                    <td style={{ padding: '6px 14px', fontSize: '13px', textAlign: 'right', color: '#dc2626', fontWeight: 600 }}>₹{remaining.toFixed(2)}</td>
                   </tr>
                 )}
                 {boarding.paymentMethod && (
@@ -200,26 +213,21 @@ export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner 
                     <td style={{ padding: '6px 14px', fontSize: '12px', textAlign: 'right', textTransform: 'uppercase', fontWeight: 600 }}>{boarding.paymentMethod}</td>
                   </tr>
                 )}
-                <tr>
-                  <td style={{ padding: '6px 14px', fontSize: '12px', color: '#888' }}>Payment Status</td>
-                  <td style={{ padding: '6px 14px', fontSize: '12px', textAlign: 'right', textTransform: 'capitalize' }}>
-                    <span style={{ padding: '2px 8px', borderRadius: '10px', fontSize: '11px', fontWeight: 600,
-                      background: boarding.paymentStatus === 'paid' ? '#d1fae5' : boarding.paymentStatus === 'partly-paid' ? '#fef3c7' : '#fee2e2',
-                      color: boarding.paymentStatus === 'paid' ? '#065f46' : boarding.paymentStatus === 'partly-paid' ? '#92400e' : '#991b1b'
-                    }}>{boarding.paymentStatus || 'outstanding'}</span>
-                  </td>
-                </tr>
               </tbody>
             </table>
           </div>
 
           {/* Notes */}
-          {boarding.notes &&
-          <div style={{ marginTop: '20px' }}>
+          {items.some(it => it.boarding.notes) && (
+            <div style={{ marginTop: '20px' }}>
               <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1px', color: '#2563eb', fontWeight: 600, marginBottom: '6px' }}>Notes</div>
-              <div style={{ background: '#f9fafb', padding: '12px 16px', borderRadius: '8px', fontSize: '13px', color: '#555' }}>{boarding.notes}</div>
+              <div style={{ background: '#f9fafb', padding: '12px 16px', borderRadius: '8px', fontSize: '13px', color: '#555' }}>
+                {items.filter(it => it.boarding.notes).map(it => (
+                  <div key={it.boarding.id}>{multiple && <strong>{it.dog?.name}: </strong>}{it.boarding.notes}</div>
+                ))}
+              </div>
             </div>
-          }
+          )}
 
           {/* Footer */}
           <div style={{ marginTop: '40px', textAlign: 'center', paddingTop: '20px', borderTop: '1px solid #e5e7eb' }}>
@@ -229,5 +237,4 @@ export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner 
         </div>
       </DialogContent>
     </Dialog>);
-
 }
