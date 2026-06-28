@@ -164,26 +164,17 @@ export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner,
             </thead>
             <tbody>
               {items.map(it => (
-                <>
-                  <tr key={it.boarding.id}>
-                    <td style={{ padding: '10px 14px', fontSize: '13px', borderBottom: '1px solid #e5e7eb' }}>
-                      Dog Boarding - {it.dog?.name || 'Pet'}
-                      {it.boarding.kennelNumber && <span style={{ color: '#888' }}> (Kennel #{it.boarding.kennelNumber})</span>}
-                      <div style={{ fontSize: '11px', color: '#888' }}>{it.boarding.checkInDate} → {it.boarding.checkOutDate}</div>
-                    </td>
-                    <td style={{ padding: '10px 14px', fontSize: '13px', borderBottom: '1px solid #e5e7eb', textAlign: 'center' }}>{it.bill.days}</td>
-                    <td style={{ padding: '10px 14px', fontSize: '13px', borderBottom: '1px solid #e5e7eb', textAlign: 'right' }}>₹{it.bill.dailyRate.toFixed(2)}</td>
-                    <td style={{ padding: '10px 14px', fontSize: '13px', borderBottom: '1px solid #e5e7eb', textAlign: 'right' }}>₹{it.bill.subtotal.toFixed(2)}</td>
-                  </tr>
-                  {it.bill.additional > 0 && (
-                    <tr key={it.boarding.id + '-extra'}>
-                      <td style={{ padding: '8px 14px', fontSize: '12px', borderBottom: '1px solid #e5e7eb', color: '#666' }}>↳ Extra charges ({it.dog?.name})</td>
-                      <td style={{ padding: '8px 14px', fontSize: '12px', borderBottom: '1px solid #e5e7eb', textAlign: 'center' }}>-</td>
-                      <td style={{ padding: '8px 14px', fontSize: '12px', borderBottom: '1px solid #e5e7eb', textAlign: 'right' }}>-</td>
-                      <td style={{ padding: '8px 14px', fontSize: '12px', borderBottom: '1px solid #e5e7eb', textAlign: 'right' }}>₹{it.bill.additional.toFixed(2)}</td>
-                    </tr>
-                  )}
-                </>
+                <tr key={it.boarding.id}>
+                  <td style={{ padding: '10px 14px', fontSize: '13px', borderBottom: '1px solid #e5e7eb' }}>
+                    Dog Boarding - {it.dog?.name || 'Pet'}
+                    {it.boarding.kennelNumber && <span style={{ color: '#888' }}> (Kennel #{it.boarding.kennelNumber})</span>}
+                    <div style={{ fontSize: '11px', color: '#888' }}>{it.boarding.checkInDate} → {it.boarding.checkOutDate}</div>
+                    {it.bill.additional > 0 && <div style={{ fontSize: '11px', color: '#888' }}>+ Extra: ₹{it.bill.additional.toFixed(2)}</div>}
+                  </td>
+                  <td style={{ padding: '10px 14px', fontSize: '13px', borderBottom: '1px solid #e5e7eb', textAlign: 'center' }}>{it.bill.days}</td>
+                  <td style={{ padding: '10px 14px', fontSize: '13px', borderBottom: '1px solid #e5e7eb', textAlign: 'right' }}>₹{it.bill.dailyRate.toFixed(2)}</td>
+                  <td style={{ padding: '10px 14px', fontSize: '13px', borderBottom: '1px solid #e5e7eb', textAlign: 'right' }}>₹{it.bill.total.toFixed(2)}</td>
+                </tr>
               ))}
             </tbody>
           </table>
