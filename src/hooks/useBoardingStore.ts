@@ -123,6 +123,7 @@ export function useBoardings() {
       const checkOutParts = (r.check_out_date || '').split('T');
       return {
         id: r.id, dogId: r.dog_id, ownerId: r.owner_id,
+        serviceType: ((r as any).service_type || 'boarding') as any,
         checkInDate: checkInParts[0] || r.check_in_date,
         checkInTime: checkInParts[1]?.slice(0, 5) || '',
         checkOutDate: checkOutParts[0] || r.check_out_date,
@@ -150,6 +151,7 @@ export function useBoardings() {
     const { data, error } = await supabase.from('boardings').insert({
       dog_id: boarding.dogId, owner_id: boarding.ownerId, check_in_date: checkInFull,
       check_out_date: checkOutFull, status: boarding.status,
+      service_type: (boarding as any).serviceType || 'boarding',
       kennel_number: boarding.kennelNumber || null, daily_rate: boarding.dailyRate,
       total_cost: boarding.totalCost, additional_cost: (boarding as any).additionalCost || 0,
       special_requests: boarding.specialRequests || null,
@@ -181,6 +183,7 @@ export function useBoardings() {
     if ((d as any).paymentStatus !== undefined) update.payment_status = (d as any).paymentStatus;
     if ((d as any).paidAmount !== undefined) update.paid_amount = (d as any).paidAmount;
     if ((d as any).paymentMethod !== undefined) update.payment_method = (d as any).paymentMethod;
+    if ((d as any).serviceType !== undefined) update.service_type = (d as any).serviceType;
     const { error } = await supabase.from('boardings').update(update).eq('id', id);
     if (error) { toast.error('Failed to update boarding'); return; }
     await fetchBoardings();
