@@ -160,7 +160,7 @@ export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner,
             <thead>
               <tr>
                 <th style={{ background: '#2563eb', color: 'white', textAlign: 'left', padding: '10px 14px', fontSize: '12px', textTransform: 'uppercase' }}>Description</th>
-                <th style={{ background: '#2563eb', color: 'white', textAlign: 'center', padding: '10px 14px', fontSize: '12px', textTransform: 'uppercase' }}>Days</th>
+                <th style={{ background: '#2563eb', color: 'white', textAlign: 'center', padding: '10px 14px', fontSize: '12px', textTransform: 'uppercase' }}>Units</th>
                 <th style={{ background: '#2563eb', color: 'white', textAlign: 'right', padding: '10px 14px', fontSize: '12px', textTransform: 'uppercase' }}>Rate</th>
                 <th style={{ background: '#2563eb', color: 'white', textAlign: 'right', padding: '10px 14px', fontSize: '12px', textTransform: 'uppercase' }}>Amount</th>
               </tr>
@@ -172,9 +172,14 @@ export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner,
                     Dog Boarding - {it.dog?.name || 'Pet'}
                     {it.boarding.kennelNumber && <span style={{ color: '#888' }}> (Kennel #{it.boarding.kennelNumber})</span>}
                     <div style={{ fontSize: '11px', color: '#888' }}>{it.boarding.checkInDate} → {it.boarding.checkOutDate}</div>
-                    {it.bill.additional > 0 && <div style={{ fontSize: '11px', color: '#888' }}>+ Extra: ₹{it.bill.additional.toFixed(2)}</div>}
+                    <div style={{ fontSize: '11px', color: '#888' }}>
+                      Overnight stays: {it.bill.nights}
+                      {it.bill.lastDayUnits > 0 && ` • Last day: ${lastDayLabel(it.bill.lastDayCharge)}`}
+                    </div>
+                    {it.bill.additional > 0 && <div style={{ fontSize: '11px', color: '#888' }}>+ Additional Services: ₹{it.bill.additional.toFixed(2)}</div>}
+                    {it.bill.discount > 0 && <div style={{ fontSize: '11px', color: '#16a34a' }}>Discount {it.bill.discountType === 'percentage' ? `(${it.bill.discountValue}%)` : ''}: − ₹{it.bill.discount.toFixed(2)}</div>}
                   </td>
-                  <td style={{ padding: '10px 14px', fontSize: '13px', borderBottom: '1px solid #e5e7eb', textAlign: 'center' }}>{it.bill.days}</td>
+                  <td style={{ padding: '10px 14px', fontSize: '13px', borderBottom: '1px solid #e5e7eb', textAlign: 'center' }}>{it.bill.units}</td>
                   <td style={{ padding: '10px 14px', fontSize: '13px', borderBottom: '1px solid #e5e7eb', textAlign: 'right' }}>₹{it.bill.dailyRate.toFixed(2)}</td>
                   <td style={{ padding: '10px 14px', fontSize: '13px', borderBottom: '1px solid #e5e7eb', textAlign: 'right' }}>₹{it.bill.total.toFixed(2)}</td>
                 </tr>
@@ -187,17 +192,33 @@ export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner,
             <table style={{ width: '320px', borderCollapse: 'collapse' }}>
               <tbody>
                 <tr>
-                  <td style={{ padding: '6px 14px', fontSize: '13px' }}>Subtotal</td>
-                  <td style={{ padding: '6px 14px', fontSize: '13px', textAlign: 'right' }}>₹{totals.subtotal.toFixed(2)}</td>
+                  <td style={{ padding: '6px 14px', fontSize: '13px' }}>Boarding Charges</td>
+                  <td style={{ padding: '6px 14px', fontSize: '13px', textAlign: 'right' }}>₹{totals.boarding.toFixed(2)}</td>
                 </tr>
+                {totals.daycare > 0 && (
+                  <tr>
+                    <td style={{ padding: '6px 14px', fontSize: '13px' }}>Daycare Charges</td>
+                    <td style={{ padding: '6px 14px', fontSize: '13px', textAlign: 'right' }}>₹{totals.daycare.toFixed(2)}</td>
+                  </tr>
+                )}
                 {totals.additional > 0 && (
                   <tr>
-                    <td style={{ padding: '6px 14px', fontSize: '13px' }}>Extra Amount</td>
+                    <td style={{ padding: '6px 14px', fontSize: '13px' }}>Additional Services</td>
                     <td style={{ padding: '6px 14px', fontSize: '13px', textAlign: 'right' }}>₹{totals.additional.toFixed(2)}</td>
                   </tr>
                 )}
                 <tr>
-                  <td style={{ padding: '10px 14px', fontSize: '16px', fontWeight: 700, color: '#2563eb', borderTop: '2px solid #2563eb' }}>Total Amount</td>
+                  <td style={{ padding: '6px 14px', fontSize: '13px', fontWeight: 600 }}>Subtotal</td>
+                  <td style={{ padding: '6px 14px', fontSize: '13px', textAlign: 'right', fontWeight: 600 }}>₹{(totals.subtotal + totals.additional).toFixed(2)}</td>
+                </tr>
+                {totals.discount > 0 && (
+                  <tr>
+                    <td style={{ padding: '6px 14px', fontSize: '13px', color: '#16a34a' }}>Discount</td>
+                    <td style={{ padding: '6px 14px', fontSize: '13px', textAlign: 'right', color: '#16a34a' }}>− ₹{totals.discount.toFixed(2)}</td>
+                  </tr>
+                )}
+                <tr>
+                  <td style={{ padding: '10px 14px', fontSize: '16px', fontWeight: 700, color: '#2563eb', borderTop: '2px solid #2563eb' }}>Grand Total</td>
                   <td style={{ padding: '10px 14px', fontSize: '16px', fontWeight: 700, color: '#2563eb', borderTop: '2px solid #2563eb', textAlign: 'right' }}>₹{totals.total.toFixed(2)}</td>
                 </tr>
                 <tr>
