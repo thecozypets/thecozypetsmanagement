@@ -80,13 +80,18 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
   };
 
   const updateCost = (f: BoardingFormData) => {
-    const days = calcDays(f.checkInDate, f.checkOutDate);
-    return { ...f, totalCost: days * f.dailyRate };
+    const bill = calcBilling(f);
+    return { ...f, totalCost: bill.total };
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const final = updateCost(form);
+    const bill = calcBilling(final);
+    if (bill.discount > bill.subtotal + bill.additional) {
+      alert('Discount cannot exceed the subtotal.');
+      return;
+    }
     if (editingId) { onUpdate(editingId, final); } else { onAdd(final); }
     setForm(emptyForm);
     setEditingId(null);
