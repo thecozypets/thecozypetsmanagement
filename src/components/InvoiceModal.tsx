@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Printer, Download } from 'lucide-react';
-import { calcBilling } from '@/lib/billing';
+import { calcBilling, lastDayLabel } from '@/lib/billing';
 
 interface Props {
   open: boolean;
@@ -51,12 +51,15 @@ export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner,
   });
 
   const totals = items.reduce((acc, it) => {
+    acc.boarding += it.bill.boardingCharge;
+    acc.daycare += it.bill.daycareCharge;
     acc.subtotal += it.bill.subtotal;
     acc.additional += it.bill.additional;
+    acc.discount += it.bill.discount;
     acc.total += it.bill.total;
     acc.paid += it.bill.paid;
     return acc;
-  }, { subtotal: 0, additional: 0, total: 0, paid: 0 });
+  }, { boarding: 0, daycare: 0, subtotal: 0, additional: 0, discount: 0, total: 0, paid: 0 });
   const remaining = Math.max(0, totals.total - totals.paid);
 
   const invoiceNumber = `INV-${boarding.id.slice(0, 8).toUpperCase()}`;
