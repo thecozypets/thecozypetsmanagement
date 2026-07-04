@@ -32,10 +32,12 @@ export interface Dog {
 
 export type BoardingStatus = 'reserved' | 'checked-in' | 'checked-out' | 'cancelled';
 export type PaymentStatus = 'paid' | 'partly-paid' | 'outstanding';
+export type ServiceType = 'boarding' | 'daycare';
 export type PaymentMethod = 'upi' | 'cash' | '';
 
 export interface Boarding {
   id: string;
+  serviceType?: ServiceType;
   dogId: string;
   ownerId: string;
   checkInDate: string;
