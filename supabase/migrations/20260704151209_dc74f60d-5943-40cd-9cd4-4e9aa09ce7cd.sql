@@ -1,0 +1,1 @@
+ALTER TABLE public.boardings ADD COLUMN IF NOT EXISTS service_type text NOT NULL DEFAULT 'boarding';
