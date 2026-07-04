@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Boarding, Dog, Owner, BoardingStatus, PaymentStatus, PaymentMethod, ServiceType } from '@/types/boarding';
+import { Boarding, Dog, Owner, BoardingStatus, PaymentStatus, PaymentMethod } from '@/types/boarding';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -16,7 +16,6 @@ import { calcBilling } from '@/lib/billing';
 interface BoardingFormData {
   dogId: string;
   ownerId: string;
-  serviceType: ServiceType;
   checkInDate: string;
   checkInTime: string;
   checkOutDate: string;
@@ -34,7 +33,7 @@ interface BoardingFormData {
   paymentMethod: PaymentMethod;
 }
 
-const emptyForm: BoardingFormData = { dogId: '', ownerId: '', serviceType: 'boarding', checkInDate: '', checkInTime: '', checkOutDate: '', checkOutTime: '', status: 'reserved', kennelNumber: '', dailyRate: 0, totalCost: 0, additionalCost: 0, specialRequests: '', feedingSchedule: '', notes: '', paymentStatus: 'outstanding', paidAmount: 0, paymentMethod: '' };
+const emptyForm: BoardingFormData = { dogId: '', ownerId: '', checkInDate: '', checkInTime: '', checkOutDate: '', checkOutTime: '', status: 'reserved', kennelNumber: '', dailyRate: 0, totalCost: 0, additionalCost: 0, specialRequests: '', feedingSchedule: '', notes: '', paymentStatus: 'outstanding', paidAmount: 0, paymentMethod: '' };
 
 const formatTime12 = (time24: string) => {
   if (!time24) return '';
@@ -91,7 +90,7 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
   };
 
   const startEdit = (b: Boarding) => {
-    setForm({ dogId: b.dogId, ownerId: b.ownerId, serviceType: (b as any).serviceType || 'boarding', checkInDate: b.checkInDate, checkInTime: b.checkInTime || '', checkOutDate: b.checkOutDate, checkOutTime: b.checkOutTime || '', status: b.status, kennelNumber: b.kennelNumber, dailyRate: b.dailyRate, totalCost: b.totalCost, additionalCost: b.additionalCost || 0, specialRequests: b.specialRequests, feedingSchedule: b.feedingSchedule, notes: b.notes, paymentStatus: b.paymentStatus || 'outstanding', paidAmount: b.paidAmount || 0, paymentMethod: b.paymentMethod || '' });
+    setForm({ dogId: b.dogId, ownerId: b.ownerId, checkInDate: b.checkInDate, checkInTime: b.checkInTime || '', checkOutDate: b.checkOutDate, checkOutTime: b.checkOutTime || '', status: b.status, kennelNumber: b.kennelNumber, dailyRate: b.dailyRate, totalCost: b.totalCost, additionalCost: b.additionalCost || 0, specialRequests: b.specialRequests, feedingSchedule: b.feedingSchedule, notes: b.notes, paymentStatus: b.paymentStatus || 'outstanding', paidAmount: b.paidAmount || 0, paymentMethod: b.paymentMethod || '' });
     setEditingId(b.id);
     setOpen(true);
   };
@@ -128,24 +127,6 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
               <DialogTitle className="font-display">{editingId ? 'Edit Booking' : 'New Booking'}</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <Label>Service Type *</Label>
-                <Select value={form.serviceType} onValueChange={(v: ServiceType) => setForm(p => {
-                  // Daycare: no overnight — force checkout date to match check-in
-                  const next = { ...p, serviceType: v };
-                  if (v === 'daycare' && p.checkInDate) next.checkOutDate = p.checkInDate;
-                  return updateCost(next);
-                })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="boarding">🏠 Overnight Boarding</SelectItem>
-                    <SelectItem value="daycare">☀️ Daycare (No Overnight)</SelectItem>
-                  </SelectContent>
-                </Select>
-                {form.serviceType === 'daycare' && (
-                  <p className="text-xs text-muted-foreground mt-1">Daycare is same-day drop-off & pick-up. Rate below is per daycare day.</p>
-                )}
-              </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
                   <Label>Dog *</Label>
@@ -165,26 +146,26 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
                   <Label>Check-in Date *</Label>
-                  <Input required type="date" value={form.checkInDate} onChange={e => setForm(p => updateCost({ ...p, checkInDate: e.target.value, checkOutDate: p.serviceType === 'daycare' ? e.target.value : p.checkOutDate }))} />
+                  <Input required type="date" value={form.checkInDate} onChange={e => setForm(p => updateCost({ ...p, checkInDate: e.target.value }))} />
                 </div>
                 <div>
-                  <Label>{form.serviceType === 'daycare' ? 'Drop-off Time' : 'Check-in Time'}</Label>
+                  <Label>Check-in Time</Label>
                   <Input type="time" value={form.checkInTime} onChange={e => setForm(p => ({ ...p, checkInTime: e.target.value }))} />
                 </div>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
-                  <Label>{form.serviceType === 'daycare' ? 'End Date *' : 'Check-out Date *'}</Label>
-                  <Input required type="date" value={form.checkOutDate} disabled={form.serviceType === 'daycare'} onChange={e => setForm(p => updateCost({ ...p, checkOutDate: e.target.value }))} />
+                  <Label>Check-out Date *</Label>
+                  <Input required type="date" value={form.checkOutDate} onChange={e => setForm(p => updateCost({ ...p, checkOutDate: e.target.value }))} />
                 </div>
                 <div>
-                  <Label>{form.serviceType === 'daycare' ? 'Pick-up Time' : 'Check-out Time'}</Label>
+                  <Label>Check-out Time</Label>
                   <Input type="time" value={form.checkOutTime} onChange={e => setForm(p => ({ ...p, checkOutTime: e.target.value }))} />
                 </div>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div><Label>Kennel #</Label><Input value={form.kennelNumber} onChange={e => setForm(p => ({ ...p, kennelNumber: e.target.value }))} /></div>
-                <div><Label>{form.serviceType === 'daycare' ? 'Daycare Rate (₹/day)' : 'Daily Rate (₹)'}</Label><Input type="number" min={0} step={0.01} value={form.dailyRate} onChange={e => setForm(p => updateCost({ ...p, dailyRate: +e.target.value }))} /></div>
+                <div><Label>Daily Rate (₹)</Label><Input type="number" min={0} step={0.01} value={form.dailyRate} onChange={e => setForm(p => updateCost({ ...p, dailyRate: +e.target.value }))} /></div>
               </div>
 
               {/* Cost Breakdown */}
@@ -301,9 +282,6 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
                         </p>
                       </div>
                       <div className="flex items-center gap-0.5 sm:gap-1 flex-wrap justify-end shrink-0">
-                        <Badge variant="outline" className={`text-[10px] uppercase font-bold ${((b as any).serviceType || 'boarding') === 'daycare' ? 'bg-amber-100 text-amber-800 border-amber-300' : 'bg-indigo-50 text-indigo-700 border-indigo-200'}`}>
-                          {((b as any).serviceType || 'boarding') === 'daycare' ? '☀️ Daycare' : '🏠 Boarding'}
-                        </Badge>
                         <Badge className={`cursor-pointer ${statusColors[b.status]}`} onClick={() => onClickBoarding(b.id)}>{b.status}</Badge>
                         <Button variant="ghost" size="icon" className="h-8 w-8" title="Invoice" onClick={() => setInvoiceBoarding(b)}><FileText className="h-4 w-4" /></Button>
                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => startEdit(b)}><Pencil className="h-4 w-4" /></Button>
