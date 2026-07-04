@@ -128,6 +128,24 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
               <DialogTitle className="font-display">{editingId ? 'Edit Booking' : 'New Booking'}</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <Label>Service Type *</Label>
+                <Select value={form.serviceType} onValueChange={(v: ServiceType) => setForm(p => {
+                  // Daycare: no overnight — force checkout date to match check-in
+                  const next = { ...p, serviceType: v };
+                  if (v === 'daycare' && p.checkInDate) next.checkOutDate = p.checkInDate;
+                  return updateCost(next);
+                })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="boarding">🏠 Overnight Boarding</SelectItem>
+                    <SelectItem value="daycare">☀️ Daycare (No Overnight)</SelectItem>
+                  </SelectContent>
+                </Select>
+                {form.serviceType === 'daycare' && (
+                  <p className="text-xs text-muted-foreground mt-1">Daycare is same-day drop-off & pick-up. Rate below is per daycare day.</p>
+                )}
+              </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
                   <Label>Dog *</Label>
