@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Boarding, Dog, Owner, BoardingStatus, PaymentStatus, PaymentMethod } from '@/types/boarding';
+import { Boarding, Dog, Owner, BoardingStatus, PaymentStatus, PaymentMethod, LastDayCharge, DiscountType } from '@/types/boarding';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { CalendarPlus, Pencil, Trash2, Calendar, DollarSign, FileText } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import InvoiceModal from './InvoiceModal';
-import { calcBilling } from '@/lib/billing';
+import { calcBilling, lastDayLabel } from '@/lib/billing';
 
 interface BoardingFormData {
   dogId: string;
@@ -31,9 +31,13 @@ interface BoardingFormData {
   paymentStatus: PaymentStatus;
   paidAmount: number;
   paymentMethod: PaymentMethod;
+  lastDayCharge: LastDayCharge;
+  discountType: DiscountType;
+  discountValue: number;
+  discountReason: string;
 }
 
-const emptyForm: BoardingFormData = { dogId: '', ownerId: '', checkInDate: '', checkInTime: '', checkOutDate: '', checkOutTime: '', status: 'reserved', kennelNumber: '', dailyRate: 0, totalCost: 0, additionalCost: 0, specialRequests: '', feedingSchedule: '', notes: '', paymentStatus: 'outstanding', paidAmount: 0, paymentMethod: '' };
+const emptyForm: BoardingFormData = { dogId: '', ownerId: '', checkInDate: '', checkInTime: '', checkOutDate: '', checkOutTime: '', status: 'reserved', kennelNumber: '', dailyRate: 0, totalCost: 0, additionalCost: 0, specialRequests: '', feedingSchedule: '', notes: '', paymentStatus: 'outstanding', paidAmount: 0, paymentMethod: '', lastDayCharge: 'none', discountType: 'none', discountValue: 0, discountReason: '' };
 
 const formatTime12 = (time24: string) => {
   if (!time24) return '';
@@ -76,13 +80,18 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
   };
 
   const updateCost = (f: BoardingFormData) => {
-    const days = calcDays(f.checkInDate, f.checkOutDate);
-    return { ...f, totalCost: days * f.dailyRate };
+    const bill = calcBilling(f);
+    return { ...f, totalCost: bill.total };
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const final = updateCost(form);
+    const bill = calcBilling(final);
+    if (bill.discount > bill.subtotal + bill.additional) {
+      alert('Discount cannot exceed the subtotal.');
+      return;
+    }
     if (editingId) { onUpdate(editingId, final); } else { onAdd(final); }
     setForm(emptyForm);
     setEditingId(null);
@@ -90,7 +99,7 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
   };
 
   const startEdit = (b: Boarding) => {
-    setForm({ dogId: b.dogId, ownerId: b.ownerId, checkInDate: b.checkInDate, checkInTime: b.checkInTime || '', checkOutDate: b.checkOutDate, checkOutTime: b.checkOutTime || '', status: b.status, kennelNumber: b.kennelNumber, dailyRate: b.dailyRate, totalCost: b.totalCost, additionalCost: b.additionalCost || 0, specialRequests: b.specialRequests, feedingSchedule: b.feedingSchedule, notes: b.notes, paymentStatus: b.paymentStatus || 'outstanding', paidAmount: b.paidAmount || 0, paymentMethod: b.paymentMethod || '' });
+    setForm({ dogId: b.dogId, ownerId: b.ownerId, checkInDate: b.checkInDate, checkInTime: b.checkInTime || '', checkOutDate: b.checkOutDate, checkOutTime: b.checkOutTime || '', status: b.status, kennelNumber: b.kennelNumber, dailyRate: b.dailyRate, totalCost: b.totalCost, additionalCost: b.additionalCost || 0, specialRequests: b.specialRequests, feedingSchedule: b.feedingSchedule, notes: b.notes, paymentStatus: b.paymentStatus || 'outstanding', paidAmount: b.paidAmount || 0, paymentMethod: b.paymentMethod || '', lastDayCharge: b.lastDayCharge || 'none', discountType: b.discountType || 'none', discountValue: b.discountValue || 0, discountReason: b.discountReason || '' });
     setEditingId(b.id);
     setOpen(true);
   };
@@ -168,23 +177,72 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
                 <div><Label>Daily Rate (₹)</Label><Input type="number" min={0} step={0.01} value={form.dailyRate} onChange={e => setForm(p => updateCost({ ...p, dailyRate: +e.target.value }))} /></div>
               </div>
 
-              {/* Cost Breakdown */}
+              {/* Last Day Charge + Discount + Breakdown */}
               {(() => {
                 const bill = calcBilling(form);
+                const invalidDiscount = bill.discountType !== 'none' && (bill.discountValue > 0) && bill.discount >= (bill.subtotal + bill.additional) && bill.discountType === 'fixed' && bill.discountValue > (bill.subtotal + bill.additional);
                 return (
                   <div className="rounded-lg border bg-muted/30 p-3 sm:p-4 space-y-3">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
-                        <Label className="text-xs text-muted-foreground">Days × Daily Rate</Label>
-                        <Input readOnly value={`${bill.days} × ₹${bill.dailyRate.toFixed(2)} = ₹${bill.subtotal.toFixed(2)}`} className="bg-background" />
+                        <Label>Last Day Charge</Label>
+                        <Select value={form.lastDayCharge} onValueChange={(v: LastDayCharge) => setForm(p => ({ ...p, lastDayCharge: v }))}>
+                          <SelectTrigger><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="none">None (no extra charge)</SelectItem>
+                            <SelectItem value="half-daycare">Half Daycare (0.5×)</SelectItem>
+                            <SelectItem value="full-daycare">Full Daycare (1×)</SelectItem>
+                            <SelectItem value="full-overnight">Full Overnight (1×)</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </div>
                       <div>
-                        <Label>Extra Amount (₹)</Label>
+                        <Label>Additional Services (₹)</Label>
                         <Input type="number" min={0} step={0.01} value={form.additionalCost} onChange={e => setForm(p => ({ ...p, additionalCost: +e.target.value }))} />
                       </div>
                     </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div>
+                        <Label>Discount Type</Label>
+                        <Select value={form.discountType} onValueChange={(v: DiscountType) => setForm(p => ({ ...p, discountType: v, discountValue: v === 'none' ? 0 : p.discountValue }))}>
+                          <SelectTrigger><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="none">None</SelectItem>
+                            <SelectItem value="percentage">Percentage (%)</SelectItem>
+                            <SelectItem value="fixed">Fixed Amount (₹)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label>Discount Value {form.discountType === 'percentage' ? '(%)' : form.discountType === 'fixed' ? '(₹)' : ''}</Label>
+                        <Input type="number" min={0} step={0.01} disabled={form.discountType === 'none'} value={form.discountValue} onChange={e => setForm(p => ({ ...p, discountValue: +e.target.value }))} />
+                      </div>
+                      <div>
+                        <Label>Discount Reason</Label>
+                        <Input placeholder="Optional" disabled={form.discountType === 'none'} value={form.discountReason} onChange={e => setForm(p => ({ ...p, discountReason: e.target.value }))} />
+                      </div>
+                    </div>
+
+                    {/* Breakdown */}
+                    <div className="pt-2 border-t space-y-1.5 text-sm">
+                      <div className="flex justify-between"><span className="text-muted-foreground">Boarding ({bill.nights} night{bill.nights === 1 ? '' : 's'} × ₹{bill.dailyRate.toFixed(2)})</span><span>₹{bill.boardingCharge.toFixed(2)}</span></div>
+                      {bill.lastDayUnits > 0 && (
+                        <div className="flex justify-between"><span className="text-muted-foreground">Daycare — {lastDayLabel(bill.lastDayCharge)} ({bill.lastDayUnits}× ₹{bill.dailyRate.toFixed(2)})</span><span>₹{bill.daycareCharge.toFixed(2)}</span></div>
+                      )}
+                      {bill.additional > 0 && (
+                        <div className="flex justify-between"><span className="text-muted-foreground">Additional Services</span><span>₹{bill.additional.toFixed(2)}</span></div>
+                      )}
+                      <div className="flex justify-between font-medium"><span>Subtotal</span><span>₹{(bill.subtotal + bill.additional).toFixed(2)}</span></div>
+                      {bill.discount > 0 && (
+                        <div className="flex justify-between text-success"><span>Discount {bill.discountType === 'percentage' ? `(${bill.discountValue}%)` : ''}</span><span>− ₹{bill.discount.toFixed(2)}</span></div>
+                      )}
+                      {invalidDiscount && (
+                        <div className="text-xs text-destructive">Discount cannot exceed the subtotal.</div>
+                      )}
+                    </div>
                     <div className="flex justify-between items-center pt-2 border-t">
-                      <span className="font-display font-bold">Total Amount</span>
+                      <span className="font-display font-bold">Grand Total</span>
                       <span className="font-display font-bold text-lg text-primary">₹{bill.total.toFixed(2)}</span>
                     </div>
                   </div>

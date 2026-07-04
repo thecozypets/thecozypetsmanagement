@@ -22,15 +22,20 @@ export type Database = {
           created_at: string
           daily_rate: number
           discount: number
+          discount_reason: string | null
+          discount_type: string
+          discount_value: number
           dog_id: string
           feeding_schedule: string | null
           id: string
           kennel_number: string | null
+          last_day_charge: string
           notes: string | null
           owner_id: string
           paid_amount: number
           payment_method: string | null
           payment_status: string
+          service_type: string
           special_requests: string | null
           status: Database["public"]["Enums"]["boarding_status"]
           total_cost: number
@@ -43,15 +48,20 @@ export type Database = {
           created_at?: string
           daily_rate?: number
           discount?: number
+          discount_reason?: string | null
+          discount_type?: string
+          discount_value?: number
           dog_id: string
           feeding_schedule?: string | null
           id?: string
           kennel_number?: string | null
+          last_day_charge?: string
           notes?: string | null
           owner_id: string
           paid_amount?: number
           payment_method?: string | null
           payment_status?: string
+          service_type?: string
           special_requests?: string | null
           status?: Database["public"]["Enums"]["boarding_status"]
           total_cost?: number
@@ -64,15 +74,20 @@ export type Database = {
           created_at?: string
           daily_rate?: number
           discount?: number
+          discount_reason?: string | null
+          discount_type?: string
+          discount_value?: number
           dog_id?: string
           feeding_schedule?: string | null
           id?: string
           kennel_number?: string | null
+          last_day_charge?: string
           notes?: string | null
           owner_id?: string
           paid_amount?: number
           payment_method?: string | null
           payment_status?: string
+          service_type?: string
           special_requests?: string | null
           status?: Database["public"]["Enums"]["boarding_status"]
           total_cost?: number

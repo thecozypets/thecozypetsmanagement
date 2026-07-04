@@ -135,6 +135,10 @@ export function useBoardings() {
         paymentStatus: ((r as any).payment_status || 'outstanding') as any,
         paidAmount: Number((r as any).paid_amount || 0),
         paymentMethod: ((r as any).payment_method || '') as any,
+        lastDayCharge: ((r as any).last_day_charge || 'none') as any,
+        discountType: ((r as any).discount_type || 'none') as any,
+        discountValue: Number((r as any).discount_value || 0),
+        discountReason: (r as any).discount_reason || '',
         createdAt: r.created_at,
       };
     }));
@@ -157,6 +161,10 @@ export function useBoardings() {
       payment_status: (boarding as any).paymentStatus || 'outstanding',
       paid_amount: (boarding as any).paidAmount || 0,
       payment_method: (boarding as any).paymentMethod || null,
+      last_day_charge: (boarding as any).lastDayCharge || 'none',
+      discount_type: (boarding as any).discountType || 'none',
+      discount_value: (boarding as any).discountValue || 0,
+      discount_reason: (boarding as any).discountReason || null,
       user_id: user.id,
     } as any).select().single();
     if (error) { toast.error('Failed to add boarding'); return null; }
@@ -181,6 +189,10 @@ export function useBoardings() {
     if ((d as any).paymentStatus !== undefined) update.payment_status = (d as any).paymentStatus;
     if ((d as any).paidAmount !== undefined) update.paid_amount = (d as any).paidAmount;
     if ((d as any).paymentMethod !== undefined) update.payment_method = (d as any).paymentMethod;
+    if ((d as any).lastDayCharge !== undefined) update.last_day_charge = (d as any).lastDayCharge;
+    if ((d as any).discountType !== undefined) update.discount_type = (d as any).discountType;
+    if ((d as any).discountValue !== undefined) update.discount_value = (d as any).discountValue;
+    if ((d as any).discountReason !== undefined) update.discount_reason = (d as any).discountReason;
     const { error } = await supabase.from('boardings').update(update).eq('id', id);
     if (error) { toast.error('Failed to update boarding'); return; }
     await fetchBoardings();

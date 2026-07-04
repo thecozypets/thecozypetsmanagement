@@ -1,0 +1,5 @@
+ALTER TABLE public.boardings
+  ADD COLUMN IF NOT EXISTS last_day_charge TEXT NOT NULL DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS discount_type TEXT NOT NULL DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS discount_value NUMERIC NOT NULL DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS discount_reason TEXT;
