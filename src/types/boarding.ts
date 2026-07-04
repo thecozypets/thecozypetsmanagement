@@ -33,6 +33,8 @@ export interface Dog {
 export type BoardingStatus = 'reserved' | 'checked-in' | 'checked-out' | 'cancelled';
 export type PaymentStatus = 'paid' | 'partly-paid' | 'outstanding';
 export type PaymentMethod = 'upi' | 'cash' | '';
+export type LastDayCharge = 'none' | 'half-daycare' | 'full-daycare' | 'full-overnight';
+export type DiscountType = 'none' | 'percentage' | 'fixed';
 
 export interface Boarding {
   id: string;
@@ -53,6 +55,10 @@ export interface Boarding {
   paymentStatus: PaymentStatus;
   paidAmount: number;
   paymentMethod: PaymentMethod;
+  lastDayCharge: LastDayCharge;
+  discountType: DiscountType;
+  discountValue: number;
+  discountReason: string;
   createdAt: string;
 }
 
