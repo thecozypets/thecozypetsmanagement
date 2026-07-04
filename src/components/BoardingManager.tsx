@@ -301,6 +301,9 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
                         </p>
                       </div>
                       <div className="flex items-center gap-0.5 sm:gap-1 flex-wrap justify-end shrink-0">
+                        <Badge variant="outline" className={`text-[10px] uppercase font-bold ${((b as any).serviceType || 'boarding') === 'daycare' ? 'bg-amber-100 text-amber-800 border-amber-300' : 'bg-indigo-50 text-indigo-700 border-indigo-200'}`}>
+                          {((b as any).serviceType || 'boarding') === 'daycare' ? '☀️ Daycare' : '🏠 Boarding'}
+                        </Badge>
                         <Badge className={`cursor-pointer ${statusColors[b.status]}`} onClick={() => onClickBoarding(b.id)}>{b.status}</Badge>
                         <Button variant="ghost" size="icon" className="h-8 w-8" title="Invoice" onClick={() => setInvoiceBoarding(b)}><FileText className="h-4 w-4" /></Button>
                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => startEdit(b)}><Pencil className="h-4 w-4" /></Button>
