@@ -31,6 +31,7 @@ export type Database = {
           paid_amount: number
           payment_method: string | null
           payment_status: string
+          service_type: string
           special_requests: string | null
           status: Database["public"]["Enums"]["boarding_status"]
           total_cost: number
@@ -52,6 +53,7 @@ export type Database = {
           paid_amount?: number
           payment_method?: string | null
           payment_status?: string
+          service_type?: string
           special_requests?: string | null
           status?: Database["public"]["Enums"]["boarding_status"]
           total_cost?: number
@@ -73,6 +75,7 @@ export type Database = {
           paid_amount?: number
           payment_method?: string | null
           payment_status?: string
+          service_type?: string
           special_requests?: string | null
           status?: Database["public"]["Enums"]["boarding_status"]
           total_cost?: number
