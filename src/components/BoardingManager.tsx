@@ -165,26 +165,26 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
                   <Label>Check-in Date *</Label>
-                  <Input required type="date" value={form.checkInDate} onChange={e => setForm(p => updateCost({ ...p, checkInDate: e.target.value }))} />
+                  <Input required type="date" value={form.checkInDate} onChange={e => setForm(p => updateCost({ ...p, checkInDate: e.target.value, checkOutDate: p.serviceType === 'daycare' ? e.target.value : p.checkOutDate }))} />
                 </div>
                 <div>
-                  <Label>Check-in Time</Label>
+                  <Label>{form.serviceType === 'daycare' ? 'Drop-off Time' : 'Check-in Time'}</Label>
                   <Input type="time" value={form.checkInTime} onChange={e => setForm(p => ({ ...p, checkInTime: e.target.value }))} />
                 </div>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
-                  <Label>Check-out Date *</Label>
-                  <Input required type="date" value={form.checkOutDate} onChange={e => setForm(p => updateCost({ ...p, checkOutDate: e.target.value }))} />
+                  <Label>{form.serviceType === 'daycare' ? 'End Date *' : 'Check-out Date *'}</Label>
+                  <Input required type="date" value={form.checkOutDate} disabled={form.serviceType === 'daycare'} onChange={e => setForm(p => updateCost({ ...p, checkOutDate: e.target.value }))} />
                 </div>
                 <div>
-                  <Label>Check-out Time</Label>
+                  <Label>{form.serviceType === 'daycare' ? 'Pick-up Time' : 'Check-out Time'}</Label>
                   <Input type="time" value={form.checkOutTime} onChange={e => setForm(p => ({ ...p, checkOutTime: e.target.value }))} />
                 </div>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div><Label>Kennel #</Label><Input value={form.kennelNumber} onChange={e => setForm(p => ({ ...p, kennelNumber: e.target.value }))} /></div>
-                <div><Label>Daily Rate (₹)</Label><Input type="number" min={0} step={0.01} value={form.dailyRate} onChange={e => setForm(p => updateCost({ ...p, dailyRate: +e.target.value }))} /></div>
+                <div><Label>{form.serviceType === 'daycare' ? 'Daycare Rate (₹/day)' : 'Daily Rate (₹)'}</Label><Input type="number" min={0} step={0.01} value={form.dailyRate} onChange={e => setForm(p => updateCost({ ...p, dailyRate: +e.target.value }))} /></div>
               </div>
 
               {/* Cost Breakdown */}
