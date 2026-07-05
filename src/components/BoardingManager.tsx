@@ -32,12 +32,13 @@ interface BoardingFormData {
   paidAmount: number;
   paymentMethod: PaymentMethod;
   lastDayCharge: LastDayCharge;
+  daycarePrice: number;
   discountType: DiscountType;
   discountValue: number;
   discountReason: string;
 }
 
-const emptyForm: BoardingFormData = { dogId: '', ownerId: '', checkInDate: '', checkInTime: '', checkOutDate: '', checkOutTime: '', status: 'reserved', kennelNumber: '', dailyRate: 0, totalCost: 0, additionalCost: 0, specialRequests: '', feedingSchedule: '', notes: '', paymentStatus: 'outstanding', paidAmount: 0, paymentMethod: '', lastDayCharge: 'none', discountType: 'none', discountValue: 0, discountReason: '' };
+const emptyForm: BoardingFormData = { dogId: '', ownerId: '', checkInDate: '', checkInTime: '', checkOutDate: '', checkOutTime: '', status: 'reserved', kennelNumber: '', dailyRate: 0, totalCost: 0, additionalCost: 0, specialRequests: '', feedingSchedule: '', notes: '', paymentStatus: 'outstanding', paidAmount: 0, paymentMethod: '', lastDayCharge: 'none', daycarePrice: 0, discountType: 'none', discountValue: 0, discountReason: '' };
 
 const formatTime12 = (time24: string) => {
   if (!time24) return '';
@@ -99,7 +100,8 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
   };
 
   const startEdit = (b: Boarding) => {
-    setForm({ dogId: b.dogId, ownerId: b.ownerId, checkInDate: b.checkInDate, checkInTime: b.checkInTime || '', checkOutDate: b.checkOutDate, checkOutTime: b.checkOutTime || '', status: b.status, kennelNumber: b.kennelNumber, dailyRate: b.dailyRate, totalCost: b.totalCost, additionalCost: b.additionalCost || 0, specialRequests: b.specialRequests, feedingSchedule: b.feedingSchedule, notes: b.notes, paymentStatus: b.paymentStatus || 'outstanding', paidAmount: b.paidAmount || 0, paymentMethod: b.paymentMethod || '', lastDayCharge: b.lastDayCharge || 'none', discountType: b.discountType || 'none', discountValue: b.discountValue || 0, discountReason: b.discountReason || '' });
+    const legacyLdc: LastDayCharge = (b.lastDayCharge && (b.lastDayCharge as string) !== 'none') ? 'daycare' : 'none';
+    setForm({ dogId: b.dogId, ownerId: b.ownerId, checkInDate: b.checkInDate, checkInTime: b.checkInTime || '', checkOutDate: b.checkOutDate, checkOutTime: b.checkOutTime || '', status: b.status, kennelNumber: b.kennelNumber, dailyRate: b.dailyRate, totalCost: b.totalCost, additionalCost: b.additionalCost || 0, specialRequests: b.specialRequests, feedingSchedule: b.feedingSchedule, notes: b.notes, paymentStatus: b.paymentStatus || 'outstanding', paidAmount: b.paidAmount || 0, paymentMethod: b.paymentMethod || '', lastDayCharge: legacyLdc, daycarePrice: (b as any).daycarePrice || 0, discountType: b.discountType || 'none', discountValue: b.discountValue || 0, discountReason: b.discountReason || '' });
     setEditingId(b.id);
     setOpen(true);
   };
@@ -186,19 +188,21 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
                         <Label>Last Day Charge</Label>
-                        <Select value={form.lastDayCharge} onValueChange={(v: LastDayCharge) => setForm(p => ({ ...p, lastDayCharge: v }))}>
+                        <Select value={form.lastDayCharge} onValueChange={(v: LastDayCharge) => setForm(p => updateCost({ ...p, lastDayCharge: v, daycarePrice: v === 'none' ? 0 : p.daycarePrice }))}>
                           <SelectTrigger><SelectValue /></SelectTrigger>
                           <SelectContent>
                             <SelectItem value="none">None (no extra charge)</SelectItem>
-                            <SelectItem value="half-daycare">Half Daycare (0.5×)</SelectItem>
-                            <SelectItem value="full-daycare">Full Daycare (1×)</SelectItem>
-                            <SelectItem value="full-overnight">Full Overnight (1×)</SelectItem>
+                            <SelectItem value="daycare">Daycare</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
                       <div>
+                        <Label>Daycare Price (₹)</Label>
+                        <Input type="number" min={0} step={0.01} disabled={form.lastDayCharge === 'none'} value={form.daycarePrice} onChange={e => setForm(p => updateCost({ ...p, daycarePrice: +e.target.value }))} />
+                      </div>
+                      <div className="sm:col-span-2">
                         <Label>Additional Services (₹)</Label>
-                        <Input type="number" min={0} step={0.01} value={form.additionalCost} onChange={e => setForm(p => ({ ...p, additionalCost: +e.target.value }))} />
+                        <Input type="number" min={0} step={0.01} value={form.additionalCost} onChange={e => setForm(p => updateCost({ ...p, additionalCost: +e.target.value }))} />
                       </div>
                     </div>
 
@@ -228,7 +232,7 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
                     <div className="pt-2 border-t space-y-1.5 text-sm">
                       <div className="flex justify-between"><span className="text-muted-foreground">Boarding ({bill.nights} night{bill.nights === 1 ? '' : 's'} × ₹{bill.dailyRate.toFixed(2)})</span><span>₹{bill.boardingCharge.toFixed(2)}</span></div>
                       {bill.lastDayUnits > 0 && (
-                        <div className="flex justify-between"><span className="text-muted-foreground">Daycare — {lastDayLabel(bill.lastDayCharge)} ({bill.lastDayUnits}× ₹{bill.dailyRate.toFixed(2)})</span><span>₹{bill.daycareCharge.toFixed(2)}</span></div>
+                        <div className="flex justify-between"><span className="text-muted-foreground">Daycare (₹{bill.daycarePrice.toFixed(2)})</span><span>₹{bill.daycareCharge.toFixed(2)}</span></div>
                       )}
                       {bill.additional > 0 && (
                         <div className="flex justify-between"><span className="text-muted-foreground">Additional Services</span><span>₹{bill.additional.toFixed(2)}</span></div>
