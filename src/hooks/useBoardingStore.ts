@@ -135,7 +135,8 @@ export function useBoardings() {
         paymentStatus: ((r as any).payment_status || 'outstanding') as any,
         paidAmount: Number((r as any).paid_amount || 0),
         paymentMethod: ((r as any).payment_method || '') as any,
-        lastDayCharge: ((r as any).last_day_charge || 'none') as any,
+        lastDayCharge: (((r as any).last_day_charge && (r as any).last_day_charge !== 'none') ? 'daycare' : 'none') as any,
+        daycarePrice: Number((r as any).daycare_price || 0),
         discountType: ((r as any).discount_type || 'none') as any,
         discountValue: Number((r as any).discount_value || 0),
         discountReason: (r as any).discount_reason || '',
@@ -162,6 +163,7 @@ export function useBoardings() {
       paid_amount: (boarding as any).paidAmount || 0,
       payment_method: (boarding as any).paymentMethod || null,
       last_day_charge: (boarding as any).lastDayCharge || 'none',
+      daycare_price: (boarding as any).daycarePrice || 0,
       discount_type: (boarding as any).discountType || 'none',
       discount_value: (boarding as any).discountValue || 0,
       discount_reason: (boarding as any).discountReason || null,
@@ -190,6 +192,7 @@ export function useBoardings() {
     if ((d as any).paidAmount !== undefined) update.paid_amount = (d as any).paidAmount;
     if ((d as any).paymentMethod !== undefined) update.payment_method = (d as any).paymentMethod;
     if ((d as any).lastDayCharge !== undefined) update.last_day_charge = (d as any).lastDayCharge;
+    if ((d as any).daycarePrice !== undefined) update.daycare_price = (d as any).daycarePrice;
     if ((d as any).discountType !== undefined) update.discount_type = (d as any).discountType;
     if ((d as any).discountValue !== undefined) update.discount_value = (d as any).discountValue;
     if ((d as any).discountReason !== undefined) update.discount_reason = (d as any).discountReason;
