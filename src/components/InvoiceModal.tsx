@@ -155,91 +155,134 @@ export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner,
             </div>
           </div>
 
-          {/* Line Items Table */}
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead>
-              <tr>
-                <th style={{ background: '#2563eb', color: 'white', textAlign: 'left', padding: '10px 14px', fontSize: '12px', textTransform: 'uppercase' }}>Description</th>
-                <th style={{ background: '#2563eb', color: 'white', textAlign: 'center', padding: '10px 14px', fontSize: '12px', textTransform: 'uppercase' }}>Units</th>
-                <th style={{ background: '#2563eb', color: 'white', textAlign: 'right', padding: '10px 14px', fontSize: '12px', textTransform: 'uppercase' }}>Rate</th>
-                <th style={{ background: '#2563eb', color: 'white', textAlign: 'right', padding: '10px 14px', fontSize: '12px', textTransform: 'uppercase' }}>Amount</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.map(it => (
-                <tr key={it.boarding.id}>
-                  <td style={{ padding: '10px 14px', fontSize: '13px', borderBottom: '1px solid #e5e7eb' }}>
-                    Dog Boarding - {it.dog?.name || 'Pet'}
-                    {it.boarding.kennelNumber && <span style={{ color: '#888' }}> (Kennel #{it.boarding.kennelNumber})</span>}
-                    <div style={{ fontSize: '11px', color: '#888' }}>{it.boarding.checkInDate} → {it.boarding.checkOutDate}</div>
-                    <div style={{ fontSize: '11px', color: '#888' }}>
-                      Overnight stays: {it.bill.nights}
-                      {it.bill.lastDayUnits > 0 && ` • Last day: ${lastDayLabel(it.bill.lastDayCharge)}`}
+          {/* Per-pet breakdown cards */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {items.map(it => {
+              const itemTotal = it.bill.total;
+              const preDiscount = it.bill.subtotal + it.bill.additional;
+              return (
+                <div key={it.boarding.id} style={{ border: '1px solid #e5e7eb', borderRadius: '10px', overflow: 'hidden' }}>
+                  {/* Card header */}
+                  <div style={{ background: '#eff6ff', padding: '10px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #dbeafe' }}>
+                    <div>
+                      <div style={{ fontSize: '14px', fontWeight: 700, color: '#1e3a8a' }}>
+                        🐕 {it.dog?.name || 'Pet'}
+                        {it.boarding.kennelNumber && <span style={{ fontSize: '12px', fontWeight: 500, color: '#475569', marginLeft: '8px' }}>Kennel #{it.boarding.kennelNumber}</span>}
+                      </div>
+                      <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>
+                        {it.boarding.checkInDate} → {it.boarding.checkOutDate}
+                      </div>
                     </div>
-                    {it.bill.additional > 0 && <div style={{ fontSize: '11px', color: '#888' }}>+ Additional Services: ₹{it.bill.additional.toFixed(2)}</div>}
-                    {it.bill.discount > 0 && <div style={{ fontSize: '11px', color: '#16a34a' }}>Discount {it.bill.discountType === 'percentage' ? `(${it.bill.discountValue}%)` : ''}: − ₹{it.bill.discount.toFixed(2)}</div>}
-                  </td>
-                  <td style={{ padding: '10px 14px', fontSize: '13px', borderBottom: '1px solid #e5e7eb', textAlign: 'center' }}>{it.bill.units}</td>
-                  <td style={{ padding: '10px 14px', fontSize: '13px', borderBottom: '1px solid #e5e7eb', textAlign: 'right' }}>₹{it.bill.dailyRate.toFixed(2)}</td>
-                  <td style={{ padding: '10px 14px', fontSize: '13px', borderBottom: '1px solid #e5e7eb', textAlign: 'right' }}>₹{it.bill.total.toFixed(2)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                    <div style={{ fontSize: '15px', fontWeight: 700, color: '#2563eb' }}>₹{itemTotal.toFixed(2)}</div>
+                  </div>
 
-          {/* Totals & Payment */}
-          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px' }}>
-            <table style={{ width: '320px', borderCollapse: 'collapse' }}>
-              <tbody>
-                <tr>
-                  <td style={{ padding: '6px 14px', fontSize: '13px' }}>Boarding Charges</td>
-                  <td style={{ padding: '6px 14px', fontSize: '13px', textAlign: 'right' }}>₹{totals.boarding.toFixed(2)}</td>
-                </tr>
-                {totals.daycare > 0 && (
-                  <tr>
-                    <td style={{ padding: '6px 14px', fontSize: '13px' }}>Daycare Charges</td>
-                    <td style={{ padding: '6px 14px', fontSize: '13px', textAlign: 'right' }}>₹{totals.daycare.toFixed(2)}</td>
-                  </tr>
-                )}
-                {totals.additional > 0 && (
-                  <tr>
-                    <td style={{ padding: '6px 14px', fontSize: '13px' }}>Additional Services</td>
-                    <td style={{ padding: '6px 14px', fontSize: '13px', textAlign: 'right' }}>₹{totals.additional.toFixed(2)}</td>
-                  </tr>
-                )}
-                <tr>
-                  <td style={{ padding: '6px 14px', fontSize: '13px', fontWeight: 600 }}>Subtotal</td>
-                  <td style={{ padding: '6px 14px', fontSize: '13px', textAlign: 'right', fontWeight: 600 }}>₹{(totals.subtotal + totals.additional).toFixed(2)}</td>
-                </tr>
-                {totals.discount > 0 && (
-                  <tr>
-                    <td style={{ padding: '6px 14px', fontSize: '13px', color: '#16a34a' }}>Discount</td>
-                    <td style={{ padding: '6px 14px', fontSize: '13px', textAlign: 'right', color: '#16a34a' }}>− ₹{totals.discount.toFixed(2)}</td>
-                  </tr>
-                )}
-                <tr>
-                  <td style={{ padding: '10px 14px', fontSize: '16px', fontWeight: 700, color: '#2563eb', borderTop: '2px solid #2563eb' }}>Grand Total</td>
-                  <td style={{ padding: '10px 14px', fontSize: '16px', fontWeight: 700, color: '#2563eb', borderTop: '2px solid #2563eb', textAlign: 'right' }}>₹{totals.total.toFixed(2)}</td>
-                </tr>
-                <tr>
-                  <td style={{ padding: '6px 14px', fontSize: '13px', color: '#16a34a' }}>Paid</td>
-                  <td style={{ padding: '6px 14px', fontSize: '13px', textAlign: 'right', color: '#16a34a' }}>₹{totals.paid.toFixed(2)}</td>
-                </tr>
-                {remaining > 0 && (
-                  <tr>
-                    <td style={{ padding: '6px 14px', fontSize: '13px', color: '#dc2626', fontWeight: 600 }}>Remaining</td>
-                    <td style={{ padding: '6px 14px', fontSize: '13px', textAlign: 'right', color: '#dc2626', fontWeight: 600 }}>₹{remaining.toFixed(2)}</td>
-                  </tr>
-                )}
-                {boarding.paymentMethod && (
-                  <tr>
-                    <td style={{ padding: '6px 14px', fontSize: '12px', color: '#888' }}>Mode of Payment</td>
-                    <td style={{ padding: '6px 14px', fontSize: '12px', textAlign: 'right', textTransform: 'uppercase', fontWeight: 600 }}>{boarding.paymentMethod}</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+                  {/* Line items */}
+                  <div style={{ padding: '8px 14px' }}>
+                    {it.bill.nights > 0 && (
+                      <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', fontSize: '13px', borderBottom: '1px dashed #f1f5f9' }}>
+                        <span style={{ color: '#334155' }}>
+                          Overnight Boarding
+                          <span style={{ color: '#94a3b8', marginLeft: '6px' }}>{it.bill.nights} night{it.bill.nights === 1 ? '' : 's'} × ₹{it.bill.dailyRate.toFixed(2)}</span>
+                        </span>
+                        <span style={{ fontWeight: 600 }}>₹{it.bill.boardingCharge.toFixed(2)}</span>
+                      </div>
+                    )}
+                    {it.bill.lastDayUnits > 0 && (
+                      <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', fontSize: '13px', borderBottom: '1px dashed #f1f5f9' }}>
+                        <span style={{ color: '#334155' }}>
+                          Daycare
+                          <span style={{ color: '#94a3b8', marginLeft: '6px' }}>₹{it.bill.daycarePrice.toFixed(2)}</span>
+                        </span>
+                        <span style={{ fontWeight: 600 }}>₹{it.bill.daycareCharge.toFixed(2)}</span>
+                      </div>
+                    )}
+                    {it.bill.additional > 0 && (
+                      <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', fontSize: '13px', borderBottom: '1px dashed #f1f5f9' }}>
+                        <span style={{ color: '#334155' }}>Additional Services</span>
+                        <span style={{ fontWeight: 600 }}>₹{it.bill.additional.toFixed(2)}</span>
+                      </div>
+                    )}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', fontSize: '13px' }}>
+                      <span style={{ color: '#64748b' }}>Subtotal</span>
+                      <span style={{ fontWeight: 600 }}>₹{preDiscount.toFixed(2)}</span>
+                    </div>
+                    {it.bill.discount > 0 && (
+                      <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', fontSize: '13px', color: '#16a34a' }}>
+                        <span>Discount {it.bill.discountType === 'percentage' ? `(${it.bill.discountValue}%)` : '(Fixed)'}</span>
+                        <span style={{ fontWeight: 600 }}>− ₹{it.bill.discount.toFixed(2)}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
           </div>
+
+          {/* Grand totals summary */}
+          <div style={{ marginTop: '20px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '14px 18px' }}>
+            {multiple && (
+              <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1px', color: '#2563eb', fontWeight: 600, marginBottom: '8px' }}>
+                Combined Totals ({items.length} pets)
+              </div>
+            )}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '13px' }}>
+              {totals.boarding > 0 && (
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ color: '#475569' }}>Boarding Charges</span>
+                  <span>₹{totals.boarding.toFixed(2)}</span>
+                </div>
+              )}
+              {totals.daycare > 0 && (
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ color: '#475569' }}>Daycare Charges</span>
+                  <span>₹{totals.daycare.toFixed(2)}</span>
+                </div>
+              )}
+              {totals.additional > 0 && (
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ color: '#475569' }}>Additional Services</span>
+                  <span>₹{totals.additional.toFixed(2)}</span>
+                </div>
+              )}
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 600, paddingTop: '4px' }}>
+                <span>Subtotal</span>
+                <span>₹{(totals.subtotal + totals.additional).toFixed(2)}</span>
+              </div>
+              {totals.discount > 0 && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', color: '#16a34a' }}>
+                  <span>Total Discount</span>
+                  <span>− ₹{totals.discount.toFixed(2)}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Grand total banner */}
+            <div style={{ marginTop: '12px', padding: '12px 14px', background: '#2563eb', color: 'white', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '15px', fontWeight: 600, letterSpacing: '0.5px' }}>GRAND TOTAL</span>
+              <span style={{ fontSize: '20px', fontWeight: 700 }}>₹{totals.total.toFixed(2)}</span>
+            </div>
+
+            {/* Payment */}
+            <div style={{ marginTop: '12px', display: 'grid', gridTemplateColumns: remaining > 0 ? '1fr 1fr 1fr' : '1fr 1fr', gap: '8px' }}>
+              <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '10px', textAlign: 'center' }}>
+                <div style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.5px', color: '#94a3b8', fontWeight: 600 }}>Paid</div>
+                <div style={{ fontSize: '16px', fontWeight: 700, color: '#16a34a', marginTop: '2px' }}>₹{totals.paid.toFixed(2)}</div>
+              </div>
+              {remaining > 0 && (
+                <div style={{ background: 'white', border: '1px solid #fecaca', borderRadius: '8px', padding: '10px', textAlign: 'center' }}>
+                  <div style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.5px', color: '#94a3b8', fontWeight: 600 }}>Remaining</div>
+                  <div style={{ fontSize: '16px', fontWeight: 700, color: '#dc2626', marginTop: '2px' }}>₹{remaining.toFixed(2)}</div>
+                </div>
+              )}
+              <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '10px', textAlign: 'center' }}>
+                <div style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.5px', color: '#94a3b8', fontWeight: 600 }}>Mode</div>
+                <div style={{ fontSize: '13px', fontWeight: 700, color: '#1e293b', marginTop: '4px', textTransform: 'uppercase' }}>
+                  {boarding.paymentMethod || '—'}
+                </div>
+              </div>
+            </div>
+          </div>
+
 
           {/* Notes */}
           {items.some(it => it.boarding.notes) && (
