@@ -1,0 +1,1 @@
+ALTER TABLE public.boardings ADD COLUMN IF NOT EXISTS daycare_price numeric NOT NULL DEFAULT 0;

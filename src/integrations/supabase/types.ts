@@ -21,6 +21,7 @@ export type Database = {
           check_out_date: string
           created_at: string
           daily_rate: number
+          daycare_price: number
           discount: number
           discount_reason: string | null
           discount_type: string
@@ -47,6 +48,7 @@ export type Database = {
           check_out_date: string
           created_at?: string
           daily_rate?: number
+          daycare_price?: number
           discount?: number
           discount_reason?: string | null
           discount_type?: string
@@ -73,6 +75,7 @@ export type Database = {
           check_out_date?: string
           created_at?: string
           daily_rate?: number
+          daycare_price?: number
           discount?: number
           discount_reason?: string | null
           discount_type?: string
