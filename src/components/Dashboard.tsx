@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Users, PawPrint, CalendarCheck, DollarSign, Phone, Mail, Heart } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { calcBilling } from '@/lib/billing';
+import DashboardKpis from './DashboardKpis';
 
 const statusColors: Record<BoardingStatus, string> = {
   'reserved': 'bg-warning/20 text-warning-foreground border-warning/30',
