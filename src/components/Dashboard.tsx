@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Users, PawPrint, CalendarCheck, DollarSign, Phone, Mail, Heart } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { calcBilling } from '@/lib/billing';
+import DashboardKpis from './DashboardKpis';
 
 const statusColors: Record<BoardingStatus, string> = {
   'reserved': 'bg-warning/20 text-warning-foreground border-warning/30',
@@ -26,11 +27,12 @@ interface Props {
   onClickBoarding: (boardingId: string) => void;
   onClickFosterOwner: (ownerId: string) => void;
   onClickFosterDog: (dogId: string) => void;
+  onQuickAction?: (a: 'booking' | 'customer' | 'pet' | 'invoice' | 'calendar' | 'reports') => void;
 }
 
 type DrilldownType = 'b-owners' | 'b-dogs' | 'f-owners' | 'f-dogs' | 'b-active' | 'b-revenue' | 'b-reserved' | 'b-completed' | 'b-cancelled' | 'f-active' | 'f-revenue' | 'f-reserved' | 'f-completed' | 'f-cancelled' | null;
 
-export default function Dashboard({ owners, dogs, boardings, fosters, fosterOwners, fosterDogs, onClickOwner, onClickDog, onClickBoarding, onClickFosterOwner, onClickFosterDog }: Props) {
+export default function Dashboard({ owners, dogs, boardings, fosters, fosterOwners, fosterDogs, onClickOwner, onClickDog, onClickBoarding, onClickFosterOwner, onClickFosterDog, onQuickAction }: Props) {
   const [drilldown, setDrilldown] = useState<DrilldownType>(null);
 
   const bActive = boardings.filter(b => b.status === 'checked-in');
@@ -235,6 +237,7 @@ export default function Dashboard({ owners, dogs, boardings, fosters, fosterOwne
 
   return (
     <div className="space-y-6">
+      <DashboardKpis owners={owners} dogs={dogs} boardings={boardings} fosters={fosters} onQuickAction={onQuickAction} />
       <div className="grid lg:grid-cols-2 gap-6">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
           {renderSectionCard('Boarding', <CalendarCheck className="h-5 w-5 text-primary" />,

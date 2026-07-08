@@ -13,6 +13,7 @@ import FosterManager from '@/components/FosterManager';
 import DetailPanel from '@/components/DetailPanel';
 import CompanySettingsForm from '@/components/CompanySettingsForm';
 import BookingRequestsManager from '@/components/BookingRequestsManager';
+import GlobalSearch from '@/components/GlobalSearch';
 import { motion } from 'framer-motion';
 import { Owner } from '@/types/boarding';
 
@@ -93,6 +94,14 @@ const Index = () => {
             </div>
           </motion.div>
           <div className="flex items-center gap-1 shrink-0">
+            <GlobalSearch
+              owners={owners}
+              dogs={dogs}
+              boardings={boardings}
+              onOwner={openDetailByOwner}
+              onDog={openDetailByDog}
+              onBoarding={openDetailByBoarding}
+            />
             <Button variant="ghost" size="icon" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} className="text-muted-foreground hover:rotate-12 transition-transform" title="Toggle theme">
               {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </Button>
@@ -121,6 +130,12 @@ const Index = () => {
               fosters={fosters} fosterOwners={fosterOwners} fosterDogs={fosterDogs}
               onClickOwner={openDetailByOwner} onClickDog={openDetailByDog} onClickBoarding={openDetailByBoarding}
               onClickFosterOwner={openFosterDetailByOwner} onClickFosterDog={openFosterDetailByDog}
+              onQuickAction={(a) => {
+                if (a === 'booking') { setTab('boarding'); setBoardingSubTab('boardings'); }
+                else if (a === 'customer') { setTab('boarding'); setBoardingSubTab('owners'); }
+                else if (a === 'pet') { setTab('boarding'); setBoardingSubTab('dogs'); }
+                else if (a === 'invoice' || a === 'calendar' || a === 'reports') { setTab('boarding'); setBoardingSubTab('boardings'); }
+              }}
             />
           </TabsContent>
 
