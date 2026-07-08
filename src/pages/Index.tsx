@@ -94,6 +94,14 @@ const Index = () => {
             </div>
           </motion.div>
           <div className="flex items-center gap-1 shrink-0">
+            <GlobalSearch
+              owners={owners}
+              dogs={dogs}
+              boardings={boardings}
+              onOwner={openDetailByOwner}
+              onDog={openDetailByDog}
+              onBoarding={openDetailByBoarding}
+            />
             <Button variant="ghost" size="icon" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} className="text-muted-foreground hover:rotate-12 transition-transform" title="Toggle theme">
               {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </Button>
