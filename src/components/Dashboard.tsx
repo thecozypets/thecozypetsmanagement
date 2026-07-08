@@ -27,6 +27,7 @@ interface Props {
   onClickBoarding: (boardingId: string) => void;
   onClickFosterOwner: (ownerId: string) => void;
   onClickFosterDog: (dogId: string) => void;
+  onQuickAction?: (a: 'booking' | 'customer' | 'pet' | 'invoice' | 'calendar' | 'reports') => void;
 }
 
 type DrilldownType = 'b-owners' | 'b-dogs' | 'f-owners' | 'f-dogs' | 'b-active' | 'b-revenue' | 'b-reserved' | 'b-completed' | 'b-cancelled' | 'f-active' | 'f-revenue' | 'f-reserved' | 'f-completed' | 'f-cancelled' | null;
