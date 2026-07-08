@@ -130,6 +130,12 @@ const Index = () => {
               fosters={fosters} fosterOwners={fosterOwners} fosterDogs={fosterDogs}
               onClickOwner={openDetailByOwner} onClickDog={openDetailByDog} onClickBoarding={openDetailByBoarding}
               onClickFosterOwner={openFosterDetailByOwner} onClickFosterDog={openFosterDetailByDog}
+              onQuickAction={(a) => {
+                if (a === 'booking') { setTab('boarding'); setBoardingSubTab('boardings'); }
+                else if (a === 'customer') { setTab('boarding'); setBoardingSubTab('owners'); }
+                else if (a === 'pet') { setTab('boarding'); setBoardingSubTab('dogs'); }
+                else if (a === 'invoice' || a === 'calendar' || a === 'reports') { setTab('boarding'); setBoardingSubTab('boardings'); }
+              }}
             />
           </TabsContent>
 
