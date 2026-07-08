@@ -237,6 +237,7 @@ export default function Dashboard({ owners, dogs, boardings, fosters, fosterOwne
 
   return (
     <div className="space-y-6">
+      <DashboardKpis owners={owners} dogs={dogs} boardings={boardings} fosters={fosters} onQuickAction={onQuickAction} />
       <div className="grid lg:grid-cols-2 gap-6">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
           {renderSectionCard('Boarding', <CalendarCheck className="h-5 w-5 text-primary" />,
