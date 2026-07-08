@@ -13,6 +13,7 @@ import FosterManager from '@/components/FosterManager';
 import DetailPanel from '@/components/DetailPanel';
 import CompanySettingsForm from '@/components/CompanySettingsForm';
 import BookingRequestsManager from '@/components/BookingRequestsManager';
+import GlobalSearch from '@/components/GlobalSearch';
 import { motion } from 'framer-motion';
 import { Owner } from '@/types/boarding';
 
