@@ -118,6 +118,17 @@ export function useBoardings() {
   const fetchBoardings = useCallback(async () => {
     const { data, error } = await supabase.from('boardings').select('*').order('created_at', { ascending: false });
     if (error) { toast.error('Failed to load boardings'); return; }
+    // Load extras once and group by boarding_id
+    const { data: extrasData } = await supabase.from('booking_extras' as any).select('*');
+    const extrasByBooking = new Map<string, BookingExtra[]>();
+    (extrasData || []).forEach((e: any) => {
+      const arr = extrasByBooking.get(e.boarding_id) || [];
+      arr.push({
+        id: e.id, category: e.category as ExtraCategory, label: e.label,
+        amount: Number(e.amount) || 0, quantity: Number(e.quantity) || 1, notes: e.notes || '',
+      });
+      extrasByBooking.set(e.boarding_id, arr);
+    });
     setBoardings((data || []).map(r => {
       const checkInParts = (r.check_in_date || '').split('T');
       const checkOutParts = (r.check_out_date || '').split('T');
@@ -140,6 +151,11 @@ export function useBoardings() {
         discountType: ((r as any).discount_type || 'none') as any,
         discountValue: Number((r as any).discount_value || 0),
         discountReason: (r as any).discount_reason || '',
+        source: ((r as any).source || 'walk-in') as BookingSource,
+        tags: ((r as any).tags || []) as string[],
+        internalNotes: (r as any).internal_notes || '',
+        couponCode: (r as any).coupon_code || '',
+        extras: extrasByBooking.get(r.id) || [],
         createdAt: r.created_at,
       };
     }));
