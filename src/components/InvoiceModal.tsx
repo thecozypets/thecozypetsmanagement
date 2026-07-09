@@ -160,7 +160,8 @@ export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner,
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {items.map(it => {
               const itemTotal = it.bill.total;
-              const preDiscount = it.bill.subtotal + it.bill.additional;
+              const preDiscount = it.bill.subtotal + it.bill.additional + it.bill.extrasTotal;
+              const extras = (it.boarding as any).extras || [];
               return (
                 <div key={it.boarding.id} style={{ border: '1px solid #e5e7eb', borderRadius: '10px', overflow: 'hidden' }}>
                   {/* Card header */}
