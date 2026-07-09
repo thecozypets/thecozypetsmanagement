@@ -74,6 +74,11 @@ export interface Boarding {
   discountType: DiscountType;
   discountValue: number;
   discountReason: string;
+  source: BookingSource;
+  tags: string[];
+  internalNotes: string;
+  couponCode: string;
+  extras: BookingExtra[];
   createdAt: string;
 }
 
