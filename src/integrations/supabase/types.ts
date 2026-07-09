@@ -19,6 +19,7 @@ export type Database = {
           additional_cost: number
           check_in_date: string
           check_out_date: string
+          coupon_code: string
           created_at: string
           daily_rate: number
           daycare_price: number
@@ -29,6 +30,7 @@ export type Database = {
           dog_id: string
           feeding_schedule: string | null
           id: string
+          internal_notes: string
           kennel_number: string | null
           last_day_charge: string
           notes: string | null
@@ -37,8 +39,10 @@ export type Database = {
           payment_method: string | null
           payment_status: string
           service_type: string
+          source: string
           special_requests: string | null
           status: Database["public"]["Enums"]["boarding_status"]
+          tags: string[]
           total_cost: number
           user_id: string
         }
@@ -46,6 +50,7 @@ export type Database = {
           additional_cost?: number
           check_in_date: string
           check_out_date: string
+          coupon_code?: string
           created_at?: string
           daily_rate?: number
           daycare_price?: number
@@ -56,6 +61,7 @@ export type Database = {
           dog_id: string
           feeding_schedule?: string | null
           id?: string
+          internal_notes?: string
           kennel_number?: string | null
           last_day_charge?: string
           notes?: string | null
@@ -64,8 +70,10 @@ export type Database = {
           payment_method?: string | null
           payment_status?: string
           service_type?: string
+          source?: string
           special_requests?: string | null
           status?: Database["public"]["Enums"]["boarding_status"]
+          tags?: string[]
           total_cost?: number
           user_id?: string
         }
@@ -73,6 +81,7 @@ export type Database = {
           additional_cost?: number
           check_in_date?: string
           check_out_date?: string
+          coupon_code?: string
           created_at?: string
           daily_rate?: number
           daycare_price?: number
@@ -83,6 +92,7 @@ export type Database = {
           dog_id?: string
           feeding_schedule?: string | null
           id?: string
+          internal_notes?: string
           kennel_number?: string | null
           last_day_charge?: string
           notes?: string | null
@@ -91,8 +101,10 @@ export type Database = {
           payment_method?: string | null
           payment_status?: string
           service_type?: string
+          source?: string
           special_requests?: string | null
           status?: Database["public"]["Enums"]["boarding_status"]
+          tags?: string[]
           total_cost?: number
           user_id?: string
         }
@@ -109,6 +121,47 @@ export type Database = {
             columns: ["owner_id"]
             isOneToOne: false
             referencedRelation: "owners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      booking_extras: {
+        Row: {
+          amount: number
+          boarding_id: string
+          category: string
+          created_at: string
+          id: string
+          label: string
+          notes: string
+          quantity: number
+        }
+        Insert: {
+          amount?: number
+          boarding_id: string
+          category?: string
+          created_at?: string
+          id?: string
+          label: string
+          notes?: string
+          quantity?: number
+        }
+        Update: {
+          amount?: number
+          boarding_id?: string
+          category?: string
+          created_at?: string
+          id?: string
+          label?: string
+          notes?: string
+          quantity?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "booking_extras_boarding_id_fkey"
+            columns: ["boarding_id"]
+            isOneToOne: false
+            referencedRelation: "boardings"
             referencedColumns: ["id"]
           },
         ]
