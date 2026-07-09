@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Boarding, Dog, Owner, BoardingStatus, PaymentStatus, PaymentMethod, LastDayCharge, DiscountType } from '@/types/boarding';
+import { Boarding, Dog, Owner, BoardingStatus, PaymentStatus, PaymentMethod, LastDayCharge, DiscountType, BookingSource, BookingExtra, ExtraCategory } from '@/types/boarding';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -8,10 +8,21 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { CalendarPlus, Pencil, Trash2, Calendar, DollarSign, FileText } from 'lucide-react';
+import { CalendarPlus, Pencil, Trash2, Calendar, DollarSign, FileText, Plus, X, Tag } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import InvoiceModal from './InvoiceModal';
 import { calcBilling, lastDayLabel } from '@/lib/billing';
+
+const EXTRA_CATALOG: { category: ExtraCategory; label: string; defaultAmount: number }[] = [
+  { category: 'bath', label: 'Bath', defaultAmount: 300 },
+  { category: 'grooming', label: 'Grooming', defaultAmount: 800 },
+  { category: 'pickup', label: 'Pickup', defaultAmount: 200 },
+  { category: 'drop', label: 'Drop', defaultAmount: 200 },
+  { category: 'training', label: 'Training Session', defaultAmount: 500 },
+  { category: 'medicine', label: 'Medicine', defaultAmount: 100 },
+  { category: 'special-food', label: 'Special Food', defaultAmount: 150 },
+  { category: 'vet-visit', label: 'Vet Visit', defaultAmount: 1000 },
+];
 
 interface BoardingFormData {
   dogId: string;
