@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { Owner, Dog, Boarding, Foster, AnimalType } from '@/types/boarding';
+import { Owner, Dog, Boarding, Foster, AnimalType, BookingExtra, ExtraCategory, BookingSource } from '@/types/boarding';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
