@@ -243,26 +243,6 @@ export function useBoardings() {
     }
     await fetchBoardings();
   }, [fetchBoardings]);
-    if (d.status !== undefined) update.status = d.status;
-    if (d.kennelNumber !== undefined) update.kennel_number = d.kennelNumber;
-    if (d.dailyRate !== undefined) update.daily_rate = d.dailyRate;
-    if (d.totalCost !== undefined) update.total_cost = d.totalCost;
-    if ((d as any).additionalCost !== undefined) update.additional_cost = (d as any).additionalCost;
-    if (d.specialRequests !== undefined) update.special_requests = d.specialRequests;
-    if (d.feedingSchedule !== undefined) update.feeding_schedule = d.feedingSchedule;
-    if (d.notes !== undefined) update.notes = d.notes;
-    if ((d as any).paymentStatus !== undefined) update.payment_status = (d as any).paymentStatus;
-    if ((d as any).paidAmount !== undefined) update.paid_amount = (d as any).paidAmount;
-    if ((d as any).paymentMethod !== undefined) update.payment_method = (d as any).paymentMethod;
-    if ((d as any).lastDayCharge !== undefined) update.last_day_charge = (d as any).lastDayCharge;
-    if ((d as any).daycarePrice !== undefined) update.daycare_price = (d as any).daycarePrice;
-    if ((d as any).discountType !== undefined) update.discount_type = (d as any).discountType;
-    if ((d as any).discountValue !== undefined) update.discount_value = (d as any).discountValue;
-    if ((d as any).discountReason !== undefined) update.discount_reason = (d as any).discountReason;
-    const { error } = await supabase.from('boardings').update(update).eq('id', id);
-    if (error) { toast.error('Failed to update boarding'); return; }
-    await fetchBoardings();
-  }, [fetchBoardings]);
 
   const deleteBoarding = useCallback(async (id: string) => {
     const { error } = await supabase.from('boardings').delete().eq('id', id);
