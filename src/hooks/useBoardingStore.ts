@@ -183,9 +183,21 @@ export function useBoardings() {
       discount_type: (boarding as any).discountType || 'none',
       discount_value: (boarding as any).discountValue || 0,
       discount_reason: (boarding as any).discountReason || null,
+      source: (boarding as any).source || 'walk-in',
+      tags: (boarding as any).tags || [],
+      internal_notes: (boarding as any).internalNotes || '',
+      coupon_code: (boarding as any).couponCode || '',
       user_id: user.id,
     } as any).select().single();
     if (error) { toast.error('Failed to add boarding'); return null; }
+    // Persist extras
+    const extras: BookingExtra[] = (boarding as any).extras || [];
+    if (extras.length > 0) {
+      await supabase.from('booking_extras' as any).insert(extras.map(x => ({
+        boarding_id: data.id, category: x.category, label: x.label,
+        amount: x.amount, quantity: x.quantity, notes: x.notes || '',
+      })) as any);
+    }
     await fetchBoardings();
     return { ...boarding, id: data.id, createdAt: data.created_at } as Boarding;
   }, [fetchBoardings]);
@@ -196,6 +208,41 @@ export function useBoardings() {
     if (d.ownerId !== undefined) update.owner_id = d.ownerId;
     if (d.checkInDate !== undefined) update.check_in_date = d.checkInTime ? `${d.checkInDate}T${d.checkInTime}` : d.checkInDate;
     if (d.checkOutDate !== undefined) update.check_out_date = d.checkOutTime ? `${d.checkOutDate}T${d.checkOutTime}` : d.checkOutDate;
+    if (d.status !== undefined) update.status = d.status;
+    if (d.kennelNumber !== undefined) update.kennel_number = d.kennelNumber;
+    if (d.dailyRate !== undefined) update.daily_rate = d.dailyRate;
+    if (d.totalCost !== undefined) update.total_cost = d.totalCost;
+    if ((d as any).additionalCost !== undefined) update.additional_cost = (d as any).additionalCost;
+    if (d.specialRequests !== undefined) update.special_requests = d.specialRequests;
+    if (d.feedingSchedule !== undefined) update.feeding_schedule = d.feedingSchedule;
+    if (d.notes !== undefined) update.notes = d.notes;
+    if ((d as any).paymentStatus !== undefined) update.payment_status = (d as any).paymentStatus;
+    if ((d as any).paidAmount !== undefined) update.paid_amount = (d as any).paidAmount;
+    if ((d as any).paymentMethod !== undefined) update.payment_method = (d as any).paymentMethod;
+    if ((d as any).lastDayCharge !== undefined) update.last_day_charge = (d as any).lastDayCharge;
+    if ((d as any).daycarePrice !== undefined) update.daycare_price = (d as any).daycarePrice;
+    if ((d as any).discountType !== undefined) update.discount_type = (d as any).discountType;
+    if ((d as any).discountValue !== undefined) update.discount_value = (d as any).discountValue;
+    if ((d as any).discountReason !== undefined) update.discount_reason = (d as any).discountReason;
+    if ((d as any).source !== undefined) update.source = (d as any).source;
+    if ((d as any).tags !== undefined) update.tags = (d as any).tags;
+    if ((d as any).internalNotes !== undefined) update.internal_notes = (d as any).internalNotes;
+    if ((d as any).couponCode !== undefined) update.coupon_code = (d as any).couponCode;
+    const { error } = await supabase.from('boardings').update(update).eq('id', id);
+    if (error) { toast.error('Failed to update boarding'); return; }
+    // Sync extras if provided (delete-and-reinsert)
+    if ((d as any).extras !== undefined) {
+      const extras: BookingExtra[] = (d as any).extras || [];
+      await supabase.from('booking_extras' as any).delete().eq('boarding_id', id);
+      if (extras.length > 0) {
+        await supabase.from('booking_extras' as any).insert(extras.map(x => ({
+          boarding_id: id, category: x.category, label: x.label,
+          amount: x.amount, quantity: x.quantity, notes: x.notes || '',
+        })) as any);
+      }
+    }
+    await fetchBoardings();
+  }, [fetchBoardings]);
     if (d.status !== undefined) update.status = d.status;
     if (d.kennelNumber !== undefined) update.kennel_number = d.kennelNumber;
     if (d.dailyRate !== undefined) update.daily_rate = d.dailyRate;
