@@ -428,7 +428,8 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
               })()}
 
               <div><Label>Special Requests</Label><Textarea value={form.specialRequests} onChange={e => setForm(p => ({ ...p, specialRequests: e.target.value }))} /></div>
-              <div><Label>Notes</Label><Textarea value={form.notes} onChange={e => setForm(p => ({ ...p, notes: e.target.value }))} /></div>
+              <div><Label>Notes (visible on invoice)</Label><Textarea value={form.notes} onChange={e => setForm(p => ({ ...p, notes: e.target.value }))} /></div>
+              <div><Label>Internal Notes (staff-only)</Label><Textarea rows={2} placeholder="Not shown to customer" value={form.internalNotes} onChange={e => setForm(p => ({ ...p, internalNotes: e.target.value }))} /></div>
               <Button type="submit" className="w-full">{editingId ? 'Update' : 'Create Booking'}</Button>
             </form>
           </DialogContent>
