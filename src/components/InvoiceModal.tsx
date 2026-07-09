@@ -55,11 +55,12 @@ export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner,
     acc.daycare += it.bill.daycareCharge;
     acc.subtotal += it.bill.subtotal;
     acc.additional += it.bill.additional;
+    acc.extras += it.bill.extrasTotal;
     acc.discount += it.bill.discount;
     acc.total += it.bill.total;
     acc.paid += it.bill.paid;
     return acc;
-  }, { boarding: 0, daycare: 0, subtotal: 0, additional: 0, discount: 0, total: 0, paid: 0 });
+  }, { boarding: 0, daycare: 0, subtotal: 0, additional: 0, extras: 0, discount: 0, total: 0, paid: 0 });
   const remaining = Math.max(0, totals.total - totals.paid);
 
   const invoiceNumber = `INV-${boarding.id.slice(0, 8).toUpperCase()}`;
