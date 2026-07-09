@@ -78,7 +78,8 @@ export const calcBilling = (b: BillableRecord): Billing => {
   const subtotal = boardingCharge + daycareCharge || (nights === 0 && ldUnits === 0 ? dailyRate : 0);
 
   const additional = b.additionalCost || 0;
-  const preDiscount = subtotal + additional;
+  const extrasTotal = (b.extras || []).reduce((s, x) => s + (Number(x.amount) || 0) * (Number(x.quantity) || 1), 0);
+  const preDiscount = subtotal + additional + extrasTotal;
 
   const dType: DiscountType = b.discountType || 'none';
   const dVal = Math.max(0, b.discountValue || 0);
