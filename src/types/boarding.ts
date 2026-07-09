@@ -34,6 +34,20 @@ export type BoardingStatus = 'reserved' | 'checked-in' | 'checked-out' | 'cancel
 export type PaymentStatus = 'paid' | 'partly-paid' | 'outstanding';
 export type PaymentMethod = 'upi' | 'cash' | '';
 export type LastDayCharge = 'none' | 'daycare';
+export type BookingSource = 'walk-in' | 'website' | 'whatsapp' | 'phone' | 'referral' | 'instagram' | 'google' | 'other';
+
+export type ExtraCategory =
+  | 'bath' | 'grooming' | 'pickup' | 'drop' | 'training'
+  | 'medicine' | 'special-food' | 'vet-visit' | 'custom';
+
+export interface BookingExtra {
+  id?: string;
+  category: ExtraCategory;
+  label: string;
+  amount: number;
+  quantity: number;
+  notes?: string;
+}
 export type DiscountType = 'none' | 'percentage' | 'fixed';
 
 export interface Boarding {
