@@ -269,6 +269,104 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
                 );
               })()}
 
+              {/* Extras / Add-on Services */}
+              <div className="rounded-lg border bg-muted/20 p-3 sm:p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm font-semibold">Extra Services</Label>
+                  <span className="text-xs text-muted-foreground">{form.extras.length} item{form.extras.length === 1 ? '' : 's'}</span>
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {EXTRA_CATALOG.map(cat => (
+                    <Button key={cat.category} type="button" size="sm" variant="outline" className="h-7 text-xs gap-1"
+                      onClick={() => setForm(p => ({ ...p, extras: [...p.extras, { category: cat.category, label: cat.label, amount: cat.defaultAmount, quantity: 1 }] }))}>
+                      <Plus className="h-3 w-3" /> {cat.label}
+                    </Button>
+                  ))}
+                  <Button type="button" size="sm" variant="outline" className="h-7 text-xs gap-1"
+                    onClick={() => setForm(p => ({ ...p, extras: [...p.extras, { category: 'custom', label: '', amount: 0, quantity: 1 }] }))}>
+                    <Plus className="h-3 w-3" /> Custom
+                  </Button>
+                </div>
+                {form.extras.length > 0 && (
+                  <div className="space-y-2">
+                    {form.extras.map((ex, idx) => (
+                      <div key={idx} className="grid grid-cols-12 gap-2 items-end">
+                        <div className="col-span-5">
+                          <Label className="text-xs">Label</Label>
+                          <Input className="h-8" value={ex.label} placeholder="Service name" onChange={e => setForm(p => ({ ...p, extras: p.extras.map((x, i) => i === idx ? { ...x, label: e.target.value } : x) }))} />
+                        </div>
+                        <div className="col-span-3">
+                          <Label className="text-xs">Amount (₹)</Label>
+                          <Input className="h-8" type="number" min={0} step={0.01} value={ex.amount} onChange={e => setForm(p => ({ ...p, extras: p.extras.map((x, i) => i === idx ? { ...x, amount: +e.target.value } : x) }))} />
+                        </div>
+                        <div className="col-span-3">
+                          <Label className="text-xs">Qty</Label>
+                          <Input className="h-8" type="number" min={1} step={1} value={ex.quantity} onChange={e => setForm(p => ({ ...p, extras: p.extras.map((x, i) => i === idx ? { ...x, quantity: +e.target.value || 1 } : x) }))} />
+                        </div>
+                        <div className="col-span-1">
+                          <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-destructive"
+                            onClick={() => setForm(p => ({ ...p, extras: p.extras.filter((_, i) => i !== idx) }))}>
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                    <div className="flex justify-between text-sm pt-1 border-t">
+                      <span className="text-muted-foreground">Extras Subtotal</span>
+                      <span className="font-semibold">₹{form.extras.reduce((s, x) => s + (x.amount || 0) * (x.quantity || 1), 0).toFixed(2)}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Booking metadata */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <Label>Booking Source</Label>
+                  <Select value={form.source} onValueChange={(v: BookingSource) => setForm(p => ({ ...p, source: v }))}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="walk-in">Walk-in</SelectItem>
+                      <SelectItem value="website">Website</SelectItem>
+                      <SelectItem value="whatsapp">WhatsApp</SelectItem>
+                      <SelectItem value="phone">Phone Call</SelectItem>
+                      <SelectItem value="referral">Referral</SelectItem>
+                      <SelectItem value="instagram">Instagram</SelectItem>
+                      <SelectItem value="google">Google</SelectItem>
+                      <SelectItem value="other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Coupon / Promo Code</Label>
+                  <Input placeholder="Optional" value={form.couponCode} onChange={e => setForm(p => ({ ...p, couponCode: e.target.value }))} />
+                </div>
+              </div>
+
+              <div>
+                <Label className="flex items-center gap-1"><Tag className="h-3.5 w-3.5" /> Tags</Label>
+                <div className="flex flex-wrap gap-1.5 mb-2">
+                  {form.tags.map((t, i) => (
+                    <Badge key={i} variant="secondary" className="gap-1 cursor-pointer" onClick={() => setForm(p => ({ ...p, tags: p.tags.filter((_, idx) => idx !== i) }))}>
+                      {t} <X className="h-3 w-3" />
+                    </Badge>
+                  ))}
+                </div>
+                <Input placeholder="Type a tag and press Enter (e.g. VIP, aggressive, senior)"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      const val = (e.target as HTMLInputElement).value.trim();
+                      if (val && !form.tags.includes(val)) {
+                        setForm(p => ({ ...p, tags: [...p.tags, val] }));
+                      }
+                      (e.target as HTMLInputElement).value = '';
+                    }
+                  }}
+                />
+              </div>
+
+
               <div>
                 <Label>Status</Label>
                 <Select value={form.status} onValueChange={(v: BoardingStatus) => setForm(p => ({ ...p, status: v, paymentStatus: v === 'cancelled' && p.paymentStatus === 'outstanding' ? 'paid' : p.paymentStatus }))}>
