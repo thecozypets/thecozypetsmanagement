@@ -55,11 +55,12 @@ export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner,
     acc.daycare += it.bill.daycareCharge;
     acc.subtotal += it.bill.subtotal;
     acc.additional += it.bill.additional;
+    acc.extras += it.bill.extrasTotal;
     acc.discount += it.bill.discount;
     acc.total += it.bill.total;
     acc.paid += it.bill.paid;
     return acc;
-  }, { boarding: 0, daycare: 0, subtotal: 0, additional: 0, discount: 0, total: 0, paid: 0 });
+  }, { boarding: 0, daycare: 0, subtotal: 0, additional: 0, extras: 0, discount: 0, total: 0, paid: 0 });
   const remaining = Math.max(0, totals.total - totals.paid);
 
   const invoiceNumber = `INV-${boarding.id.slice(0, 8).toUpperCase()}`;
@@ -159,7 +160,8 @@ export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner,
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {items.map(it => {
               const itemTotal = it.bill.total;
-              const preDiscount = it.bill.subtotal + it.bill.additional;
+              const preDiscount = it.bill.subtotal + it.bill.additional + it.bill.extrasTotal;
+              const extras = (it.boarding as any).extras || [];
               return (
                 <div key={it.boarding.id} style={{ border: '1px solid #e5e7eb', borderRadius: '10px', overflow: 'hidden' }}>
                   {/* Card header */}
@@ -201,6 +203,20 @@ export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner,
                         <span style={{ color: '#334155' }}>Additional Services</span>
                         <span style={{ fontWeight: 600 }}>₹{it.bill.additional.toFixed(2)}</span>
                       </div>
+                    )}
+                    {extras.length > 0 && (
+                      <>
+                        <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px', color: '#64748b', fontWeight: 600, padding: '8px 0 4px' }}>Extras</div>
+                        {extras.map((ex: any, i: number) => (
+                          <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0 4px 10px', fontSize: '12px', borderBottom: '1px dashed #f1f5f9' }}>
+                            <span style={{ color: '#334155' }}>
+                              {ex.label || ex.category}
+                              {ex.quantity > 1 && <span style={{ color: '#94a3b8', marginLeft: '6px' }}>× {ex.quantity}</span>}
+                            </span>
+                            <span style={{ fontWeight: 600 }}>₹{((ex.amount || 0) * (ex.quantity || 1)).toFixed(2)}</span>
+                          </div>
+                        ))}
+                      </>
                     )}
                     <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', fontSize: '13px' }}>
                       <span style={{ color: '#64748b' }}>Subtotal</span>
@@ -244,9 +260,15 @@ export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner,
                   <span>₹{totals.additional.toFixed(2)}</span>
                 </div>
               )}
+              {totals.extras > 0 && (
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ color: '#475569' }}>Extras</span>
+                  <span>₹{totals.extras.toFixed(2)}</span>
+                </div>
+              )}
               <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 600, paddingTop: '4px' }}>
                 <span>Subtotal</span>
-                <span>₹{(totals.subtotal + totals.additional).toFixed(2)}</span>
+                <span>₹{(totals.subtotal + totals.additional + totals.extras).toFixed(2)}</span>
               </div>
               {totals.discount > 0 && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', color: '#16a34a' }}>

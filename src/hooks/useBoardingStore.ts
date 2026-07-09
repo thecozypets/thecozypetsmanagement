@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { Owner, Dog, Boarding, Foster, AnimalType } from '@/types/boarding';
+import { Owner, Dog, Boarding, Foster, AnimalType, BookingExtra, ExtraCategory, BookingSource } from '@/types/boarding';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -118,6 +118,17 @@ export function useBoardings() {
   const fetchBoardings = useCallback(async () => {
     const { data, error } = await supabase.from('boardings').select('*').order('created_at', { ascending: false });
     if (error) { toast.error('Failed to load boardings'); return; }
+    // Load extras once and group by boarding_id
+    const { data: extrasData } = await supabase.from('booking_extras' as any).select('*');
+    const extrasByBooking = new Map<string, BookingExtra[]>();
+    (extrasData || []).forEach((e: any) => {
+      const arr = extrasByBooking.get(e.boarding_id) || [];
+      arr.push({
+        id: e.id, category: e.category as ExtraCategory, label: e.label,
+        amount: Number(e.amount) || 0, quantity: Number(e.quantity) || 1, notes: e.notes || '',
+      });
+      extrasByBooking.set(e.boarding_id, arr);
+    });
     setBoardings((data || []).map(r => {
       const checkInParts = (r.check_in_date || '').split('T');
       const checkOutParts = (r.check_out_date || '').split('T');
@@ -140,6 +151,11 @@ export function useBoardings() {
         discountType: ((r as any).discount_type || 'none') as any,
         discountValue: Number((r as any).discount_value || 0),
         discountReason: (r as any).discount_reason || '',
+        source: ((r as any).source || 'walk-in') as BookingSource,
+        tags: ((r as any).tags || []) as string[],
+        internalNotes: (r as any).internal_notes || '',
+        couponCode: (r as any).coupon_code || '',
+        extras: extrasByBooking.get(r.id) || [],
         createdAt: r.created_at,
       };
     }));
@@ -167,9 +183,21 @@ export function useBoardings() {
       discount_type: (boarding as any).discountType || 'none',
       discount_value: (boarding as any).discountValue || 0,
       discount_reason: (boarding as any).discountReason || null,
+      source: (boarding as any).source || 'walk-in',
+      tags: (boarding as any).tags || [],
+      internal_notes: (boarding as any).internalNotes || '',
+      coupon_code: (boarding as any).couponCode || '',
       user_id: user.id,
     } as any).select().single();
     if (error) { toast.error('Failed to add boarding'); return null; }
+    // Persist extras
+    const extras: BookingExtra[] = (boarding as any).extras || [];
+    if (extras.length > 0) {
+      await supabase.from('booking_extras' as any).insert(extras.map(x => ({
+        boarding_id: data.id, category: x.category, label: x.label,
+        amount: x.amount, quantity: x.quantity, notes: x.notes || '',
+      })) as any);
+    }
     await fetchBoardings();
     return { ...boarding, id: data.id, createdAt: data.created_at } as Boarding;
   }, [fetchBoardings]);
@@ -196,8 +224,23 @@ export function useBoardings() {
     if ((d as any).discountType !== undefined) update.discount_type = (d as any).discountType;
     if ((d as any).discountValue !== undefined) update.discount_value = (d as any).discountValue;
     if ((d as any).discountReason !== undefined) update.discount_reason = (d as any).discountReason;
+    if ((d as any).source !== undefined) update.source = (d as any).source;
+    if ((d as any).tags !== undefined) update.tags = (d as any).tags;
+    if ((d as any).internalNotes !== undefined) update.internal_notes = (d as any).internalNotes;
+    if ((d as any).couponCode !== undefined) update.coupon_code = (d as any).couponCode;
     const { error } = await supabase.from('boardings').update(update).eq('id', id);
     if (error) { toast.error('Failed to update boarding'); return; }
+    // Sync extras if provided (delete-and-reinsert)
+    if ((d as any).extras !== undefined) {
+      const extras: BookingExtra[] = (d as any).extras || [];
+      await supabase.from('booking_extras' as any).delete().eq('boarding_id', id);
+      if (extras.length > 0) {
+        await supabase.from('booking_extras' as any).insert(extras.map(x => ({
+          boarding_id: id, category: x.category, label: x.label,
+          amount: x.amount, quantity: x.quantity, notes: x.notes || '',
+        })) as any);
+      }
+    }
     await fetchBoardings();
   }, [fetchBoardings]);
 

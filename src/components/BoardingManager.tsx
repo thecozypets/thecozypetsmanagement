@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Boarding, Dog, Owner, BoardingStatus, PaymentStatus, PaymentMethod, LastDayCharge, DiscountType } from '@/types/boarding';
+import { Boarding, Dog, Owner, BoardingStatus, PaymentStatus, PaymentMethod, LastDayCharge, DiscountType, BookingSource, BookingExtra, ExtraCategory } from '@/types/boarding';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -8,10 +8,21 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { CalendarPlus, Pencil, Trash2, Calendar, DollarSign, FileText } from 'lucide-react';
+import { CalendarPlus, Pencil, Trash2, Calendar, DollarSign, FileText, Plus, X, Tag } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import InvoiceModal from './InvoiceModal';
 import { calcBilling, lastDayLabel } from '@/lib/billing';
+
+const EXTRA_CATALOG: { category: ExtraCategory; label: string; defaultAmount: number }[] = [
+  { category: 'bath', label: 'Bath', defaultAmount: 300 },
+  { category: 'grooming', label: 'Grooming', defaultAmount: 800 },
+  { category: 'pickup', label: 'Pickup', defaultAmount: 200 },
+  { category: 'drop', label: 'Drop', defaultAmount: 200 },
+  { category: 'training', label: 'Training Session', defaultAmount: 500 },
+  { category: 'medicine', label: 'Medicine', defaultAmount: 100 },
+  { category: 'special-food', label: 'Special Food', defaultAmount: 150 },
+  { category: 'vet-visit', label: 'Vet Visit', defaultAmount: 1000 },
+];
 
 interface BoardingFormData {
   dogId: string;
@@ -36,9 +47,14 @@ interface BoardingFormData {
   discountType: DiscountType;
   discountValue: number;
   discountReason: string;
+  source: BookingSource;
+  tags: string[];
+  internalNotes: string;
+  couponCode: string;
+  extras: BookingExtra[];
 }
 
-const emptyForm: BoardingFormData = { dogId: '', ownerId: '', checkInDate: '', checkInTime: '', checkOutDate: '', checkOutTime: '', status: 'reserved', kennelNumber: '', dailyRate: 0, totalCost: 0, additionalCost: 0, specialRequests: '', feedingSchedule: '', notes: '', paymentStatus: 'outstanding', paidAmount: 0, paymentMethod: '', lastDayCharge: 'none', daycarePrice: 0, discountType: 'none', discountValue: 0, discountReason: '' };
+const emptyForm: BoardingFormData = { dogId: '', ownerId: '', checkInDate: '', checkInTime: '', checkOutDate: '', checkOutTime: '', status: 'reserved', kennelNumber: '', dailyRate: 0, totalCost: 0, additionalCost: 0, specialRequests: '', feedingSchedule: '', notes: '', paymentStatus: 'outstanding', paidAmount: 0, paymentMethod: '', lastDayCharge: 'none', daycarePrice: 0, discountType: 'none', discountValue: 0, discountReason: '', source: 'walk-in', tags: [], internalNotes: '', couponCode: '', extras: [] };
 
 const formatTime12 = (time24: string) => {
   if (!time24) return '';
@@ -101,7 +117,7 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
 
   const startEdit = (b: Boarding) => {
     const legacyLdc: LastDayCharge = (b.lastDayCharge && (b.lastDayCharge as string) !== 'none') ? 'daycare' : 'none';
-    setForm({ dogId: b.dogId, ownerId: b.ownerId, checkInDate: b.checkInDate, checkInTime: b.checkInTime || '', checkOutDate: b.checkOutDate, checkOutTime: b.checkOutTime || '', status: b.status, kennelNumber: b.kennelNumber, dailyRate: b.dailyRate, totalCost: b.totalCost, additionalCost: b.additionalCost || 0, specialRequests: b.specialRequests, feedingSchedule: b.feedingSchedule, notes: b.notes, paymentStatus: b.paymentStatus || 'outstanding', paidAmount: b.paidAmount || 0, paymentMethod: b.paymentMethod || '', lastDayCharge: legacyLdc, daycarePrice: (b as any).daycarePrice || 0, discountType: b.discountType || 'none', discountValue: b.discountValue || 0, discountReason: b.discountReason || '' });
+    setForm({ dogId: b.dogId, ownerId: b.ownerId, checkInDate: b.checkInDate, checkInTime: b.checkInTime || '', checkOutDate: b.checkOutDate, checkOutTime: b.checkOutTime || '', status: b.status, kennelNumber: b.kennelNumber, dailyRate: b.dailyRate, totalCost: b.totalCost, additionalCost: b.additionalCost || 0, specialRequests: b.specialRequests, feedingSchedule: b.feedingSchedule, notes: b.notes, paymentStatus: b.paymentStatus || 'outstanding', paidAmount: b.paidAmount || 0, paymentMethod: b.paymentMethod || '', lastDayCharge: legacyLdc, daycarePrice: (b as any).daycarePrice || 0, discountType: b.discountType || 'none', discountValue: b.discountValue || 0, discountReason: b.discountReason || '', source: (b as any).source || 'walk-in', tags: (b as any).tags || [], internalNotes: (b as any).internalNotes || '', couponCode: (b as any).couponCode || '', extras: (b as any).extras ? [...(b as any).extras] : [] });
     setEditingId(b.id);
     setOpen(true);
   };
@@ -253,6 +269,104 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
                 );
               })()}
 
+              {/* Extras / Add-on Services */}
+              <div className="rounded-lg border bg-muted/20 p-3 sm:p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm font-semibold">Extra Services</Label>
+                  <span className="text-xs text-muted-foreground">{form.extras.length} item{form.extras.length === 1 ? '' : 's'}</span>
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {EXTRA_CATALOG.map(cat => (
+                    <Button key={cat.category} type="button" size="sm" variant="outline" className="h-7 text-xs gap-1"
+                      onClick={() => setForm(p => ({ ...p, extras: [...p.extras, { category: cat.category, label: cat.label, amount: cat.defaultAmount, quantity: 1 }] }))}>
+                      <Plus className="h-3 w-3" /> {cat.label}
+                    </Button>
+                  ))}
+                  <Button type="button" size="sm" variant="outline" className="h-7 text-xs gap-1"
+                    onClick={() => setForm(p => ({ ...p, extras: [...p.extras, { category: 'custom', label: '', amount: 0, quantity: 1 }] }))}>
+                    <Plus className="h-3 w-3" /> Custom
+                  </Button>
+                </div>
+                {form.extras.length > 0 && (
+                  <div className="space-y-2">
+                    {form.extras.map((ex, idx) => (
+                      <div key={idx} className="grid grid-cols-12 gap-2 items-end">
+                        <div className="col-span-5">
+                          <Label className="text-xs">Label</Label>
+                          <Input className="h-8" value={ex.label} placeholder="Service name" onChange={e => setForm(p => ({ ...p, extras: p.extras.map((x, i) => i === idx ? { ...x, label: e.target.value } : x) }))} />
+                        </div>
+                        <div className="col-span-3">
+                          <Label className="text-xs">Amount (₹)</Label>
+                          <Input className="h-8" type="number" min={0} step={0.01} value={ex.amount} onChange={e => setForm(p => ({ ...p, extras: p.extras.map((x, i) => i === idx ? { ...x, amount: +e.target.value } : x) }))} />
+                        </div>
+                        <div className="col-span-3">
+                          <Label className="text-xs">Qty</Label>
+                          <Input className="h-8" type="number" min={1} step={1} value={ex.quantity} onChange={e => setForm(p => ({ ...p, extras: p.extras.map((x, i) => i === idx ? { ...x, quantity: +e.target.value || 1 } : x) }))} />
+                        </div>
+                        <div className="col-span-1">
+                          <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-destructive"
+                            onClick={() => setForm(p => ({ ...p, extras: p.extras.filter((_, i) => i !== idx) }))}>
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                    <div className="flex justify-between text-sm pt-1 border-t">
+                      <span className="text-muted-foreground">Extras Subtotal</span>
+                      <span className="font-semibold">₹{form.extras.reduce((s, x) => s + (x.amount || 0) * (x.quantity || 1), 0).toFixed(2)}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Booking metadata */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <Label>Booking Source</Label>
+                  <Select value={form.source} onValueChange={(v: BookingSource) => setForm(p => ({ ...p, source: v }))}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="walk-in">Walk-in</SelectItem>
+                      <SelectItem value="website">Website</SelectItem>
+                      <SelectItem value="whatsapp">WhatsApp</SelectItem>
+                      <SelectItem value="phone">Phone Call</SelectItem>
+                      <SelectItem value="referral">Referral</SelectItem>
+                      <SelectItem value="instagram">Instagram</SelectItem>
+                      <SelectItem value="google">Google</SelectItem>
+                      <SelectItem value="other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Coupon / Promo Code</Label>
+                  <Input placeholder="Optional" value={form.couponCode} onChange={e => setForm(p => ({ ...p, couponCode: e.target.value }))} />
+                </div>
+              </div>
+
+              <div>
+                <Label className="flex items-center gap-1"><Tag className="h-3.5 w-3.5" /> Tags</Label>
+                <div className="flex flex-wrap gap-1.5 mb-2">
+                  {form.tags.map((t, i) => (
+                    <Badge key={i} variant="secondary" className="gap-1 cursor-pointer" onClick={() => setForm(p => ({ ...p, tags: p.tags.filter((_, idx) => idx !== i) }))}>
+                      {t} <X className="h-3 w-3" />
+                    </Badge>
+                  ))}
+                </div>
+                <Input placeholder="Type a tag and press Enter (e.g. VIP, aggressive, senior)"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      const val = (e.target as HTMLInputElement).value.trim();
+                      if (val && !form.tags.includes(val)) {
+                        setForm(p => ({ ...p, tags: [...p.tags, val] }));
+                      }
+                      (e.target as HTMLInputElement).value = '';
+                    }
+                  }}
+                />
+              </div>
+
+
               <div>
                 <Label>Status</Label>
                 <Select value={form.status} onValueChange={(v: BoardingStatus) => setForm(p => ({ ...p, status: v, paymentStatus: v === 'cancelled' && p.paymentStatus === 'outstanding' ? 'paid' : p.paymentStatus }))}>
@@ -314,7 +428,8 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
               })()}
 
               <div><Label>Special Requests</Label><Textarea value={form.specialRequests} onChange={e => setForm(p => ({ ...p, specialRequests: e.target.value }))} /></div>
-              <div><Label>Notes</Label><Textarea value={form.notes} onChange={e => setForm(p => ({ ...p, notes: e.target.value }))} /></div>
+              <div><Label>Notes (visible on invoice)</Label><Textarea value={form.notes} onChange={e => setForm(p => ({ ...p, notes: e.target.value }))} /></div>
+              <div><Label>Internal Notes (staff-only)</Label><Textarea rows={2} placeholder="Not shown to customer" value={form.internalNotes} onChange={e => setForm(p => ({ ...p, internalNotes: e.target.value }))} /></div>
               <Button type="submit" className="w-full">{editingId ? 'Update' : 'Create Booking'}</Button>
             </form>
           </DialogContent>
@@ -369,11 +484,20 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
                               <div className="rounded-md bg-success/15 p-2 text-center"><div className="text-[10px] uppercase tracking-wide text-success/80 font-semibold">Status</div><div className="font-display font-extrabold text-lg sm:text-base text-success">Paid ✓</div></div>
                             )}
                           </div>
-                          <div className="flex items-center gap-2 mt-2">
+                          <div className="flex items-center gap-1.5 flex-wrap mt-2">
                             <Badge className={`text-xs font-bold uppercase ${b.paymentStatus === 'paid' ? 'bg-success text-success-foreground' : b.paymentStatus === 'partly-paid' ? 'bg-warning text-warning-foreground' : 'bg-destructive text-destructive-foreground'}`}>
                               {b.paymentStatus}
                             </Badge>
                             {b.paymentMethod && <span className="text-xs uppercase font-bold text-foreground bg-muted px-2 py-0.5 rounded">{b.paymentMethod}</span>}
+                            {(b as any).source && (b as any).source !== 'walk-in' && (
+                              <span className="text-[10px] uppercase font-semibold text-muted-foreground bg-secondary/60 px-1.5 py-0.5 rounded">via {(b as any).source}</span>
+                            )}
+                            {(b as any).extras && (b as any).extras.length > 0 && (
+                              <span className="text-[10px] uppercase font-semibold text-primary bg-primary/10 px-1.5 py-0.5 rounded">+{(b as any).extras.length} extra{(b as any).extras.length === 1 ? '' : 's'}</span>
+                            )}
+                            {((b as any).tags || []).map((t: string, i: number) => (
+                              <Badge key={i} variant="outline" className="text-[10px] px-1.5 py-0">{t}</Badge>
+                            ))}
                           </div>
                         </>
                       );
