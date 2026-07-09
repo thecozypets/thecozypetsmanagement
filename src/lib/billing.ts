@@ -55,6 +55,7 @@ export interface Billing {
   daycareCharge: number;
   subtotal: number;        // boarding + daycare
   additional: number;
+  extrasTotal: number;
   discountType: DiscountType;
   discountValue: number;
   discount: number;
