@@ -40,6 +40,7 @@ export interface BillableRecord {
   daycarePrice?: number;
   discountType?: DiscountType;
   discountValue?: number;
+  extras?: Array<{ amount: number; quantity: number }>;
 }
 
 export interface Billing {
