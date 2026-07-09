@@ -260,9 +260,15 @@ export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner,
                   <span>₹{totals.additional.toFixed(2)}</span>
                 </div>
               )}
+              {totals.extras > 0 && (
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ color: '#475569' }}>Extras</span>
+                  <span>₹{totals.extras.toFixed(2)}</span>
+                </div>
+              )}
               <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 600, paddingTop: '4px' }}>
                 <span>Subtotal</span>
-                <span>₹{(totals.subtotal + totals.additional).toFixed(2)}</span>
+                <span>₹{(totals.subtotal + totals.additional + totals.extras).toFixed(2)}</span>
               </div>
               {totals.discount > 0 && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', color: '#16a34a' }}>
