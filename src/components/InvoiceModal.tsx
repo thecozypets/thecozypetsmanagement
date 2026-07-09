@@ -204,6 +204,20 @@ export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner,
                         <span style={{ fontWeight: 600 }}>₹{it.bill.additional.toFixed(2)}</span>
                       </div>
                     )}
+                    {extras.length > 0 && (
+                      <>
+                        <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px', color: '#64748b', fontWeight: 600, padding: '8px 0 4px' }}>Extras</div>
+                        {extras.map((ex: any, i: number) => (
+                          <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0 4px 10px', fontSize: '12px', borderBottom: '1px dashed #f1f5f9' }}>
+                            <span style={{ color: '#334155' }}>
+                              {ex.label || ex.category}
+                              {ex.quantity > 1 && <span style={{ color: '#94a3b8', marginLeft: '6px' }}>× {ex.quantity}</span>}
+                            </span>
+                            <span style={{ fontWeight: 600 }}>₹{((ex.amount || 0) * (ex.quantity || 1)).toFixed(2)}</span>
+                          </div>
+                        ))}
+                      </>
+                    )}
                     <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', fontSize: '13px' }}>
                       <span style={{ color: '#64748b' }}>Subtotal</span>
                       <span style={{ fontWeight: 600 }}>₹{preDiscount.toFixed(2)}</span>
