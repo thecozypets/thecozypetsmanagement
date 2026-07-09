@@ -484,11 +484,20 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
                               <div className="rounded-md bg-success/15 p-2 text-center"><div className="text-[10px] uppercase tracking-wide text-success/80 font-semibold">Status</div><div className="font-display font-extrabold text-lg sm:text-base text-success">Paid ✓</div></div>
                             )}
                           </div>
-                          <div className="flex items-center gap-2 mt-2">
+                          <div className="flex items-center gap-1.5 flex-wrap mt-2">
                             <Badge className={`text-xs font-bold uppercase ${b.paymentStatus === 'paid' ? 'bg-success text-success-foreground' : b.paymentStatus === 'partly-paid' ? 'bg-warning text-warning-foreground' : 'bg-destructive text-destructive-foreground'}`}>
                               {b.paymentStatus}
                             </Badge>
                             {b.paymentMethod && <span className="text-xs uppercase font-bold text-foreground bg-muted px-2 py-0.5 rounded">{b.paymentMethod}</span>}
+                            {(b as any).source && (b as any).source !== 'walk-in' && (
+                              <span className="text-[10px] uppercase font-semibold text-muted-foreground bg-secondary/60 px-1.5 py-0.5 rounded">via {(b as any).source}</span>
+                            )}
+                            {(b as any).extras && (b as any).extras.length > 0 && (
+                              <span className="text-[10px] uppercase font-semibold text-primary bg-primary/10 px-1.5 py-0.5 rounded">+{(b as any).extras.length} extra{(b as any).extras.length === 1 ? '' : 's'}</span>
+                            )}
+                            {((b as any).tags || []).map((t: string, i: number) => (
+                              <Badge key={i} variant="outline" className="text-[10px] px-1.5 py-0">{t}</Badge>
+                            ))}
                           </div>
                         </>
                       );
