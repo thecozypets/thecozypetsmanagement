@@ -47,9 +47,14 @@ interface BoardingFormData {
   discountType: DiscountType;
   discountValue: number;
   discountReason: string;
+  source: BookingSource;
+  tags: string[];
+  internalNotes: string;
+  couponCode: string;
+  extras: BookingExtra[];
 }
 
-const emptyForm: BoardingFormData = { dogId: '', ownerId: '', checkInDate: '', checkInTime: '', checkOutDate: '', checkOutTime: '', status: 'reserved', kennelNumber: '', dailyRate: 0, totalCost: 0, additionalCost: 0, specialRequests: '', feedingSchedule: '', notes: '', paymentStatus: 'outstanding', paidAmount: 0, paymentMethod: '', lastDayCharge: 'none', daycarePrice: 0, discountType: 'none', discountValue: 0, discountReason: '' };
+const emptyForm: BoardingFormData = { dogId: '', ownerId: '', checkInDate: '', checkInTime: '', checkOutDate: '', checkOutTime: '', status: 'reserved', kennelNumber: '', dailyRate: 0, totalCost: 0, additionalCost: 0, specialRequests: '', feedingSchedule: '', notes: '', paymentStatus: 'outstanding', paidAmount: 0, paymentMethod: '', lastDayCharge: 'none', daycarePrice: 0, discountType: 'none', discountValue: 0, discountReason: '', source: 'walk-in', tags: [], internalNotes: '', couponCode: '', extras: [] };
 
 const formatTime12 = (time24: string) => {
   if (!time24) return '';
