@@ -105,6 +105,7 @@ export const calcBilling = (b: BillableRecord): Billing => {
     daycareCharge,
     subtotal,
     additional,
+    extrasTotal,
     discountType: dType,
     discountValue: dVal,
     discount,
