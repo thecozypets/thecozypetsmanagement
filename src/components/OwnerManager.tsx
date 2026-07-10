@@ -69,16 +69,30 @@ export default function OwnerManager({ owners, onAdd, onUpdate, onDelete, onClic
           <DialogTrigger asChild>
             <Button className="w-full sm:w-auto"><UserPlus className="mr-2 h-4 w-4" /> Add Owner</Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="max-h-[85vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="font-display">{editingId ? 'Edit Owner' : 'Add New Owner'}</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div><Label>Full Name *</Label><Input required value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} /></div>
-              <div><Label>Phone *</Label><Input required value={form.phone} onChange={e => setForm(p => ({ ...p, phone: e.target.value }))} /></div>
-              <div><Label>Email</Label><Input type="email" value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))} /></div>
-              <div><Label>Address</Label><Input value={form.address} onChange={e => setForm(p => ({ ...p, address: e.target.value }))} /></div>
-              <div><Label>Emergency Contact</Label><Input value={form.emergencyContact} onChange={e => setForm(p => ({ ...p, emergencyContact: e.target.value }))} /></div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div><Label>Full Name *</Label><Input required value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} /></div>
+                <div>
+                  <Label>Phone *</Label>
+                  <Input required value={form.phone} onChange={e => setForm(p => ({ ...p, phone: e.target.value }))} />
+                  {dupOwner && (
+                    <p className="text-xs text-amber-600 mt-1 flex items-center gap-1">
+                      <AlertCircle className="h-3 w-3" /> Existing owner with this phone: <button type="button" className="underline font-medium" onClick={() => { setOpen(false); onClickOwner(dupOwner.id); }}>{dupOwner.name}</button>
+                    </p>
+                  )}
+                </div>
+                <div><Label>Alt Phone</Label><Input value={form.altPhone || ''} onChange={e => setForm(p => ({ ...p, altPhone: e.target.value }))} /></div>
+                <div><Label>Email</Label><Input type="email" value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))} /></div>
+                <div className="sm:col-span-2"><Label>Address</Label><Input value={form.address} onChange={e => setForm(p => ({ ...p, address: e.target.value }))} /></div>
+                <div><Label>City</Label><Input value={form.city || ''} onChange={e => setForm(p => ({ ...p, city: e.target.value }))} /></div>
+                <div><Label>Pincode</Label><Input value={form.pincode || ''} onChange={e => setForm(p => ({ ...p, pincode: e.target.value }))} /></div>
+                <div className="sm:col-span-2"><Label>Emergency Contact</Label><Input value={form.emergencyContact} onChange={e => setForm(p => ({ ...p, emergencyContact: e.target.value }))} /></div>
+                <div className="sm:col-span-2"><Label>Notes</Label><Input value={form.notes || ''} onChange={e => setForm(p => ({ ...p, notes: e.target.value }))} placeholder="Any notes about this customer" /></div>
+              </div>
               <Button type="submit" className="w-full">{editingId ? 'Update' : 'Add Owner'}</Button>
             </form>
           </DialogContent>
