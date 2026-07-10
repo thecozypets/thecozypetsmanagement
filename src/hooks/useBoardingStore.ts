@@ -1,7 +1,74 @@
 import { useState, useCallback, useEffect } from 'react';
-import { Owner, Dog, Boarding, Foster, AnimalType, BookingExtra, ExtraCategory, BookingSource } from '@/types/boarding';
+import { Owner, Dog, Boarding, Foster, AnimalType, BookingExtra, ExtraCategory, BookingSource, VaccineRecord, MedicationRecord } from '@/types/boarding';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+
+// ---- Shared mappers for Phase 3 profile fields ----
+const mapOwnerRow = (r: any): Owner => ({
+  id: r.id, name: r.name, phone: r.phone, email: r.email || '',
+  address: r.address || '', emergencyContact: r.emergency_contact || '',
+  altPhone: r.alt_phone || '', city: r.city || '', pincode: r.pincode || '', notes: r.notes || '',
+  createdAt: r.created_at,
+});
+const ownerInsertPayload = (o: Omit<Owner, 'id' | 'createdAt'>, userId: string) => ({
+  name: o.name, phone: o.phone, email: o.email || null,
+  address: o.address || null, emergency_contact: o.emergencyContact || null,
+  alt_phone: o.altPhone || null, city: o.city || null, pincode: o.pincode || null, notes: o.notes || null,
+  user_id: userId,
+});
+const ownerUpdatePayload = (d: Partial<Owner>) => {
+  const u: any = {};
+  if (d.name !== undefined) u.name = d.name;
+  if (d.phone !== undefined) u.phone = d.phone;
+  if (d.email !== undefined) u.email = d.email;
+  if (d.address !== undefined) u.address = d.address;
+  if (d.emergencyContact !== undefined) u.emergency_contact = d.emergencyContact;
+  if (d.altPhone !== undefined) u.alt_phone = d.altPhone;
+  if (d.city !== undefined) u.city = d.city;
+  if (d.pincode !== undefined) u.pincode = d.pincode;
+  if (d.notes !== undefined) u.notes = d.notes;
+  return u;
+};
+const mapDogRow = (r: any): Dog => ({
+  id: r.id, name: r.name, breed: r.breed, age: r.age, ageMonths: r.age_months || 0, weight: Number(r.weight),
+  gender: r.gender, ownerId: r.owner_id,
+  specialNeeds: r.special_needs || '', feedingInstructions: r.feeding_instructions || '',
+  medications: r.medications || '', vaccinated: r.vaccinated, neutered: r.neutered,
+  photoUrl: r.photo_url || '', vaccinePhotoUrl: r.vaccine_photo_url || '',
+  animalType: (r.animal_type || 'dog') as AnimalType,
+  microchipId: r.microchip_id || '', color: r.color || '',
+  vaccines: (r.vaccines || []) as VaccineRecord[],
+  dewormingDate: r.deworming_date || '', tickFleaDate: r.tick_flea_date || '',
+  allergies: r.allergies || '', medicalConditions: r.medical_conditions || '',
+  currentMedications: (r.current_medications || []) as MedicationRecord[],
+  behaviourTags: (r.behaviour_tags || []) as string[],
+  feedingFood: r.feeding_food || '', feedingTimes: r.feeding_times || '', feedingPortions: r.feeding_portions || '',
+  vetName: r.vet_name || '', vetPhone: r.vet_phone || '', vetClinic: r.vet_clinic || '',
+  emergencyContactName: r.emergency_contact_name || '',
+  emergencyContactPhone: r.emergency_contact_phone || '',
+  createdAt: r.created_at,
+});
+const dogExtraUpdate = (d: Partial<Dog>) => {
+  const u: any = {};
+  if (d.microchipId !== undefined) u.microchip_id = d.microchipId;
+  if (d.color !== undefined) u.color = d.color;
+  if (d.vaccines !== undefined) u.vaccines = d.vaccines;
+  if (d.dewormingDate !== undefined) u.deworming_date = d.dewormingDate || null;
+  if (d.tickFleaDate !== undefined) u.tick_flea_date = d.tickFleaDate || null;
+  if (d.allergies !== undefined) u.allergies = d.allergies;
+  if (d.medicalConditions !== undefined) u.medical_conditions = d.medicalConditions;
+  if (d.currentMedications !== undefined) u.current_medications = d.currentMedications;
+  if (d.behaviourTags !== undefined) u.behaviour_tags = d.behaviourTags;
+  if (d.feedingFood !== undefined) u.feeding_food = d.feedingFood;
+  if (d.feedingTimes !== undefined) u.feeding_times = d.feedingTimes;
+  if (d.feedingPortions !== undefined) u.feeding_portions = d.feedingPortions;
+  if (d.vetName !== undefined) u.vet_name = d.vetName;
+  if (d.vetPhone !== undefined) u.vet_phone = d.vetPhone;
+  if (d.vetClinic !== undefined) u.vet_clinic = d.vetClinic;
+  if (d.emergencyContactName !== undefined) u.emergency_contact_name = d.emergencyContactName;
+  if (d.emergencyContactPhone !== undefined) u.emergency_contact_phone = d.emergencyContactPhone;
+  return u;
+};
 
 export function useOwners() {
   const [owners, setOwners] = useState<Owner[]>([]);
@@ -9,10 +76,7 @@ export function useOwners() {
   const fetchOwners = useCallback(async () => {
     const { data, error } = await supabase.from('owners').select('*').order('created_at', { ascending: false });
     if (error) { toast.error('Failed to load owners'); return; }
-    setOwners((data || []).map(r => ({
-      id: r.id, name: r.name, phone: r.phone, email: r.email || '',
-      address: r.address || '', emergencyContact: r.emergency_contact || '', createdAt: r.created_at,
-    })));
+    setOwners((data || []).map((r: any) => mapOwnerRow(r)));
   }, []);
 
   useEffect(() => { fetchOwners(); }, [fetchOwners]);
@@ -20,23 +84,14 @@ export function useOwners() {
   const addOwner = useCallback(async (owner: Omit<Owner, 'id' | 'createdAt'>) => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { toast.error('Not authenticated'); return null; }
-    const { data, error } = await supabase.from('owners').insert({
-      name: owner.name, phone: owner.phone, email: owner.email || null,
-      address: owner.address || null, emergency_contact: owner.emergencyContact || null, user_id: user.id,
-    }).select().single();
+    const { data, error } = await supabase.from('owners').insert(ownerInsertPayload(owner, user.id) as any).select().single();
     if (error) { toast.error('Failed to add owner'); return null; }
     await fetchOwners();
     return { ...owner, id: data.id, createdAt: data.created_at } as Owner;
   }, [fetchOwners]);
 
   const updateOwner = useCallback(async (id: string, d: Partial<Owner>) => {
-    const update: any = {};
-    if (d.name !== undefined) update.name = d.name;
-    if (d.phone !== undefined) update.phone = d.phone;
-    if (d.email !== undefined) update.email = d.email;
-    if (d.address !== undefined) update.address = d.address;
-    if (d.emergencyContact !== undefined) update.emergency_contact = d.emergencyContact;
-    const { error } = await supabase.from('owners').update(update).eq('id', id);
+    const { error } = await supabase.from('owners').update(ownerUpdatePayload(d)).eq('id', id);
     if (error) { toast.error('Failed to update owner'); return; }
     await fetchOwners();
   }, [fetchOwners]);
@@ -56,13 +111,7 @@ export function useDogs() {
   const fetchDogs = useCallback(async () => {
     const { data, error } = await supabase.from('dogs').select('*').order('created_at', { ascending: false });
     if (error) { toast.error('Failed to load dogs'); return; }
-    setDogs((data || []).map(r => ({
-      id: r.id, name: r.name, breed: r.breed, age: r.age, ageMonths: (r as any).age_months || 0, weight: Number(r.weight),
-      gender: r.gender as 'male' | 'female', ownerId: r.owner_id,
-      specialNeeds: r.special_needs || '', feedingInstructions: r.feeding_instructions || '',
-      medications: r.medications || '', vaccinated: r.vaccinated, neutered: r.neutered,
-      photoUrl: r.photo_url || '', vaccinePhotoUrl: (r as any).vaccine_photo_url || '', createdAt: r.created_at,
-    })));
+    setDogs((data || []).map((r: any) => mapDogRow(r)));
   }, []);
 
   useEffect(() => { fetchDogs(); }, [fetchDogs]);
@@ -75,7 +124,7 @@ export function useDogs() {
       gender: dog.gender, owner_id: dog.ownerId, special_needs: dog.specialNeeds || null,
       feeding_instructions: dog.feedingInstructions || null, medications: dog.medications || null,
       vaccinated: dog.vaccinated, neutered: dog.neutered, photo_url: dog.photoUrl || null,
-      vaccine_photo_url: (dog as any).vaccinePhotoUrl || null, user_id: user.id,
+      vaccine_photo_url: dog.vaccinePhotoUrl || null, user_id: user.id,
     } as any).select().single();
     if (error) { toast.error('Failed to add dog'); return null; }
     await fetchDogs();
@@ -87,7 +136,7 @@ export function useDogs() {
     if (d.name !== undefined) update.name = d.name;
     if (d.breed !== undefined) update.breed = d.breed;
     if (d.age !== undefined) update.age = d.age;
-    if ((d as any).ageMonths !== undefined) update.age_months = (d as any).ageMonths;
+    if (d.ageMonths !== undefined) update.age_months = d.ageMonths;
     if (d.weight !== undefined) update.weight = d.weight;
     if (d.gender !== undefined) update.gender = d.gender;
     if (d.ownerId !== undefined) update.owner_id = d.ownerId;
@@ -98,6 +147,7 @@ export function useDogs() {
     if (d.neutered !== undefined) update.neutered = d.neutered;
     if (d.photoUrl !== undefined) update.photo_url = d.photoUrl;
     if (d.vaccinePhotoUrl !== undefined) update.vaccine_photo_url = d.vaccinePhotoUrl;
+    Object.assign(update, dogExtraUpdate(d));
     const { error } = await supabase.from('dogs').update(update as any).eq('id', id);
     if (error) { toast.error('Failed to update dog'); return; }
     await fetchDogs();
@@ -341,10 +391,7 @@ export function useFosterOwners() {
   const fetchOwners = useCallback(async () => {
     const { data, error } = await supabase.from('foster_owners' as any).select('*').order('created_at', { ascending: false });
     if (error) { toast.error('Failed to load foster owners'); return; }
-    setOwners((data || []).map((r: any) => ({
-      id: r.id, name: r.name, phone: r.phone, email: r.email || '',
-      address: r.address || '', emergencyContact: r.emergency_contact || '', createdAt: r.created_at,
-    })));
+    setOwners((data || []).map((r: any) => mapOwnerRow(r)));
   }, []);
 
   useEffect(() => { fetchOwners(); }, [fetchOwners]);
@@ -352,23 +399,14 @@ export function useFosterOwners() {
   const addOwner = useCallback(async (owner: Omit<Owner, 'id' | 'createdAt'>) => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { toast.error('Not authenticated'); return null; }
-    const { data, error } = await supabase.from('foster_owners' as any).insert({
-      name: owner.name, phone: owner.phone, email: owner.email || null,
-      address: owner.address || null, emergency_contact: owner.emergencyContact || null, user_id: user.id,
-    } as any).select().single();
+    const { data, error } = await supabase.from('foster_owners' as any).insert(ownerInsertPayload(owner, user.id) as any).select().single();
     if (error) { toast.error('Failed to add foster owner'); return null; }
     await fetchOwners();
     return { ...owner, id: (data as any).id, createdAt: (data as any).created_at } as Owner;
   }, [fetchOwners]);
 
   const updateOwner = useCallback(async (id: string, d: Partial<Owner>) => {
-    const update: any = {};
-    if (d.name !== undefined) update.name = d.name;
-    if (d.phone !== undefined) update.phone = d.phone;
-    if (d.email !== undefined) update.email = d.email;
-    if (d.address !== undefined) update.address = d.address;
-    if (d.emergencyContact !== undefined) update.emergency_contact = d.emergencyContact;
-    const { error } = await supabase.from('foster_owners' as any).update(update).eq('id', id);
+    const { error } = await supabase.from('foster_owners' as any).update(ownerUpdatePayload(d)).eq('id', id);
     if (error) { toast.error('Failed to update foster owner'); return; }
     await fetchOwners();
   }, [fetchOwners]);
@@ -388,14 +426,7 @@ export function useFosterDogs() {
   const fetchDogs = useCallback(async () => {
     const { data, error } = await supabase.from('foster_dogs' as any).select('*').order('created_at', { ascending: false });
     if (error) { toast.error('Failed to load foster dogs'); return; }
-    setDogs((data || []).map((r: any) => ({
-      id: r.id, name: r.name, breed: r.breed, age: r.age, ageMonths: r.age_months || 0, weight: Number(r.weight),
-      gender: r.gender as 'male' | 'female', ownerId: r.owner_id,
-      specialNeeds: r.special_needs || '', feedingInstructions: r.feeding_instructions || '',
-      medications: r.medications || '', vaccinated: r.vaccinated, neutered: r.neutered,
-      photoUrl: r.photo_url || '', vaccinePhotoUrl: r.vaccine_photo_url || '',
-      animalType: (r.animal_type || 'dog') as AnimalType, createdAt: r.created_at,
-    })));
+    setDogs((data || []).map((r: any) => mapDogRow(r)));
   }, []);
 
   useEffect(() => { fetchDogs(); }, [fetchDogs]);
@@ -408,7 +439,7 @@ export function useFosterDogs() {
       gender: dog.gender, owner_id: dog.ownerId, special_needs: dog.specialNeeds || null,
       feeding_instructions: dog.feedingInstructions || null, medications: dog.medications || null,
       vaccinated: dog.vaccinated, neutered: dog.neutered, photo_url: dog.photoUrl || null,
-      vaccine_photo_url: dog.vaccinePhotoUrl || null, animal_type: (dog as any).animalType || 'dog', user_id: user.id,
+      vaccine_photo_url: dog.vaccinePhotoUrl || null, animal_type: dog.animalType || 'dog', user_id: user.id,
     } as any).select().single();
     if (error) { toast.error('Failed to add foster dog'); return null; }
     await fetchDogs();
@@ -420,7 +451,7 @@ export function useFosterDogs() {
     if (d.name !== undefined) update.name = d.name;
     if (d.breed !== undefined) update.breed = d.breed;
     if (d.age !== undefined) update.age = d.age;
-    if ((d as any).ageMonths !== undefined) update.age_months = (d as any).ageMonths;
+    if (d.ageMonths !== undefined) update.age_months = d.ageMonths;
     if (d.weight !== undefined) update.weight = d.weight;
     if (d.gender !== undefined) update.gender = d.gender;
     if (d.ownerId !== undefined) update.owner_id = d.ownerId;
@@ -430,8 +461,9 @@ export function useFosterDogs() {
     if (d.vaccinated !== undefined) update.vaccinated = d.vaccinated;
     if (d.neutered !== undefined) update.neutered = d.neutered;
     if (d.photoUrl !== undefined) update.photo_url = d.photoUrl;
-    if ((d as any).animalType !== undefined) update.animal_type = (d as any).animalType;
+    if (d.animalType !== undefined) update.animal_type = d.animalType;
     if (d.vaccinePhotoUrl !== undefined) update.vaccine_photo_url = d.vaccinePhotoUrl;
+    Object.assign(update, dogExtraUpdate(d));
     const { error } = await supabase.from('foster_dogs' as any).update(update).eq('id', id);
     if (error) { toast.error('Failed to update foster dog'); return; }
     await fetchDogs();

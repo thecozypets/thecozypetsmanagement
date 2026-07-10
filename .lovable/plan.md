@@ -1,62 +1,66 @@
+# Phase 3 — Pets & Customers 360°
 
-# The Cozy Pets — SaaS Upgrade Plan
-
-This is a very large scope (essentially a second version of the app). To keep quality high and avoid breaking existing data/workflows, I'll deliver it in **phases**. Please confirm the plan and pick where you'd like to start — I'd recommend Phase 1 first, then we iterate.
-
-All existing tables, records, auth, and workflows stay intact. New columns are additive with safe defaults. No destructive migrations.
+Expand pet and owner profiles into rich, tabbed dashboards showing everything about them in one place. All changes additive; no existing data touched.
 
 ---
 
-## Phase 1 — Foundation & Dashboard (start here)
-- Global polish: rounded cards, blue/white palette refinement, skeleton loaders, toasts on every action, confirmation dialogs before delete, mobile responsiveness pass.
-- Reusable primitives: `StatCard`, `SectionCard`, `ConfirmDialog`, `EmptyState`, `LoadingSkeleton`, `PageHeader`.
-- Global search (owner, pet, phone, booking id, breed, kennel, invoice) via a `⌘K` command palette.
-- Dashboard rebuild:
-  - KPIs: Currently Boarding, Check-ins Today, Check-outs Today, Upcoming Arrivals, Occupancy Rate, Revenue Today, Revenue This Month, Pending Payments, Active Daycare, Vaccinations Expiring Soon.
-  - Charts (recharts): Monthly Revenue, Occupancy Trend, Boarding vs Daycare, New Customers/Month.
-  - Quick actions: New Booking, New Customer, New Pet, Create Invoice, Calendar, Reports.
+## 1. Database (additive migration)
 
-## Phase 2 — Bookings & Pricing
-- Add booking `status` (inquiry/confirmed/checked-in/checked-out/cancelled/no-show), `source`, `tags[]`, `notes`, `internal_notes`.
-- Smart stay calc: overnight + half/full daycare from check-in/out datetime, with manual override.
-- Discounts: %, fixed, coupon code, promo — with clear breakdown (Subtotal → Discount → Extras → GST optional → Grand Total).
-- Extra charges catalog: Bath, Grooming, Pickup, Drop, Training, Medicine, Special Food, Vet Visit, Custom — each optional line item.
+**`dogs` table — new columns (all optional):**
+- `microchip_id` text
+- `color` text
+- `vaccines` jsonb — `[{name, date, expiry, certUrl}]` (Rabies, DHPP, Kennel Cough, custom)
+- `deworming_date` date, `tick_flea_date` date
+- `allergies` text, `medical_conditions` text
+- `current_medications` jsonb — `[{name, dosage, frequency, notes}]`
+- `behaviour_tags` text[] — chips (friendly, anxious, aggressive-to-dogs, kid-safe, cat-safe, escapes, barks, etc.)
+- `feeding_food` text, `feeding_times` text, `feeding_portions` text
+- `vet_name` text, `vet_phone` text, `vet_clinic` text
+- `emergency_contact_name` text, `emergency_contact_phone` text
 
-## Phase 3 — Pets & Customers 360°
-- Expanded pet profile tabs: Basic / Medical (vaccines, deworming, tick, allergies, conditions, meds) / Behaviour (chips) / Feeding / Emergency + Vet / History (visits, lifetime stay, spend, last visit).
-- Customer profile: pets, upcoming, past, lifetime spend, pending payments, emergency, address, notes.
-- Duplicate-owner guard by phone number.
+Same set added to `foster_dogs`.
 
-## Phase 4 — Rooms, Calendar & Daily Care
-- Room/Hut management with type, capacity, status (available/occupied/cleaning/maintenance) and visual grid.
-- Drag-and-drop booking calendar (react-big-calendar or dnd-kit) with color-coded events; click to open booking.
-- Daily care checklist (morning/afternoon/evening/night) + medicine tracker (schedule, doses, staff, timestamps).
-- Overlap prevention on room bookings; validation messages.
+**`owners` table — new columns:**
+- `alt_phone` text, `notes` text, `city` text, `pincode` text
+- Duplicate-owner guard: unique partial index on `lower(phone)` (soft — surfaced as warning in UI, not hard DB constraint, to avoid breaking legacy rows).
 
-## Phase 5 — Billing, Reports, Notifications, Vaccines
-- Payments: cash, UPI, card, bank transfer, split payments, advance + pending balance.
-- Professional invoice with logo, invoice #, booking id, payment history, remaining, QR code.
-- Reports (Revenue, Bookings, Occupancy, Repeat customers, Popular breed, Avg stay, Pending payments, Cancelled) with PDF + Excel export.
-- Vaccine expiry detection with dashboard alerts (Rabies, DHPP, Kennel Cough, other).
-- In-app reminders: upcoming check-in/out, vaccine due, pending payment, birthday, booking confirmation.
+## 2. Types (`src/types/boarding.ts`)
+Extend `Dog`, `Owner` with the new optional fields. Add `VaccineRecord`, `MedicationRecord` types.
 
-## Phase 6 — Documents, Audit, Staff Roles
-- Document uploads (vaccine cert, medical, ID, consent, photos, PDFs) via existing storage bucket.
-- Audit log table for all create/update/delete + logins.
-- Staff roles: admin, manager, reception, caretaker, cleaner using the existing `user_roles` + `has_role()` pattern; route/section guards.
+## 3. New component: `PetProfile360.tsx`
+Tabbed dialog/panel with tabs:
+- **Basic** — name, breed, age, weight, gender, color, microchip, photo
+- **Medical** — vaccines list (add/edit/expiry warnings), deworming, tick/flea, allergies, conditions, current meds
+- **Behaviour** — tag chips (multi-select from preset + custom)
+- **Feeding** — food, times, portions, special instructions
+- **Emergency & Vet** — vet + emergency contacts
+- **History** — all past & upcoming boardings/fosters, lifetime nights, lifetime spend, last visit, avg stay
 
-## Technical notes
-- New tables (additive): `rooms`, `booking_extras`, `care_logs`, `medications_schedule`, `documents`, `audit_logs`, `coupons`. New columns on `boardings`: `status_v2`, `source`, `tags`, `internal_notes`, `discount_code`, `gst`. All with defaults so old rows keep working.
-- New enums added via migrations; legacy values mapped in code (as we've done for `last_day_charge`).
-- Charts: `recharts` (already used elsewhere). Calendar: `@dnd-kit` + custom grid to stay lightweight. PDF: existing print-to-PDF flow + `xlsx` for Excel export.
-- All new queries paginated; heavy tables lazy-loaded via `react-window` where needed.
+## 4. New component: `OwnerProfile360.tsx`
+Tabs / sections:
+- **Overview** — contact, address, alt phone, notes, lifetime spend, pending balance, total bookings
+- **Pets** — list of owned pets with quick-open
+- **Upcoming** stays, **Past** stays
+- **Pending Payments** — outstanding across all bookings with quick pay button
+
+## 5. Integrate
+- `DogManager` & `FosterManager` cards → click opens `PetProfile360` (replaces current DetailPanel dog view).
+- `OwnerManager` cards → click opens `OwnerProfile360`.
+- Keep the existing `DetailPanel` as fallback; new profiles used from Phase 3 forward.
+
+## 6. Duplicate-owner guard
+In `OwnerManager` add-form: on phone blur, query owners by normalized phone; if match, show inline warning "An owner with this phone already exists: {name} — open profile" instead of blocking.
+
+## 7. UX polish
+- Vaccine expiry badges: green (>60d), amber (<60d), red (expired).
+- Behaviour tags color-coded (positive/neutral/warning).
+- History tab uses existing billing utility to aggregate spend.
 
 ---
 
-## Questions before I start
-1. **Where should I start?** I recommend **Phase 1 (Foundation + Dashboard)** this turn — it's the most visible upgrade and unblocks the rest. Confirm or pick a different phase.
-2. **GST**: enable by default in invoices, or keep it optional per booking?
-3. **Rooms/Kennels**: do you want me to seed a starter set of rooms, or leave the list empty for you to create?
-4. **Staff roles**: OK to keep only the current signed-in user as `admin` initially, and add role management UI in Phase 6?
+## Out of scope (later phases)
+- Documents upload UI beyond vaccine cert (Phase 6).
+- Calendar view of stays (Phase 4).
+- Reports/exports (Phase 5).
 
-Reply with your choice and I'll ship Phase 1 immediately.
+Reply "go" (or with tweaks) and I'll ship it.
