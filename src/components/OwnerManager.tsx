@@ -14,9 +14,15 @@ interface OwnerFormData {
   email: string;
   address: string;
   emergencyContact: string;
+  altPhone?: string;
+  city?: string;
+  pincode?: string;
+  notes?: string;
 }
 
-const emptyForm: OwnerFormData = { name: '', phone: '', email: '', address: '', emergencyContact: '' };
+const emptyForm: OwnerFormData = { name: '', phone: '', email: '', address: '', emergencyContact: '', altPhone: '', city: '', pincode: '', notes: '' };
+
+const normPhone = (s: string) => (s || '').replace(/\D/g, '').slice(-10);
 
 interface Props {
   owners: Owner[];
