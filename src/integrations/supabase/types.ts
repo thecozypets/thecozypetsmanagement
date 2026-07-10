@@ -263,58 +263,109 @@ export type Database = {
         Row: {
           age: number
           age_months: number
+          allergies: string | null
+          behaviour_tags: string[]
           breed: string
+          color: string | null
           created_at: string
+          current_medications: Json
+          deworming_date: string | null
+          emergency_contact_name: string | null
+          emergency_contact_phone: string | null
+          feeding_food: string | null
           feeding_instructions: string | null
+          feeding_portions: string | null
+          feeding_times: string | null
           gender: string
           id: string
+          medical_conditions: string | null
           medications: string | null
+          microchip_id: string | null
           name: string
           neutered: boolean
           owner_id: string
           photo_url: string | null
           special_needs: string | null
+          tick_flea_date: string | null
           user_id: string
           vaccinated: boolean
           vaccine_photo_url: string | null
+          vaccines: Json
+          vet_clinic: string | null
+          vet_name: string | null
+          vet_phone: string | null
           weight: number
         }
         Insert: {
           age?: number
           age_months?: number
+          allergies?: string | null
+          behaviour_tags?: string[]
           breed?: string
+          color?: string | null
           created_at?: string
+          current_medications?: Json
+          deworming_date?: string | null
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          feeding_food?: string | null
           feeding_instructions?: string | null
+          feeding_portions?: string | null
+          feeding_times?: string | null
           gender?: string
           id?: string
+          medical_conditions?: string | null
           medications?: string | null
+          microchip_id?: string | null
           name: string
           neutered?: boolean
           owner_id: string
           photo_url?: string | null
           special_needs?: string | null
+          tick_flea_date?: string | null
           user_id?: string
           vaccinated?: boolean
           vaccine_photo_url?: string | null
+          vaccines?: Json
+          vet_clinic?: string | null
+          vet_name?: string | null
+          vet_phone?: string | null
           weight?: number
         }
         Update: {
           age?: number
           age_months?: number
+          allergies?: string | null
+          behaviour_tags?: string[]
           breed?: string
+          color?: string | null
           created_at?: string
+          current_medications?: Json
+          deworming_date?: string | null
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          feeding_food?: string | null
           feeding_instructions?: string | null
+          feeding_portions?: string | null
+          feeding_times?: string | null
           gender?: string
           id?: string
+          medical_conditions?: string | null
           medications?: string | null
+          microchip_id?: string | null
           name?: string
           neutered?: boolean
           owner_id?: string
           photo_url?: string | null
           special_needs?: string | null
+          tick_flea_date?: string | null
           user_id?: string
           vaccinated?: boolean
           vaccine_photo_url?: string | null
+          vaccines?: Json
+          vet_clinic?: string | null
+          vet_name?: string | null
+          vet_phone?: string | null
           weight?: number
         }
         Relationships: [
@@ -331,61 +382,112 @@ export type Database = {
         Row: {
           age: number
           age_months: number
+          allergies: string | null
           animal_type: string
+          behaviour_tags: string[]
           breed: string
+          color: string | null
           created_at: string
+          current_medications: Json
+          deworming_date: string | null
+          emergency_contact_name: string | null
+          emergency_contact_phone: string | null
+          feeding_food: string | null
           feeding_instructions: string | null
+          feeding_portions: string | null
+          feeding_times: string | null
           gender: string
           id: string
+          medical_conditions: string | null
           medications: string | null
+          microchip_id: string | null
           name: string
           neutered: boolean
           owner_id: string
           photo_url: string | null
           special_needs: string | null
+          tick_flea_date: string | null
           user_id: string
           vaccinated: boolean
           vaccine_photo_url: string | null
+          vaccines: Json
+          vet_clinic: string | null
+          vet_name: string | null
+          vet_phone: string | null
           weight: number
         }
         Insert: {
           age?: number
           age_months?: number
+          allergies?: string | null
           animal_type?: string
+          behaviour_tags?: string[]
           breed?: string
+          color?: string | null
           created_at?: string
+          current_medications?: Json
+          deworming_date?: string | null
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          feeding_food?: string | null
           feeding_instructions?: string | null
+          feeding_portions?: string | null
+          feeding_times?: string | null
           gender?: string
           id?: string
+          medical_conditions?: string | null
           medications?: string | null
+          microchip_id?: string | null
           name: string
           neutered?: boolean
           owner_id: string
           photo_url?: string | null
           special_needs?: string | null
+          tick_flea_date?: string | null
           user_id?: string
           vaccinated?: boolean
           vaccine_photo_url?: string | null
+          vaccines?: Json
+          vet_clinic?: string | null
+          vet_name?: string | null
+          vet_phone?: string | null
           weight?: number
         }
         Update: {
           age?: number
           age_months?: number
+          allergies?: string | null
           animal_type?: string
+          behaviour_tags?: string[]
           breed?: string
+          color?: string | null
           created_at?: string
+          current_medications?: Json
+          deworming_date?: string | null
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          feeding_food?: string | null
           feeding_instructions?: string | null
+          feeding_portions?: string | null
+          feeding_times?: string | null
           gender?: string
           id?: string
+          medical_conditions?: string | null
           medications?: string | null
+          microchip_id?: string | null
           name?: string
           neutered?: boolean
           owner_id?: string
           photo_url?: string | null
           special_needs?: string | null
+          tick_flea_date?: string | null
           user_id?: string
           vaccinated?: boolean
           vaccine_photo_url?: string | null
+          vaccines?: Json
+          vet_clinic?: string | null
+          vet_name?: string | null
+          vet_phone?: string | null
           weight?: number
         }
         Relationships: [
@@ -401,32 +503,44 @@ export type Database = {
       foster_owners: {
         Row: {
           address: string | null
+          alt_phone: string | null
+          city: string | null
           created_at: string
           email: string | null
           emergency_contact: string | null
           id: string
           name: string
+          notes: string | null
           phone: string
+          pincode: string | null
           user_id: string
         }
         Insert: {
           address?: string | null
+          alt_phone?: string | null
+          city?: string | null
           created_at?: string
           email?: string | null
           emergency_contact?: string | null
           id?: string
           name: string
+          notes?: string | null
           phone: string
+          pincode?: string | null
           user_id?: string
         }
         Update: {
           address?: string | null
+          alt_phone?: string | null
+          city?: string | null
           created_at?: string
           email?: string | null
           emergency_contact?: string | null
           id?: string
           name?: string
+          notes?: string | null
           phone?: string
+          pincode?: string | null
           user_id?: string
         }
         Relationships: []
@@ -503,32 +617,44 @@ export type Database = {
       owners: {
         Row: {
           address: string | null
+          alt_phone: string | null
+          city: string | null
           created_at: string
           email: string | null
           emergency_contact: string | null
           id: string
           name: string
+          notes: string | null
           phone: string
+          pincode: string | null
           user_id: string
         }
         Insert: {
           address?: string | null
+          alt_phone?: string | null
+          city?: string | null
           created_at?: string
           email?: string | null
           emergency_contact?: string | null
           id?: string
           name: string
+          notes?: string | null
           phone: string
+          pincode?: string | null
           user_id?: string
         }
         Update: {
           address?: string | null
+          alt_phone?: string | null
+          city?: string | null
           created_at?: string
           email?: string | null
           emergency_contact?: string | null
           id?: string
           name?: string
+          notes?: string | null
           phone?: string
+          pincode?: string | null
           user_id?: string
         }
         Relationships: []
