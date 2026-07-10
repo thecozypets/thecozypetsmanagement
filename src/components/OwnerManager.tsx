@@ -47,10 +47,14 @@ export default function OwnerManager({ owners, onAdd, onUpdate, onDelete, onClic
   };
 
   const startEdit = (owner: Owner) => {
-    setForm({ name: owner.name, phone: owner.phone, email: owner.email, address: owner.address, emergencyContact: owner.emergencyContact });
+    setForm({ name: owner.name, phone: owner.phone, email: owner.email, address: owner.address, emergencyContact: owner.emergencyContact, altPhone: owner.altPhone || '', city: owner.city || '', pincode: owner.pincode || '', notes: owner.notes || '' });
     setEditingId(owner.id);
     setOpen(true);
   };
+
+  const dupOwner = form.phone && normPhone(form.phone).length >= 7
+    ? owners.find(o => o.id !== editingId && normPhone(o.phone) === normPhone(form.phone))
+    : null;
 
   const filtered = owners.filter(o =>
     o.name.toLowerCase().includes(search.toLowerCase()) ||
