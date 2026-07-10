@@ -76,10 +76,7 @@ export function useOwners() {
   const fetchOwners = useCallback(async () => {
     const { data, error } = await supabase.from('owners').select('*').order('created_at', { ascending: false });
     if (error) { toast.error('Failed to load owners'); return; }
-    setOwners((data || []).map(r => ({
-      id: r.id, name: r.name, phone: r.phone, email: r.email || '',
-      address: r.address || '', emergencyContact: r.emergency_contact || '', createdAt: r.created_at,
-    })));
+    setOwners((data || []).map((r: any) => mapOwnerRow(r)));
   }, []);
 
   useEffect(() => { fetchOwners(); }, [fetchOwners]);
@@ -87,23 +84,14 @@ export function useOwners() {
   const addOwner = useCallback(async (owner: Omit<Owner, 'id' | 'createdAt'>) => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { toast.error('Not authenticated'); return null; }
-    const { data, error } = await supabase.from('owners').insert({
-      name: owner.name, phone: owner.phone, email: owner.email || null,
-      address: owner.address || null, emergency_contact: owner.emergencyContact || null, user_id: user.id,
-    }).select().single();
+    const { data, error } = await supabase.from('owners').insert(ownerInsertPayload(owner, user.id) as any).select().single();
     if (error) { toast.error('Failed to add owner'); return null; }
     await fetchOwners();
     return { ...owner, id: data.id, createdAt: data.created_at } as Owner;
   }, [fetchOwners]);
 
   const updateOwner = useCallback(async (id: string, d: Partial<Owner>) => {
-    const update: any = {};
-    if (d.name !== undefined) update.name = d.name;
-    if (d.phone !== undefined) update.phone = d.phone;
-    if (d.email !== undefined) update.email = d.email;
-    if (d.address !== undefined) update.address = d.address;
-    if (d.emergencyContact !== undefined) update.emergency_contact = d.emergencyContact;
-    const { error } = await supabase.from('owners').update(update).eq('id', id);
+    const { error } = await supabase.from('owners').update(ownerUpdatePayload(d)).eq('id', id);
     if (error) { toast.error('Failed to update owner'); return; }
     await fetchOwners();
   }, [fetchOwners]);
