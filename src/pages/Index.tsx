@@ -36,39 +36,31 @@ const Index = () => {
   const [detailOwner, setDetailOwner] = useState<Owner | null>(null);
   const [focusDogId, setFocusDogId] = useState<string | null>(null);
 
-  const openDetailByOwner = (ownerId: string) => {
-    const owner = owners.find((o) => o.id === ownerId);
-    if (owner) { setDetailOwner(owner); setFocusDogId(null); setDetailOpen(true); }
-  };
+  // Phase 3 — 360° profile dialogs
+  const [petOpen, setPetOpen] = useState(false);
+  const [petCtx, setPetCtx] = useState<{ dogId: string; scope: 'boarding' | 'foster' } | null>(null);
+  const [ownerOpen, setOwnerOpen] = useState(false);
+  const [ownerCtx, setOwnerCtx] = useState<{ ownerId: string; scope: 'boarding' | 'foster' } | null>(null);
 
-  const openDetailByDog = (dogId: string) => {
-    const dog = dogs.find((d) => d.id === dogId);
-    if (dog) {
-      const owner = owners.find((o) => o.id === dog.ownerId);
-      if (owner) { setDetailOwner(owner); setFocusDogId(dogId); setDetailOpen(true); }
-    }
-  };
+  const openPet = (dogId: string, scope: 'boarding' | 'foster' = 'boarding') => { setPetCtx({ dogId, scope }); setPetOpen(true); };
+  const openOwner = (ownerId: string, scope: 'boarding' | 'foster' = 'boarding') => { setOwnerCtx({ ownerId, scope }); setOwnerOpen(true); };
 
+  const openDetailByOwner = (ownerId: string) => openOwner(ownerId, 'boarding');
+  const openDetailByDog = (dogId: string) => openPet(dogId, 'boarding');
   const openDetailByBoarding = (boardingId: string) => {
     const b = boardings.find((x) => x.id === boardingId);
-    if (b) {
-      const owner = owners.find((o) => o.id === b.ownerId);
-      if (owner) { setDetailOwner(owner); setFocusDogId(b.dogId); setDetailOpen(true); }
-    }
+    if (b) openPet(b.dogId, 'boarding');
   };
+  const openFosterDetailByOwner = (ownerId: string) => openOwner(ownerId, 'foster');
+  const openFosterDetailByDog = (dogId: string) => openPet(dogId, 'foster');
 
-  const openFosterDetailByOwner = (ownerId: string) => {
-    const owner = fosterOwners.find((o) => o.id === ownerId);
-    if (owner) { setDetailOwner(owner); setFocusDogId(null); setDetailOpen(true); }
-  };
+  const activePetDog = petCtx ? (petCtx.scope === 'foster' ? fosterDogs : dogs).find(d => d.id === petCtx.dogId) || null : null;
+  const activePetOwner = activePetDog ? (petCtx?.scope === 'foster' ? fosterOwners : owners).find(o => o.id === activePetDog.ownerId) || null : null;
+  const activePetUpdate = petCtx?.scope === 'foster' ? updateFosterDog : updateDog;
 
-  const openFosterDetailByDog = (dogId: string) => {
-    const dog = fosterDogs.find((d) => d.id === dogId);
-    if (dog) {
-      const owner = fosterOwners.find((o) => o.id === dog.ownerId);
-      if (owner) { setDetailOwner(owner); setFocusDogId(dogId); setDetailOpen(true); }
-    }
-  };
+  const activeOwner = ownerCtx ? (ownerCtx.scope === 'foster' ? fosterOwners : owners).find(o => o.id === ownerCtx.ownerId) || null : null;
+  const activeOwnerDogs = ownerCtx?.scope === 'foster' ? fosterDogs : dogs;
+  const activeOwnerUpdate = ownerCtx?.scope === 'foster' ? updateFosterOwner : updateOwner;
 
   return (
     <div className="min-h-screen bg-background">
