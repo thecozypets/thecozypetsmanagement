@@ -426,14 +426,7 @@ export function useFosterDogs() {
   const fetchDogs = useCallback(async () => {
     const { data, error } = await supabase.from('foster_dogs' as any).select('*').order('created_at', { ascending: false });
     if (error) { toast.error('Failed to load foster dogs'); return; }
-    setDogs((data || []).map((r: any) => ({
-      id: r.id, name: r.name, breed: r.breed, age: r.age, ageMonths: r.age_months || 0, weight: Number(r.weight),
-      gender: r.gender as 'male' | 'female', ownerId: r.owner_id,
-      specialNeeds: r.special_needs || '', feedingInstructions: r.feeding_instructions || '',
-      medications: r.medications || '', vaccinated: r.vaccinated, neutered: r.neutered,
-      photoUrl: r.photo_url || '', vaccinePhotoUrl: r.vaccine_photo_url || '',
-      animalType: (r.animal_type || 'dog') as AnimalType, createdAt: r.created_at,
-    })));
+    setDogs((data || []).map((r: any) => mapDogRow(r)));
   }, []);
 
   useEffect(() => { fetchDogs(); }, [fetchDogs]);
@@ -446,7 +439,7 @@ export function useFosterDogs() {
       gender: dog.gender, owner_id: dog.ownerId, special_needs: dog.specialNeeds || null,
       feeding_instructions: dog.feedingInstructions || null, medications: dog.medications || null,
       vaccinated: dog.vaccinated, neutered: dog.neutered, photo_url: dog.photoUrl || null,
-      vaccine_photo_url: dog.vaccinePhotoUrl || null, animal_type: (dog as any).animalType || 'dog', user_id: user.id,
+      vaccine_photo_url: dog.vaccinePhotoUrl || null, animal_type: dog.animalType || 'dog', user_id: user.id,
     } as any).select().single();
     if (error) { toast.error('Failed to add foster dog'); return null; }
     await fetchDogs();
@@ -458,7 +451,7 @@ export function useFosterDogs() {
     if (d.name !== undefined) update.name = d.name;
     if (d.breed !== undefined) update.breed = d.breed;
     if (d.age !== undefined) update.age = d.age;
-    if ((d as any).ageMonths !== undefined) update.age_months = (d as any).ageMonths;
+    if (d.ageMonths !== undefined) update.age_months = d.ageMonths;
     if (d.weight !== undefined) update.weight = d.weight;
     if (d.gender !== undefined) update.gender = d.gender;
     if (d.ownerId !== undefined) update.owner_id = d.ownerId;
@@ -468,8 +461,9 @@ export function useFosterDogs() {
     if (d.vaccinated !== undefined) update.vaccinated = d.vaccinated;
     if (d.neutered !== undefined) update.neutered = d.neutered;
     if (d.photoUrl !== undefined) update.photo_url = d.photoUrl;
-    if ((d as any).animalType !== undefined) update.animal_type = (d as any).animalType;
+    if (d.animalType !== undefined) update.animal_type = d.animalType;
     if (d.vaccinePhotoUrl !== undefined) update.vaccine_photo_url = d.vaccinePhotoUrl;
+    Object.assign(update, dogExtraUpdate(d));
     const { error } = await supabase.from('foster_dogs' as any).update(update).eq('id', id);
     if (error) { toast.error('Failed to update foster dog'); return; }
     await fetchDogs();
