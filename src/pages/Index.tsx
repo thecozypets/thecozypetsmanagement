@@ -17,7 +17,7 @@ import CompanySettingsForm from '@/components/CompanySettingsForm';
 import BookingRequestsManager from '@/components/BookingRequestsManager';
 import GlobalSearch from '@/components/GlobalSearch';
 import { motion } from 'framer-motion';
-import { Owner, Dog } from '@/types/boarding';
+import { Owner } from '@/types/boarding';
 
 const Index = () => {
   const { signOut } = useAuth();
