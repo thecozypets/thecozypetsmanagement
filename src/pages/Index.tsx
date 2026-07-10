@@ -11,11 +11,13 @@ import DogManager from '@/components/DogManager';
 import BoardingManager from '@/components/BoardingManager';
 import FosterManager from '@/components/FosterManager';
 import DetailPanel from '@/components/DetailPanel';
+import PetProfile360 from '@/components/PetProfile360';
+import OwnerProfile360 from '@/components/OwnerProfile360';
 import CompanySettingsForm from '@/components/CompanySettingsForm';
 import BookingRequestsManager from '@/components/BookingRequestsManager';
 import GlobalSearch from '@/components/GlobalSearch';
 import { motion } from 'framer-motion';
-import { Owner } from '@/types/boarding';
+import { Owner, Dog } from '@/types/boarding';
 
 const Index = () => {
   const { signOut } = useAuth();
