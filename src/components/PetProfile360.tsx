@@ -51,7 +51,7 @@ export default function PetProfile360({ open, onOpenChange, dog, owner, boarding
     const stays: Array<{ id: string; label: string; checkIn: string; checkOut: string; total: number; paid: number; kind: 'Boarding' | 'Foster' }> = [];
     boardings.filter(b => b.dogId === dog.id).forEach(b => {
       const bill = calcBilling(b);
-      stays.push({ id: b.id, label: b.status, checkIn: b.checkInDate, checkOut: b.checkOutDate, total: bill.grandTotal, paid: b.paidAmount || 0, kind: 'Boarding' });
+      stays.push({ id: b.id, label: b.status, checkIn: b.checkInDate, checkOut: b.checkOutDate, total: bill.total, paid: b.paidAmount || 0, kind: 'Boarding' });
     });
     fosters.filter(f => f.dogId === dog.id).forEach(f => {
       const total = (Number(f.totalCost) || 0) + (Number(f.additionalCost) || 0);
