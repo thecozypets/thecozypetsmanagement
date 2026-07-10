@@ -188,6 +188,28 @@ const Index = () => {
         </Tabs>
       </main>
 
+      <PetProfile360
+        open={petOpen}
+        onOpenChange={setPetOpen}
+        dog={activePetDog}
+        owner={activePetOwner}
+        boardings={boardings}
+        fosters={fosters}
+        onUpdate={activePetUpdate}
+      />
+
+      <OwnerProfile360
+        open={ownerOpen}
+        onOpenChange={setOwnerOpen}
+        owner={activeOwner}
+        dogs={activeOwnerDogs}
+        boardings={boardings}
+        fosters={fosters}
+        onUpdate={activeOwnerUpdate}
+        onOpenPet={(dogId) => { setOwnerOpen(false); openPet(dogId, ownerCtx?.scope || 'boarding'); }}
+      />
+
+      {/* Legacy detail panel kept for reference; not opened by default */}
       <DetailPanel open={detailOpen}
         onOpenChange={setDetailOpen}
         owner={detailOwner}
