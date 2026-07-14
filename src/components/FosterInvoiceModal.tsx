@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { Printer, Download, Save } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import { Printer, Download, Save, StickyNote } from 'lucide-react';
 import { calcBilling } from '@/lib/billing';
 
 interface Props {
