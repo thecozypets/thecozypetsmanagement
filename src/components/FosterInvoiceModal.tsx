@@ -65,6 +65,16 @@ export default function FosterInvoiceModal({ open, onOpenChange, foster, dog, ow
   const remaining = Math.max(0, totals.total - paidInput);
   const invoiceNumber = `FINV-${foster.id.slice(0, 8).toUpperCase()}`;
   const invoiceDate = new Date().toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' });
+
+  const noteKey = `finv-note-${foster.id}`;
+  const [noteText, setNoteText] = useState('');
+  useEffect(() => {
+    try { setNoteText(localStorage.getItem(noteKey) || ''); } catch { /* noop */ }
+  }, [noteKey]);
+  const updateNote = (v: string) => {
+    setNoteText(v);
+    try { localStorage.setItem(noteKey, v); } catch { /* noop */ }
+  };
   const multiple = items.length > 1;
 
   const handleSavePaid = () => {
