@@ -1,10 +1,12 @@
-import { useRef, useMemo } from 'react';
+import { useRef, useMemo, useState, useEffect } from 'react';
 import { Boarding, Dog, Owner } from '@/types/boarding';
 import { useCompanySettings } from '@/hooks/useCompanySettings';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { Printer, Download } from 'lucide-react';
+import { Printer, Download, StickyNote } from 'lucide-react';
 import { calcBilling, lastDayLabel } from '@/lib/billing';
 
 interface Props {
