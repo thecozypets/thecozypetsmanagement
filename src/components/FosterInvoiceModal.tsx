@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { Printer, Download, Save } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import { Printer, Download, Save, StickyNote } from 'lucide-react';
 import { calcBilling } from '@/lib/billing';
 
 interface Props {
@@ -64,6 +65,16 @@ export default function FosterInvoiceModal({ open, onOpenChange, foster, dog, ow
   const remaining = Math.max(0, totals.total - paidInput);
   const invoiceNumber = `FINV-${foster.id.slice(0, 8).toUpperCase()}`;
   const invoiceDate = new Date().toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' });
+
+  const noteKey = `finv-note-${foster.id}`;
+  const [noteText, setNoteText] = useState('');
+  useEffect(() => {
+    try { setNoteText(localStorage.getItem(noteKey) || ''); } catch { /* noop */ }
+  }, [noteKey]);
+  const updateNote = (v: string) => {
+    setNoteText(v);
+    try { localStorage.setItem(noteKey, v); } catch { /* noop */ }
+  };
   const multiple = items.length > 1;
 
   const handleSavePaid = () => {
@@ -121,6 +132,20 @@ export default function FosterInvoiceModal({ open, onOpenChange, foster, dog, ow
             <Download className="h-4 w-4" /> Download PDF
           </Button>
         </div>
+
+        <div className="mb-4 rounded-lg border bg-muted/30 p-3 space-y-2">
+          <Label className="text-xs uppercase tracking-wide font-semibold flex items-center gap-2">
+            <StickyNote className="h-3.5 w-3.5" /> Note / Payment History (editable)
+          </Label>
+          <Textarea
+            rows={3}
+            placeholder="e.g. ₹2000 paid via UPI on 10-Jul-2026, ₹1500 cash on check-out..."
+            value={noteText}
+            onChange={e => updateNote(e.target.value)}
+          />
+          <p className="text-[11px] text-muted-foreground">Saved automatically. Appears on the printed invoice.</p>
+        </div>
+
 
         {/* Editable paid amount */}
         {onUpdatePaid && (
@@ -289,6 +314,16 @@ export default function FosterInvoiceModal({ open, onOpenChange, foster, dog, ow
               </div>
             </div>
           )}
+
+          {noteText.trim() && (
+            <div style={{ marginTop: '20px' }}>
+              <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1px', color: '#2563eb', fontWeight: 600, marginBottom: '6px' }}>Note / Payment History</div>
+              <div style={{ background: '#fffbeb', border: '1px solid #fde68a', padding: '12px 16px', borderRadius: '8px', fontSize: '13px', color: '#555', whiteSpace: 'pre-wrap' }}>
+                {noteText}
+              </div>
+            </div>
+          )}
+
 
           <div style={{ marginTop: '40px', textAlign: 'center', paddingTop: '20px', borderTop: '1px solid #e5e7eb' }}>
             <p style={{ fontSize: '13px', color: '#2563eb', fontWeight: 600 }}>Thank you for choosing {companyName}! 🐾</p>

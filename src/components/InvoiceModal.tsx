@@ -1,10 +1,12 @@
-import { useRef, useMemo } from 'react';
+import { useRef, useMemo, useState, useEffect } from 'react';
 import { Boarding, Dog, Owner } from '@/types/boarding';
 import { useCompanySettings } from '@/hooks/useCompanySettings';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { Printer, Download } from 'lucide-react';
+import { Printer, Download, StickyNote } from 'lucide-react';
 import { calcBilling, lastDayLabel } from '@/lib/billing';
 
 interface Props {
@@ -66,6 +68,17 @@ export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner,
   const invoiceNumber = `INV-${boarding.id.slice(0, 8).toUpperCase()}`;
   const invoiceDate = new Date().toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' });
 
+  const noteKey = `invoice-note-${boarding.id}`;
+  const [noteText, setNoteText] = useState('');
+  useEffect(() => {
+    try { setNoteText(localStorage.getItem(noteKey) || ''); } catch { /* noop */ }
+  }, [noteKey]);
+  const updateNote = (v: string) => {
+    setNoteText(v);
+    try { localStorage.setItem(noteKey, v); } catch { /* noop */ }
+  };
+
+
   const handlePrint = () => {
     const content = invoiceRef.current;
     if (!content) return;
@@ -105,6 +118,21 @@ export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner,
             <Download className="h-4 w-4" /> Download PDF
           </Button>
         </div>
+
+        <div className="mb-4 rounded-lg border bg-muted/30 p-3 space-y-2">
+          <Label className="text-xs uppercase tracking-wide font-semibold flex items-center gap-2">
+            <StickyNote className="h-3.5 w-3.5" /> Note / Payment History (editable)
+          </Label>
+          <Textarea
+            rows={3}
+            placeholder="e.g. ₹2000 paid via UPI on 10-Jul-2026, ₹1500 cash on check-out..."
+            value={noteText}
+            onChange={e => updateNote(e.target.value)}
+          />
+          <p className="text-[11px] text-muted-foreground">Saved automatically. Appears on the printed invoice.</p>
+        </div>
+
+
 
         <div ref={invoiceRef} className="bg-white text-foreground p-6 rounded-lg border">
           {/* Header */}
@@ -314,6 +342,15 @@ export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner,
                 {items.filter(it => it.boarding.notes).map(it => (
                   <div key={it.boarding.id}>{multiple && <strong>{it.dog?.name}: </strong>}{it.boarding.notes}</div>
                 ))}
+              </div>
+            </div>
+          )}
+
+          {noteText.trim() && (
+            <div style={{ marginTop: '20px' }}>
+              <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1px', color: '#2563eb', fontWeight: 600, marginBottom: '6px' }}>Note / Payment History</div>
+              <div style={{ background: '#fffbeb', border: '1px solid #fde68a', padding: '12px 16px', borderRadius: '8px', fontSize: '13px', color: '#555', whiteSpace: 'pre-wrap' }}>
+                {noteText}
               </div>
             </div>
           )}
