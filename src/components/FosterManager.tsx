@@ -342,6 +342,9 @@ export default function FosterManager({ fosters, dogs, owners, onAdd, onUpdate, 
         foster={invoiceFoster}
         dog={invoiceFoster ? dogs.find(d => d.id === invoiceFoster.dogId) || null : null}
         owner={invoiceFoster ? owners.find(o => o.id === invoiceFoster.ownerId) || null : null}
+        allFosters={fosters}
+        allDogs={dogs}
+        onUpdatePaid={(id, paidAmount, paymentStatus) => onUpdate(id, { paidAmount, paymentStatus })}
       />
     </div>
   );
