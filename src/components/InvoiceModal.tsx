@@ -346,6 +346,15 @@ export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner,
             </div>
           )}
 
+          {noteText.trim() && (
+            <div style={{ marginTop: '20px' }}>
+              <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1px', color: '#2563eb', fontWeight: 600, marginBottom: '6px' }}>Note / Payment History</div>
+              <div style={{ background: '#fffbeb', border: '1px solid #fde68a', padding: '12px 16px', borderRadius: '8px', fontSize: '13px', color: '#555', whiteSpace: 'pre-wrap' }}>
+                {noteText}
+              </div>
+            </div>
+          )}
+
           {/* Footer */}
           <div style={{ marginTop: '40px', textAlign: 'center', paddingTop: '20px', borderTop: '1px solid #e5e7eb' }}>
             <p style={{ fontSize: '13px', color: '#2563eb', fontWeight: 600 }}>Thank you for choosing {companyName}! 🐾</p>
