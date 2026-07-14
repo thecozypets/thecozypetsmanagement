@@ -315,6 +315,16 @@ export default function FosterInvoiceModal({ open, onOpenChange, foster, dog, ow
             </div>
           )}
 
+          {noteText.trim() && (
+            <div style={{ marginTop: '20px' }}>
+              <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1px', color: '#2563eb', fontWeight: 600, marginBottom: '6px' }}>Note / Payment History</div>
+              <div style={{ background: '#fffbeb', border: '1px solid #fde68a', padding: '12px 16px', borderRadius: '8px', fontSize: '13px', color: '#555', whiteSpace: 'pre-wrap' }}>
+                {noteText}
+              </div>
+            </div>
+          )}
+
+
           <div style={{ marginTop: '40px', textAlign: 'center', paddingTop: '20px', borderTop: '1px solid #e5e7eb' }}>
             <p style={{ fontSize: '13px', color: '#2563eb', fontWeight: 600 }}>Thank you for choosing {companyName}! 🐾</p>
             <p style={{ fontSize: '11px', color: '#999', marginTop: '4px' }}>This is a computer-generated invoice.</p>
