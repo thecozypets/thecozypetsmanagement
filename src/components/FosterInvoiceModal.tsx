@@ -133,6 +133,20 @@ export default function FosterInvoiceModal({ open, onOpenChange, foster, dog, ow
           </Button>
         </div>
 
+        <div className="mb-4 rounded-lg border bg-muted/30 p-3 space-y-2">
+          <Label className="text-xs uppercase tracking-wide font-semibold flex items-center gap-2">
+            <StickyNote className="h-3.5 w-3.5" /> Note / Payment History (editable)
+          </Label>
+          <Textarea
+            rows={3}
+            placeholder="e.g. ₹2000 paid via UPI on 10-Jul-2026, ₹1500 cash on check-out..."
+            value={noteText}
+            onChange={e => updateNote(e.target.value)}
+          />
+          <p className="text-[11px] text-muted-foreground">Saved automatically. Appears on the printed invoice.</p>
+        </div>
+
+
         {/* Editable paid amount */}
         {onUpdatePaid && (
           <div className="mb-4 rounded-lg border bg-muted/30 p-3 space-y-2">
