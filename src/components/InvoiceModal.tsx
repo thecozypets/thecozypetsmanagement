@@ -4,9 +4,10 @@ import { useCompanySettings } from '@/hooks/useCompanySettings';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { Printer, Download, StickyNote } from 'lucide-react';
+import { Printer, Download, StickyNote, Save } from 'lucide-react';
 import { calcBilling, lastDayLabel } from '@/lib/billing';
 
 interface Props {
@@ -17,6 +18,7 @@ interface Props {
   owner: Owner | null;
   allBoardings?: Boarding[];
   allDogs?: Dog[];
+  onUpdatePaid?: (id: string, paidAmount: number, paymentStatus: 'paid' | 'partly-paid' | 'outstanding') => void;
 }
 
 // Two date ranges overlap if a.start <= b.end and b.start <= a.end
