@@ -159,6 +159,33 @@ export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner,
           <p className="text-[11px] text-muted-foreground">Saved automatically. Appears on the printed invoice.</p>
         </div>
 
+        {onUpdatePaid && (
+          <div className="mb-4 rounded-lg border bg-muted/30 p-3 space-y-2">
+            <Label className="text-xs uppercase tracking-wide font-semibold">Total Paid by Owner (editable)</Label>
+            <div className="grid grid-cols-[1fr_auto] gap-2">
+              <Input type="number" min={0} step={0.01} value={paidInput} onChange={e => setPaidInput(+e.target.value)} />
+              <Button size="sm" className="gap-2" onClick={handleSavePaid}><Save className="h-4 w-4" /> Save</Button>
+            </div>
+            <div className="grid grid-cols-3 gap-2 pt-2">
+              <div className="text-center rounded-md bg-background p-2 border">
+                <div className="text-[10px] uppercase text-muted-foreground font-semibold">Total</div>
+                <div className="font-bold text-base">₹{totals.total.toFixed(2)}</div>
+              </div>
+              <div className="text-center rounded-md bg-background p-2 border">
+                <div className="text-[10px] uppercase text-muted-foreground font-semibold">Paid</div>
+                <div className="font-bold text-base text-success">₹{paidInput.toFixed(2)}</div>
+              </div>
+              <div className="text-center rounded-md bg-background p-2 border">
+                <div className="text-[10px] uppercase text-muted-foreground font-semibold">Remaining</div>
+                <div className={`font-bold text-base ${remaining > 0 ? 'text-destructive' : 'text-success'}`}>₹{remaining.toFixed(2)}</div>
+              </div>
+            </div>
+            {items.length > 1 && <p className="text-[11px] text-muted-foreground">Paid amount will be split proportionally across the {items.length} boardings in this stay.</p>}
+          </div>
+        )}
+
+
+
 
 
         <div ref={invoiceRef} className="bg-white text-foreground p-6 rounded-lg border">
