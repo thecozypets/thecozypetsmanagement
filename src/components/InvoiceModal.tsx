@@ -27,7 +27,7 @@ const rangesOverlap = (a1: string, a2: string, b1: string, b2: string) => {
   return new Date(a1).getTime() <= new Date(b2).getTime() && new Date(b1).getTime() <= new Date(a2).getTime();
 };
 
-export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner, allBoardings = [], allDogs = [] }: Props) {
+export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner, allBoardings = [], allDogs = [], onUpdatePaid }: Props) {
   const invoiceRef = useRef<HTMLDivElement>(null);
   const { settings } = useCompanySettings();
 
