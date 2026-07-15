@@ -519,6 +519,7 @@ export default function BoardingManager({ boardings, dogs, owners, onAdd, onUpda
         owner={invoiceBoarding ? owners.find(o => o.id === invoiceBoarding.ownerId) || null : null}
         allBoardings={boardings}
         allDogs={dogs}
+        onUpdatePaid={(id, paidAmount, paymentStatus) => onUpdate(id, { paidAmount, paymentStatus })}
       />
     </div>
   );
