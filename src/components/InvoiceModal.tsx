@@ -47,12 +47,13 @@ export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner,
     return Array.from(map.values());
   }, [boarding, owner, allBoardings]);
 
-  if (!boarding || !dog || !owner) return null;
-
-  const items = groupBoardings.map(b => {
-    const d = allDogs.find(x => x.id === b.dogId) || (b.id === boarding.id ? dog : null);
-    return { boarding: b, dog: d, bill: calcBilling(b) };
-  });
+  const items = useMemo(() => {
+    if (!boarding) return [] as { boarding: Boarding; dog: Dog | null; bill: ReturnType<typeof calcBilling> }[];
+    return groupBoardings.map(b => {
+      const d = allDogs.find(x => x.id === b.dogId) || (b.id === boarding.id ? dog : null);
+      return { boarding: b, dog: d, bill: calcBilling(b) };
+    });
+  }, [groupBoardings, allDogs, dog, boarding]);
 
   const totals = items.reduce((acc, it) => {
     acc.boarding += it.bill.boardingCharge;
@@ -65,7 +66,42 @@ export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner,
     acc.paid += it.bill.paid;
     return acc;
   }, { boarding: 0, daycare: 0, subtotal: 0, additional: 0, extras: 0, discount: 0, total: 0, paid: 0 });
-  const remaining = Math.max(0, totals.total - totals.paid);
+
+  const [paidInput, setPaidInput] = useState<number>(totals.paid);
+  useEffect(() => { setPaidInput(totals.paid); }, [totals.paid, boarding?.id]);
+
+  const noteKey = `invoice-note-${boarding?.id || 'none'}`;
+  const [noteText, setNoteText] = useState('');
+  useEffect(() => {
+    try { setNoteText(localStorage.getItem(noteKey) || ''); } catch { /* noop */ }
+  }, [noteKey]);
+
+  if (!boarding || !dog || !owner) return null;
+
+  const remaining = Math.max(0, totals.total - paidInput);
+  const invoiceNumber = `INV-${boarding.id.slice(0, 8).toUpperCase()}`;
+  const invoiceDate = new Date().toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' });
+
+  const updateNote = (v: string) => {
+    setNoteText(v);
+    try { localStorage.setItem(noteKey, v); } catch { /* noop */ }
+  };
+
+  const handleSavePaid = () => {
+    if (!onUpdatePaid) return;
+    const newPaid = Math.max(0, paidInput);
+    let remainingToAllocate = newPaid;
+    items.forEach((it, idx) => {
+      const share = totals.total > 0
+        ? (idx === items.length - 1 ? remainingToAllocate : Math.min(remainingToAllocate, (it.bill.total / totals.total) * newPaid))
+        : 0;
+      remainingToAllocate = Math.max(0, remainingToAllocate - share);
+      const rounded = Math.round(share * 100) / 100;
+      const status: 'paid' | 'partly-paid' | 'outstanding' =
+        rounded >= it.bill.total - 0.01 ? 'paid' : rounded <= 0 ? 'outstanding' : 'partly-paid';
+      onUpdatePaid(it.boarding.id, rounded, status);
+    });
+  };
 
   const invoiceNumber = `INV-${boarding.id.slice(0, 8).toUpperCase()}`;
   const invoiceDate = new Date().toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' });
