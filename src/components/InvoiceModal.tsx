@@ -370,7 +370,7 @@ export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner,
             <div style={{ marginTop: '12px', display: 'grid', gridTemplateColumns: remaining > 0 ? '1fr 1fr 1fr' : '1fr 1fr', gap: '8px' }}>
               <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '10px', textAlign: 'center' }}>
                 <div style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.5px', color: '#94a3b8', fontWeight: 600 }}>Paid</div>
-                <div style={{ fontSize: '16px', fontWeight: 700, color: '#16a34a', marginTop: '2px' }}>₹{totals.paid.toFixed(2)}</div>
+                <div style={{ fontSize: '16px', fontWeight: 700, color: '#16a34a', marginTop: '2px' }}>₹{paidInput.toFixed(2)}</div>
               </div>
               {remaining > 0 && (
                 <div style={{ background: 'white', border: '1px solid #fecaca', borderRadius: '8px', padding: '10px', textAlign: 'center' }}>
