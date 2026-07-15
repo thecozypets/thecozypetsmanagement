@@ -4,9 +4,10 @@ import { useCompanySettings } from '@/hooks/useCompanySettings';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { Printer, Download, StickyNote } from 'lucide-react';
+import { Printer, Download, StickyNote, Save } from 'lucide-react';
 import { calcBilling, lastDayLabel } from '@/lib/billing';
 
 interface Props {
@@ -17,6 +18,7 @@ interface Props {
   owner: Owner | null;
   allBoardings?: Boarding[];
   allDogs?: Dog[];
+  onUpdatePaid?: (id: string, paidAmount: number, paymentStatus: 'paid' | 'partly-paid' | 'outstanding') => void;
 }
 
 // Two date ranges overlap if a.start <= b.end and b.start <= a.end
@@ -25,7 +27,7 @@ const rangesOverlap = (a1: string, a2: string, b1: string, b2: string) => {
   return new Date(a1).getTime() <= new Date(b2).getTime() && new Date(b1).getTime() <= new Date(a2).getTime();
 };
 
-export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner, allBoardings = [], allDogs = [] }: Props) {
+export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner, allBoardings = [], allDogs = [], onUpdatePaid }: Props) {
   const invoiceRef = useRef<HTMLDivElement>(null);
   const { settings } = useCompanySettings();
 
@@ -45,12 +47,13 @@ export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner,
     return Array.from(map.values());
   }, [boarding, owner, allBoardings]);
 
-  if (!boarding || !dog || !owner) return null;
-
-  const items = groupBoardings.map(b => {
-    const d = allDogs.find(x => x.id === b.dogId) || (b.id === boarding.id ? dog : null);
-    return { boarding: b, dog: d, bill: calcBilling(b) };
-  });
+  const items = useMemo(() => {
+    if (!boarding) return [] as { boarding: Boarding; dog: Dog | null; bill: ReturnType<typeof calcBilling> }[];
+    return groupBoardings.map(b => {
+      const d = allDogs.find(x => x.id === b.dogId) || (b.id === boarding.id ? dog : null);
+      return { boarding: b, dog: d, bill: calcBilling(b) };
+    });
+  }, [groupBoardings, allDogs, dog, boarding]);
 
   const totals = items.reduce((acc, it) => {
     acc.boarding += it.bill.boardingCharge;
@@ -63,20 +66,44 @@ export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner,
     acc.paid += it.bill.paid;
     return acc;
   }, { boarding: 0, daycare: 0, subtotal: 0, additional: 0, extras: 0, discount: 0, total: 0, paid: 0 });
-  const remaining = Math.max(0, totals.total - totals.paid);
 
-  const invoiceNumber = `INV-${boarding.id.slice(0, 8).toUpperCase()}`;
-  const invoiceDate = new Date().toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' });
+  const [paidInput, setPaidInput] = useState<number>(totals.paid);
+  useEffect(() => { setPaidInput(totals.paid); }, [totals.paid, boarding?.id]);
 
-  const noteKey = `invoice-note-${boarding.id}`;
+  const noteKey = `invoice-note-${boarding?.id || 'none'}`;
   const [noteText, setNoteText] = useState('');
   useEffect(() => {
     try { setNoteText(localStorage.getItem(noteKey) || ''); } catch { /* noop */ }
   }, [noteKey]);
+
+  if (!boarding || !dog || !owner) return null;
+
+  const remaining = Math.max(0, totals.total - paidInput);
+  const invoiceNumber = `INV-${boarding.id.slice(0, 8).toUpperCase()}`;
+  const invoiceDate = new Date().toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' });
+
   const updateNote = (v: string) => {
     setNoteText(v);
     try { localStorage.setItem(noteKey, v); } catch { /* noop */ }
   };
+
+  const handleSavePaid = () => {
+    if (!onUpdatePaid) return;
+    const newPaid = Math.max(0, paidInput);
+    let remainingToAllocate = newPaid;
+    items.forEach((it, idx) => {
+      const share = totals.total > 0
+        ? (idx === items.length - 1 ? remainingToAllocate : Math.min(remainingToAllocate, (it.bill.total / totals.total) * newPaid))
+        : 0;
+      remainingToAllocate = Math.max(0, remainingToAllocate - share);
+      const rounded = Math.round(share * 100) / 100;
+      const status: 'paid' | 'partly-paid' | 'outstanding' =
+        rounded >= it.bill.total - 0.01 ? 'paid' : rounded <= 0 ? 'outstanding' : 'partly-paid';
+      onUpdatePaid(it.boarding.id, rounded, status);
+    });
+  };
+
+
 
 
   const handlePrint = () => {
@@ -131,6 +158,33 @@ export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner,
           />
           <p className="text-[11px] text-muted-foreground">Saved automatically. Appears on the printed invoice.</p>
         </div>
+
+        {onUpdatePaid && (
+          <div className="mb-4 rounded-lg border bg-muted/30 p-3 space-y-2">
+            <Label className="text-xs uppercase tracking-wide font-semibold">Total Paid by Owner (editable)</Label>
+            <div className="grid grid-cols-[1fr_auto] gap-2">
+              <Input type="number" min={0} step={0.01} value={paidInput} onChange={e => setPaidInput(+e.target.value)} />
+              <Button size="sm" className="gap-2" onClick={handleSavePaid}><Save className="h-4 w-4" /> Save</Button>
+            </div>
+            <div className="grid grid-cols-3 gap-2 pt-2">
+              <div className="text-center rounded-md bg-background p-2 border">
+                <div className="text-[10px] uppercase text-muted-foreground font-semibold">Total</div>
+                <div className="font-bold text-base">₹{totals.total.toFixed(2)}</div>
+              </div>
+              <div className="text-center rounded-md bg-background p-2 border">
+                <div className="text-[10px] uppercase text-muted-foreground font-semibold">Paid</div>
+                <div className="font-bold text-base text-success">₹{paidInput.toFixed(2)}</div>
+              </div>
+              <div className="text-center rounded-md bg-background p-2 border">
+                <div className="text-[10px] uppercase text-muted-foreground font-semibold">Remaining</div>
+                <div className={`font-bold text-base ${remaining > 0 ? 'text-destructive' : 'text-success'}`}>₹{remaining.toFixed(2)}</div>
+              </div>
+            </div>
+            {items.length > 1 && <p className="text-[11px] text-muted-foreground">Paid amount will be split proportionally across the {items.length} boardings in this stay.</p>}
+          </div>
+        )}
+
+
 
 
 
@@ -316,7 +370,7 @@ export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner,
             <div style={{ marginTop: '12px', display: 'grid', gridTemplateColumns: remaining > 0 ? '1fr 1fr 1fr' : '1fr 1fr', gap: '8px' }}>
               <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '10px', textAlign: 'center' }}>
                 <div style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.5px', color: '#94a3b8', fontWeight: 600 }}>Paid</div>
-                <div style={{ fontSize: '16px', fontWeight: 700, color: '#16a34a', marginTop: '2px' }}>₹{totals.paid.toFixed(2)}</div>
+                <div style={{ fontSize: '16px', fontWeight: 700, color: '#16a34a', marginTop: '2px' }}>₹{paidInput.toFixed(2)}</div>
               </div>
               {remaining > 0 && (
                 <div style={{ background: 'white', border: '1px solid #fecaca', borderRadius: '8px', padding: '10px', textAlign: 'center' }}>
