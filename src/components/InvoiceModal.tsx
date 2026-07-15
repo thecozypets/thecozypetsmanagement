@@ -103,18 +103,7 @@ export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner,
     });
   };
 
-  const invoiceNumber = `INV-${boarding.id.slice(0, 8).toUpperCase()}`;
-  const invoiceDate = new Date().toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' });
 
-  const noteKey = `invoice-note-${boarding.id}`;
-  const [noteText, setNoteText] = useState('');
-  useEffect(() => {
-    try { setNoteText(localStorage.getItem(noteKey) || ''); } catch { /* noop */ }
-  }, [noteKey]);
-  const updateNote = (v: string) => {
-    setNoteText(v);
-    try { localStorage.setItem(noteKey, v); } catch { /* noop */ }
-  };
 
 
   const handlePrint = () => {
