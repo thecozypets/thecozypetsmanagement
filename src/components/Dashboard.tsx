@@ -236,9 +236,8 @@ export default function Dashboard({ owners, dogs, boardings, fosters, fosterOwne
   );
 
   return (
-    <div className="space-y-6">
-      <DashboardKpis owners={owners} dogs={dogs} boardings={boardings} fosters={fosters} onQuickAction={onQuickAction} />
-      <div className="grid lg:grid-cols-2 gap-6">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="grid lg:grid-cols-2 gap-4 sm:gap-6">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
           {renderSectionCard('Boarding', <CalendarCheck className="h-5 w-5 text-primary" />,
             owners.length, dogs.length, bActive.length, bRevenue, bReserved.length, bCompleted.length, bCancelled.length,
@@ -252,6 +251,13 @@ export default function Dashboard({ owners, dogs, boardings, fosters, fosterOwne
           )}
         </motion.div>
       </div>
+
+      <DashboardKpis
+        owners={owners} dogs={dogs} boardings={boardings} fosters={fosters}
+        onQuickAction={onQuickAction}
+        onDrill={setKpiDrill}
+      />
+
 
       {/* Recent Activity */}
       <div className="grid lg:grid-cols-2 gap-6">
