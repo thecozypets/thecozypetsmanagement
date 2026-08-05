@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Users, PawPrint, CalendarCheck, DollarSign, Phone, Mail, Heart } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { calcBilling } from '@/lib/billing';
-import DashboardKpis from './DashboardKpis';
+import DashboardKpis, { KpiDrill } from './DashboardKpis';
 
 const statusColors: Record<BoardingStatus, string> = {
   'reserved': 'bg-warning/20 text-warning-foreground border-warning/30',
@@ -34,6 +34,8 @@ type DrilldownType = 'b-owners' | 'b-dogs' | 'f-owners' | 'f-dogs' | 'b-active' 
 
 export default function Dashboard({ owners, dogs, boardings, fosters, fosterOwners, fosterDogs, onClickOwner, onClickDog, onClickBoarding, onClickFosterOwner, onClickFosterDog, onQuickAction }: Props) {
   const [drilldown, setDrilldown] = useState<DrilldownType>(null);
+  const [kpiDrill, setKpiDrill] = useState<KpiDrill | null>(null);
+
 
   const bActive = boardings.filter(b => b.status === 'checked-in');
   const bReserved = boardings.filter(b => b.status === 'reserved');
