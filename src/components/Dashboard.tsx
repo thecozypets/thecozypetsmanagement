@@ -109,7 +109,8 @@ export default function Dashboard({ owners, dogs, boardings, fosters, fosterOwne
         {list.map(b => {
           const bill = calcBilling(b);
           return (
-          <Card key={b.id} className="cursor-pointer hover:ring-1 hover:ring-primary/50 transition-all" onClick={() => { setDrilldown(null); onClickBoarding(b.id); }}>
+          <Card key={b.id} className="cursor-pointer hover:ring-1 hover:ring-primary/50 transition-all" onClick={() => { setDrilldown(null); setKpiDrill(null); onClickBoarding(b.id); }}>
+
             <CardContent className="p-3">
               <div className="flex justify-between items-start">
                 <div>
@@ -262,7 +263,7 @@ export default function Dashboard({ owners, dogs, boardings, fosters, fosterOwne
 
 
       {/* Recent Activity */}
-      <div className="grid lg:grid-cols-2 gap-6">
+      <div className="grid lg:grid-cols-2 gap-4 sm:gap-6">
         <Card>
           <CardContent className="p-4 sm:p-5">
             <h3 className="font-display font-bold text-lg mb-4">Recent Boardings</h3>
