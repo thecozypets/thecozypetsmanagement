@@ -41,7 +41,7 @@ const daysAhead = (n: number) => {
   return d.toISOString().slice(0, 10);
 };
 
-export default function DashboardKpis({ owners, dogs, boardings, fosters, totalKennels = 20, onQuickAction }: Props) {
+export default function DashboardKpis({ owners, dogs, boardings, fosters, totalKennels = 20, onQuickAction, onDrill }: Props) {
   const t = today();
 
   const stats = useMemo(() => {
