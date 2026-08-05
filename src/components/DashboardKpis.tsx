@@ -51,26 +51,31 @@ export default function DashboardKpis({ owners, dogs, boardings, fosters, totalK
     const upcoming = boardings.filter(b => b.checkInDate > t && b.checkInDate <= daysAhead(7) && b.status !== 'cancelled');
     const occupancy = totalKennels > 0 ? Math.min(100, Math.round((active.length / totalKennels) * 100)) : 0;
 
-    const revenueToday = boardings
-      .filter(b => b.status !== 'cancelled' && b.checkOutDate === t)
-      .reduce((s, b) => s + calcBilling(b).total, 0);
+    const revenueTodayList = boardings.filter(b => b.status !== 'cancelled' && b.checkOutDate === t);
+    const revenueToday = revenueTodayList.reduce((s, b) => s + calcBilling(b).total, 0);
 
     const mKey = monthKey(new Date());
-    const revenueMonth = boardings
-      .filter(b => b.status !== 'cancelled' && monthKey(b.checkOutDate || b.checkInDate) === mKey)
-      .reduce((s, b) => s + calcBilling(b).total, 0);
+    const revenueMonthList = boardings
+      .filter(b => b.status !== 'cancelled' && monthKey(b.checkOutDate || b.checkInDate) === mKey);
+    const revenueMonth = revenueMonthList.reduce((s, b) => s + calcBilling(b).total, 0);
 
-    const pendingPayments = boardings
-      .filter(b => b.status !== 'cancelled')
-      .reduce((s, b) => s + calcBilling(b).remaining, 0);
+    const pendingList = boardings.filter(b => b.status !== 'cancelled' && calcBilling(b).remaining > 0);
+    const pendingPayments = pendingList.reduce((s, b) => s + calcBilling(b).remaining, 0);
 
-    const activeDaycare = active.filter(b => b.lastDayCharge === 'daycare').length;
+    const daycareList = active.filter(b => b.lastDayCharge === 'daycare');
+    const activeDaycare = daycareList.length;
 
     // Vaccinations expiring: dogs not vaccinated flagged as risky
-    const vaccinesRisk = dogs.filter(d => !d.vaccinated).length;
+    const vaccineDogs = dogs.filter(d => !d.vaccinated);
+    const vaccinesRisk = vaccineDogs.length;
 
-    return { active, checkinsToday, checkoutsToday, upcoming, occupancy, revenueToday, revenueMonth, pendingPayments, activeDaycare, vaccinesRisk };
+    return {
+      active, checkinsToday, checkoutsToday, upcoming, occupancy,
+      revenueToday, revenueMonth, pendingPayments, activeDaycare, vaccinesRisk,
+      revenueTodayList, revenueMonthList, pendingList, daycareList, vaccineDogs,
+    };
   }, [boardings, dogs, t, totalKennels]);
+
 
   // Monthly Revenue (last 6 months)
   const revenueByMonth = useMemo(() => {
