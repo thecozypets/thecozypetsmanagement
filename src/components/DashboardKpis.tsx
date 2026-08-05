@@ -14,6 +14,12 @@ import {
 import { Boarding, Dog, Owner, Foster } from '@/types/boarding';
 import { calcBilling } from '@/lib/billing';
 
+export interface KpiDrill {
+  title: string;
+  boardings?: Boarding[];
+  dogs?: Dog[];
+}
+
 interface Props {
   owners: Owner[];
   dogs: Dog[];
@@ -21,7 +27,9 @@ interface Props {
   fosters: Foster[];
   totalKennels?: number;
   onQuickAction?: (a: 'booking' | 'customer' | 'pet' | 'invoice' | 'calendar' | 'reports') => void;
+  onDrill?: (d: KpiDrill) => void;
 }
+
 
 const today = () => new Date().toISOString().slice(0, 10);
 const monthKey = (d: string | Date) => {
@@ -33,7 +41,7 @@ const daysAhead = (n: number) => {
   return d.toISOString().slice(0, 10);
 };
 
-export default function DashboardKpis({ owners, dogs, boardings, fosters, totalKennels = 20, onQuickAction }: Props) {
+export default function DashboardKpis({ owners, dogs, boardings, fosters, totalKennels = 20, onQuickAction, onDrill }: Props) {
   const t = today();
 
   const stats = useMemo(() => {
@@ -43,26 +51,31 @@ export default function DashboardKpis({ owners, dogs, boardings, fosters, totalK
     const upcoming = boardings.filter(b => b.checkInDate > t && b.checkInDate <= daysAhead(7) && b.status !== 'cancelled');
     const occupancy = totalKennels > 0 ? Math.min(100, Math.round((active.length / totalKennels) * 100)) : 0;
 
-    const revenueToday = boardings
-      .filter(b => b.status !== 'cancelled' && b.checkOutDate === t)
-      .reduce((s, b) => s + calcBilling(b).total, 0);
+    const revenueTodayList = boardings.filter(b => b.status !== 'cancelled' && b.checkOutDate === t);
+    const revenueToday = revenueTodayList.reduce((s, b) => s + calcBilling(b).total, 0);
 
     const mKey = monthKey(new Date());
-    const revenueMonth = boardings
-      .filter(b => b.status !== 'cancelled' && monthKey(b.checkOutDate || b.checkInDate) === mKey)
-      .reduce((s, b) => s + calcBilling(b).total, 0);
+    const revenueMonthList = boardings
+      .filter(b => b.status !== 'cancelled' && monthKey(b.checkOutDate || b.checkInDate) === mKey);
+    const revenueMonth = revenueMonthList.reduce((s, b) => s + calcBilling(b).total, 0);
 
-    const pendingPayments = boardings
-      .filter(b => b.status !== 'cancelled')
-      .reduce((s, b) => s + calcBilling(b).remaining, 0);
+    const pendingList = boardings.filter(b => b.status !== 'cancelled' && calcBilling(b).remaining > 0);
+    const pendingPayments = pendingList.reduce((s, b) => s + calcBilling(b).remaining, 0);
 
-    const activeDaycare = active.filter(b => b.lastDayCharge === 'daycare').length;
+    const daycareList = active.filter(b => b.lastDayCharge === 'daycare');
+    const activeDaycare = daycareList.length;
 
     // Vaccinations expiring: dogs not vaccinated flagged as risky
-    const vaccinesRisk = dogs.filter(d => !d.vaccinated).length;
+    const vaccineDogs = dogs.filter(d => !d.vaccinated);
+    const vaccinesRisk = vaccineDogs.length;
 
-    return { active, checkinsToday, checkoutsToday, upcoming, occupancy, revenueToday, revenueMonth, pendingPayments, activeDaycare, vaccinesRisk };
+    return {
+      active, checkinsToday, checkoutsToday, upcoming, occupancy,
+      revenueToday, revenueMonth, pendingPayments, activeDaycare, vaccinesRisk,
+      revenueTodayList, revenueMonthList, pendingList, daycareList, vaccineDogs,
+    };
   }, [boardings, dogs, t, totalKennels]);
+
 
   // Monthly Revenue (last 6 months)
   const revenueByMonth = useMemo(() => {
@@ -127,17 +140,17 @@ export default function DashboardKpis({ owners, dogs, boardings, fosters, totalK
     return out;
   }, [boardings]);
 
-  const kpis = [
-    { label: 'Currently Boarding', value: stats.active.length, icon: CalendarCheck, tone: 'text-primary', bg: 'bg-primary/10' },
-    { label: 'Check-ins Today', value: stats.checkinsToday.length, icon: LogIn, tone: 'text-emerald-600', bg: 'bg-emerald-500/10' },
-    { label: 'Check-outs Today', value: stats.checkoutsToday.length, icon: LogOut, tone: 'text-amber-600', bg: 'bg-amber-500/10' },
-    { label: 'Upcoming (7d)', value: stats.upcoming.length, icon: CalendarClock, tone: 'text-blue-600', bg: 'bg-blue-500/10' },
-    { label: 'Occupancy', value: `${stats.occupancy}%`, icon: Home, tone: 'text-primary', bg: 'bg-primary/10' },
-    { label: 'Revenue Today', value: `₹${Math.round(stats.revenueToday)}`, icon: IndianRupee, tone: 'text-emerald-600', bg: 'bg-emerald-500/10' },
-    { label: 'Revenue (Month)', value: `₹${Math.round(stats.revenueMonth)}`, icon: TrendingUp, tone: 'text-primary', bg: 'bg-primary/10' },
-    { label: 'Pending Payments', value: `₹${Math.round(stats.pendingPayments)}`, icon: AlertCircle, tone: 'text-destructive', bg: 'bg-destructive/10' },
-    { label: 'Active Daycare', value: stats.activeDaycare, icon: Sun, tone: 'text-yellow-600', bg: 'bg-yellow-500/10' },
-    { label: 'Vaccines At Risk', value: stats.vaccinesRisk, icon: ShieldAlert, tone: 'text-rose-600', bg: 'bg-rose-500/10' },
+  const kpis: { label: string; value: string | number; icon: any; tone: string; bg: string; drill: KpiDrill }[] = [
+    { label: 'Currently Boarding', value: stats.active.length, icon: CalendarCheck, tone: 'text-primary', bg: 'bg-primary/10', drill: { title: 'Currently Boarding', boardings: stats.active } },
+    { label: 'Check-ins Today', value: stats.checkinsToday.length, icon: LogIn, tone: 'text-emerald-600', bg: 'bg-emerald-500/10', drill: { title: 'Check-ins Today', boardings: stats.checkinsToday } },
+    { label: 'Check-outs Today', value: stats.checkoutsToday.length, icon: LogOut, tone: 'text-amber-600', bg: 'bg-amber-500/10', drill: { title: 'Check-outs Today', boardings: stats.checkoutsToday } },
+    { label: 'Upcoming (7d)', value: stats.upcoming.length, icon: CalendarClock, tone: 'text-blue-600', bg: 'bg-blue-500/10', drill: { title: 'Upcoming Bookings (7 days)', boardings: stats.upcoming } },
+    { label: 'Occupancy', value: `${stats.occupancy}%`, icon: Home, tone: 'text-primary', bg: 'bg-primary/10', drill: { title: 'Occupied Kennels', boardings: stats.active } },
+    { label: 'Revenue Today', value: `₹${Math.round(stats.revenueToday)}`, icon: IndianRupee, tone: 'text-emerald-600', bg: 'bg-emerald-500/10', drill: { title: 'Revenue Today', boardings: stats.revenueTodayList } },
+    { label: 'Revenue (Month)', value: `₹${Math.round(stats.revenueMonth)}`, icon: TrendingUp, tone: 'text-primary', bg: 'bg-primary/10', drill: { title: 'Revenue This Month', boardings: stats.revenueMonthList } },
+    { label: 'Pending Payments', value: `₹${Math.round(stats.pendingPayments)}`, icon: AlertCircle, tone: 'text-destructive', bg: 'bg-destructive/10', drill: { title: 'Pending Payments', boardings: stats.pendingList } },
+    { label: 'Active Daycare', value: stats.activeDaycare, icon: Sun, tone: 'text-yellow-600', bg: 'bg-yellow-500/10', drill: { title: 'Active Daycare', boardings: stats.daycareList } },
+    { label: 'Vaccines At Risk', value: stats.vaccinesRisk, icon: ShieldAlert, tone: 'text-rose-600', bg: 'bg-rose-500/10', drill: { title: 'Pets Missing Vaccination', dogs: stats.vaccineDogs } },
   ];
 
   const actions: { key: NonNullable<Props['onQuickAction']> extends (a: infer K) => void ? K : never; label: string; icon: any }[] = [
@@ -150,9 +163,9 @@ export default function DashboardKpis({ owners, dogs, boardings, fosters, totalK
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* KPI grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3">
         {kpis.map((k, i) => (
           <motion.div
             key={k.label}
@@ -160,12 +173,18 @@ export default function DashboardKpis({ owners, dogs, boardings, fosters, totalK
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.03 }}
           >
-            <Card className="hover-lift border-border/60">
+            <Card
+              role={onDrill ? 'button' : undefined}
+              tabIndex={onDrill ? 0 : undefined}
+              onClick={() => onDrill?.(k.drill)}
+              onKeyDown={e => { if (onDrill && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); onDrill(k.drill); } }}
+              className={`hover-lift border-border/60 h-full ${onDrill ? 'cursor-pointer active:scale-[0.98] hover:ring-1 hover:ring-primary/50 transition-all' : ''}`}
+            >
               <CardContent className="p-3 sm:p-4">
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
-                    <p className="text-[11px] sm:text-xs text-muted-foreground truncate">{k.label}</p>
-                    <p className="font-display text-lg sm:text-2xl font-extrabold mt-1 truncate">{k.value}</p>
+                    <p className="text-[11px] sm:text-xs text-muted-foreground leading-tight">{k.label}</p>
+                    <p className="font-display text-xl sm:text-2xl font-extrabold mt-1 truncate">{k.value}</p>
                   </div>
                   <div className={`shrink-0 rounded-lg p-2 ${k.bg}`}>
                     <k.icon className={`h-4 w-4 ${k.tone}`} />
@@ -176,6 +195,7 @@ export default function DashboardKpis({ owners, dogs, boardings, fosters, totalK
           </motion.div>
         ))}
       </div>
+
 
       {/* Quick actions */}
       {onQuickAction && (

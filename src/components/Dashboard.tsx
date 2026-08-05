@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Users, PawPrint, CalendarCheck, DollarSign, Phone, Mail, Heart } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { calcBilling } from '@/lib/billing';
-import DashboardKpis from './DashboardKpis';
+import DashboardKpis, { KpiDrill } from './DashboardKpis';
 
 const statusColors: Record<BoardingStatus, string> = {
   'reserved': 'bg-warning/20 text-warning-foreground border-warning/30',
@@ -34,6 +34,8 @@ type DrilldownType = 'b-owners' | 'b-dogs' | 'f-owners' | 'f-dogs' | 'b-active' 
 
 export default function Dashboard({ owners, dogs, boardings, fosters, fosterOwners, fosterDogs, onClickOwner, onClickDog, onClickBoarding, onClickFosterOwner, onClickFosterDog, onQuickAction }: Props) {
   const [drilldown, setDrilldown] = useState<DrilldownType>(null);
+  const [kpiDrill, setKpiDrill] = useState<KpiDrill | null>(null);
+
 
   const bActive = boardings.filter(b => b.status === 'checked-in');
   const bReserved = boardings.filter(b => b.status === 'reserved');
@@ -107,7 +109,8 @@ export default function Dashboard({ owners, dogs, boardings, fosters, fosterOwne
         {list.map(b => {
           const bill = calcBilling(b);
           return (
-          <Card key={b.id} className="cursor-pointer hover:ring-1 hover:ring-primary/50 transition-all" onClick={() => { setDrilldown(null); onClickBoarding(b.id); }}>
+          <Card key={b.id} className="cursor-pointer hover:ring-1 hover:ring-primary/50 transition-all" onClick={() => { setDrilldown(null); setKpiDrill(null); onClickBoarding(b.id); }}>
+
             <CardContent className="p-3">
               <div className="flex justify-between items-start">
                 <div>
@@ -236,9 +239,8 @@ export default function Dashboard({ owners, dogs, boardings, fosters, fosterOwne
   );
 
   return (
-    <div className="space-y-6">
-      <DashboardKpis owners={owners} dogs={dogs} boardings={boardings} fosters={fosters} onQuickAction={onQuickAction} />
-      <div className="grid lg:grid-cols-2 gap-6">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="grid lg:grid-cols-2 gap-4 sm:gap-6">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
           {renderSectionCard('Boarding', <CalendarCheck className="h-5 w-5 text-primary" />,
             owners.length, dogs.length, bActive.length, bRevenue, bReserved.length, bCompleted.length, bCancelled.length,
@@ -253,8 +255,15 @@ export default function Dashboard({ owners, dogs, boardings, fosters, fosterOwne
         </motion.div>
       </div>
 
+      <DashboardKpis
+        owners={owners} dogs={dogs} boardings={boardings} fosters={fosters}
+        onQuickAction={onQuickAction}
+        onDrill={setKpiDrill}
+      />
+
+
       {/* Recent Activity */}
-      <div className="grid lg:grid-cols-2 gap-6">
+      <div className="grid lg:grid-cols-2 gap-4 sm:gap-6">
         <Card>
           <CardContent className="p-4 sm:p-5">
             <h3 className="font-display font-bold text-lg mb-4">Recent Boardings</h3>
@@ -279,7 +288,7 @@ export default function Dashboard({ owners, dogs, boardings, fosters, fosterOwne
             {fosters.length === 0 ? <p className="text-muted-foreground text-sm">No fosters yet</p> : (
               <div className="space-y-3">
                 {[...fosters].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 5).map(f => (
-                  <div key={f.id} className="flex justify-between items-center py-2 border-b border-border last:border-0 cursor-pointer hover:bg-muted/50 rounded px-1 -mx-1 transition-colors">
+                  <div key={f.id} className="flex justify-between items-center py-2 border-b border-border last:border-0 cursor-pointer hover:bg-muted/50 rounded px-1 -mx-1 transition-colors" onClick={() => onClickFosterDog(f.dogId)}>
                     <div>
                       <p className="font-medium">{f.animalType === 'cat' ? '🐈' : '🐕'} {getDogName(f.dogId, fosterDogs)}</p>
                       <p className="text-xs text-muted-foreground">{f.checkInDate} → {f.checkOutDate}</p>
@@ -294,13 +303,25 @@ export default function Dashboard({ owners, dogs, boardings, fosters, fosterOwne
       </div>
 
       <Dialog open={!!drilldown} onOpenChange={(open) => { if (!open) setDrilldown(null); }}>
-        <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
+        <DialogContent className="w-[95vw] max-w-lg max-h-[85vh] overflow-y-auto p-4 sm:p-6">
           <DialogHeader>
-            <DialogTitle className="font-display">{drilldown ? drilldownTitle[drilldown] : ''}</DialogTitle>
+            <DialogTitle className="font-display text-base sm:text-lg">{drilldown ? drilldownTitle[drilldown] : ''}</DialogTitle>
           </DialogHeader>
           {renderDrilldownContent()}
         </DialogContent>
       </Dialog>
+
+      <Dialog open={!!kpiDrill} onOpenChange={(open) => { if (!open) setKpiDrill(null); }}>
+        <DialogContent className="w-[95vw] max-w-lg max-h-[85vh] overflow-y-auto p-4 sm:p-6">
+          <DialogHeader>
+            <DialogTitle className="font-display text-base sm:text-lg">{kpiDrill?.title || ''}</DialogTitle>
+          </DialogHeader>
+          {kpiDrill?.dogs
+            ? renderDogList(kpiDrill.dogs, owners, (id) => { setKpiDrill(null); onClickDog(id); })
+            : renderBookingList(kpiDrill?.boardings || [], dogs, owners)}
+        </DialogContent>
+      </Dialog>
+
     </div>
   );
 }

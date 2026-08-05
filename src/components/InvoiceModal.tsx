@@ -9,6 +9,8 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Printer, Download, StickyNote, Save } from 'lucide-react';
 import { calcBilling, lastDayLabel } from '@/lib/billing';
+import { printInvoiceHtml } from '@/lib/printInvoice';
+
 
 interface Props {
   open: boolean;
@@ -109,42 +111,31 @@ export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner,
   const handlePrint = () => {
     const content = invoiceRef.current;
     if (!content) return;
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) return;
-    printWindow.document.write(`
-      <!DOCTYPE html>
-      <html><head><title>Invoice ${invoiceNumber}</title>
-      <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', Arial, sans-serif; padding: 40px; color: #1a1a1a; }
-        @media print { body { padding: 20px; } }
-      </style></head><body>${content.innerHTML}</body></html>
-    `);
-    printWindow.document.close();
-    printWindow.focus();
-    printWindow.print();
+    printInvoiceHtml(`Invoice ${invoiceNumber}`, content.innerHTML);
   };
+
 
   const companyName = settings.companyName || 'The Cozy Pets';
   const multiple = items.length > 1;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="w-[96vw] max-w-2xl max-h-[92vh] overflow-y-auto p-4 sm:p-6">
         <DialogHeader>
-          <DialogTitle className="font-display flex items-center gap-2">
+          <DialogTitle className="font-display flex flex-wrap items-center gap-2 text-base sm:text-lg">
             Invoice Preview {multiple && <span className="text-xs font-normal text-muted-foreground">({items.length} pets)</span>}
           </DialogTitle>
         </DialogHeader>
 
-        <div className="flex gap-2 mb-4">
-          <Button onClick={handlePrint} size="sm" className="gap-2">
+        <div className="grid grid-cols-2 gap-2 mb-4">
+          <Button onClick={handlePrint} size="sm" className="gap-2 w-full">
             <Printer className="h-4 w-4" /> Print
           </Button>
-          <Button onClick={handlePrint} variant="outline" size="sm" className="gap-2">
-            <Download className="h-4 w-4" /> Download PDF
+          <Button onClick={handlePrint} variant="outline" size="sm" className="gap-2 w-full">
+            <Download className="h-4 w-4" /> Save PDF
           </Button>
         </div>
+
 
         <div className="mb-4 rounded-lg border bg-muted/30 p-3 space-y-2">
           <Label className="text-xs uppercase tracking-wide font-semibold flex items-center gap-2">
@@ -188,7 +179,7 @@ export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner,
 
 
 
-        <div ref={invoiceRef} className="bg-white text-foreground p-6 rounded-lg border">
+        <div ref={invoiceRef} className="bg-white text-foreground p-3 sm:p-6 rounded-lg border overflow-x-auto">
           {/* Header */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '24px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
