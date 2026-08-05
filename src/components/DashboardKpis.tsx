@@ -14,6 +14,12 @@ import {
 import { Boarding, Dog, Owner, Foster } from '@/types/boarding';
 import { calcBilling } from '@/lib/billing';
 
+export interface KpiDrill {
+  title: string;
+  boardings?: Boarding[];
+  dogs?: Dog[];
+}
+
 interface Props {
   owners: Owner[];
   dogs: Dog[];
@@ -21,7 +27,9 @@ interface Props {
   fosters: Foster[];
   totalKennels?: number;
   onQuickAction?: (a: 'booking' | 'customer' | 'pet' | 'invoice' | 'calendar' | 'reports') => void;
+  onDrill?: (d: KpiDrill) => void;
 }
+
 
 const today = () => new Date().toISOString().slice(0, 10);
 const monthKey = (d: string | Date) => {
