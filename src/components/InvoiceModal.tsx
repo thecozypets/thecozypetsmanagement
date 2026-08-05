@@ -120,21 +120,22 @@ export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner,
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="w-[96vw] max-w-2xl max-h-[92vh] overflow-y-auto p-4 sm:p-6">
         <DialogHeader>
-          <DialogTitle className="font-display flex items-center gap-2">
+          <DialogTitle className="font-display flex flex-wrap items-center gap-2 text-base sm:text-lg">
             Invoice Preview {multiple && <span className="text-xs font-normal text-muted-foreground">({items.length} pets)</span>}
           </DialogTitle>
         </DialogHeader>
 
-        <div className="flex gap-2 mb-4">
-          <Button onClick={handlePrint} size="sm" className="gap-2">
+        <div className="grid grid-cols-2 gap-2 mb-4">
+          <Button onClick={handlePrint} size="sm" className="gap-2 w-full">
             <Printer className="h-4 w-4" /> Print
           </Button>
-          <Button onClick={handlePrint} variant="outline" size="sm" className="gap-2">
-            <Download className="h-4 w-4" /> Download PDF
+          <Button onClick={handlePrint} variant="outline" size="sm" className="gap-2 w-full">
+            <Download className="h-4 w-4" /> Save PDF
           </Button>
         </div>
+
 
         <div className="mb-4 rounded-lg border bg-muted/30 p-3 space-y-2">
           <Label className="text-xs uppercase tracking-wide font-semibold flex items-center gap-2">
