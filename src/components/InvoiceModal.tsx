@@ -179,7 +179,7 @@ export default function InvoiceModal({ open, onOpenChange, boarding, dog, owner,
 
 
 
-        <div ref={invoiceRef} className="bg-white text-foreground p-6 rounded-lg border">
+        <div ref={invoiceRef} className="bg-white text-foreground p-3 sm:p-6 rounded-lg border overflow-x-auto">
           {/* Header */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '24px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
