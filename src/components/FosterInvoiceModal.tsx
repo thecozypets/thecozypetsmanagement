@@ -9,6 +9,8 @@ import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { Printer, Download, Save, StickyNote } from 'lucide-react';
 import { calcBilling } from '@/lib/billing';
+import { printInvoiceHtml } from '@/lib/printInvoice';
+
 
 interface Props {
   open: boolean;

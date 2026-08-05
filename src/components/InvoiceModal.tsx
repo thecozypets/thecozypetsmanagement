@@ -9,6 +9,8 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Printer, Download, StickyNote, Save } from 'lucide-react';
 import { calcBilling, lastDayLabel } from '@/lib/billing';
+import { printInvoiceHtml } from '@/lib/printInvoice';
+
 
 interface Props {
   open: boolean;
