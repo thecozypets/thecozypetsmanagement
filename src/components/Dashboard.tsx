@@ -287,7 +287,7 @@ export default function Dashboard({ owners, dogs, boardings, fosters, fosterOwne
             {fosters.length === 0 ? <p className="text-muted-foreground text-sm">No fosters yet</p> : (
               <div className="space-y-3">
                 {[...fosters].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 5).map(f => (
-                  <div key={f.id} className="flex justify-between items-center py-2 border-b border-border last:border-0 cursor-pointer hover:bg-muted/50 rounded px-1 -mx-1 transition-colors">
+                  <div key={f.id} className="flex justify-between items-center py-2 border-b border-border last:border-0 cursor-pointer hover:bg-muted/50 rounded px-1 -mx-1 transition-colors" onClick={() => onClickFosterDog(f.dogId)}>
                     <div>
                       <p className="font-medium">{f.animalType === 'cat' ? '🐈' : '🐕'} {getDogName(f.dogId, fosterDogs)}</p>
                       <p className="text-xs text-muted-foreground">{f.checkInDate} → {f.checkOutDate}</p>
@@ -302,13 +302,25 @@ export default function Dashboard({ owners, dogs, boardings, fosters, fosterOwne
       </div>
 
       <Dialog open={!!drilldown} onOpenChange={(open) => { if (!open) setDrilldown(null); }}>
-        <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
+        <DialogContent className="w-[95vw] max-w-lg max-h-[85vh] overflow-y-auto p-4 sm:p-6">
           <DialogHeader>
-            <DialogTitle className="font-display">{drilldown ? drilldownTitle[drilldown] : ''}</DialogTitle>
+            <DialogTitle className="font-display text-base sm:text-lg">{drilldown ? drilldownTitle[drilldown] : ''}</DialogTitle>
           </DialogHeader>
           {renderDrilldownContent()}
         </DialogContent>
       </Dialog>
+
+      <Dialog open={!!kpiDrill} onOpenChange={(open) => { if (!open) setKpiDrill(null); }}>
+        <DialogContent className="w-[95vw] max-w-lg max-h-[85vh] overflow-y-auto p-4 sm:p-6">
+          <DialogHeader>
+            <DialogTitle className="font-display text-base sm:text-lg">{kpiDrill?.title || ''}</DialogTitle>
+          </DialogHeader>
+          {kpiDrill?.dogs
+            ? renderDogList(kpiDrill.dogs, owners, (id) => { setKpiDrill(null); onClickDog(id); })
+            : renderBookingList(kpiDrill?.boardings || [], dogs, owners)}
+        </DialogContent>
+      </Dialog>
+
     </div>
   );
 }
