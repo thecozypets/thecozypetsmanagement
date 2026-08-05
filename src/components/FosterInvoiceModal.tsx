@@ -99,21 +99,9 @@ export default function FosterInvoiceModal({ open, onOpenChange, foster, dog, ow
   const handlePrint = () => {
     const content = invoiceRef.current;
     if (!content) return;
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) return;
-    printWindow.document.write(`
-      <!DOCTYPE html>
-      <html><head><title>Invoice ${invoiceNumber}</title>
-      <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', Arial, sans-serif; padding: 40px; color: #1a1a1a; }
-        @media print { body { padding: 20px; } }
-      </style></head><body>${content.innerHTML}</body></html>
-    `);
-    printWindow.document.close();
-    printWindow.focus();
-    printWindow.print();
+    printInvoiceHtml(`Invoice ${invoiceNumber}`, content.innerHTML);
   };
+
 
   const companyName = settings.companyName || 'The Cozy Pets';
 
