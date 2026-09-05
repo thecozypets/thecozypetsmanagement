@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Dog, Owner, Boarding, Foster, VaccineRecord, MedicationRecord } from '@/types/boarding';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -105,18 +105,40 @@ export default function PetProfile360({ open, onOpenChange, dog, owner, boarding
 
         <div className="relative px-4 sm:px-8 -mt-14 sm:-mt-16">
           <div className="flex flex-col sm:flex-row sm:items-end gap-4">
-            <div className="shrink-0">
+            <div className="shrink-0 relative group">
               {s.photoUrl ? (
                 <img
                   src={s.photoUrl}
                   alt={s.name}
-                  className="h-28 w-28 sm:h-36 sm:w-36 rounded-3xl object-cover border-4 border-card shadow-[var(--shadow-paw)]"
+                  className="h-36 w-36 sm:h-48 sm:w-48 rounded-3xl object-cover border-4 border-card shadow-[var(--shadow-paw)]"
                 />
               ) : (
-                <div className="h-28 w-28 sm:h-36 sm:w-36 rounded-3xl bg-secondary border-4 border-card shadow-[var(--shadow-paw)] flex items-center justify-center">
-                  <PawPrint className="h-12 w-12 text-primary" />
+                <div className="h-36 w-36 sm:h-48 sm:w-48 rounded-3xl bg-secondary border-4 border-card shadow-[var(--shadow-paw)] flex items-center justify-center">
+                  <PawPrint className="h-14 w-14 text-primary" />
                 </div>
               )}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={e => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  const reader = new FileReader();
+                  reader.onloadend = () => set({ photoUrl: reader.result as string });
+                  reader.readAsDataURL(file);
+                  e.target.value = '';
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="absolute bottom-2 right-2 h-9 w-9 rounded-full bg-primary text-primary-foreground shadow-md flex items-center justify-center transition-transform hover:scale-105"
+                title="Change photo"
+              >
+                <Camera className="h-4 w-4" />
+              </button>
             </div>
             <div className="flex-1 min-w-0 sm:pb-1">
               <div className="flex items-center gap-2 flex-wrap">
