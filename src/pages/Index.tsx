@@ -83,8 +83,9 @@ const Index = () => {
               <PawPrint className="h-7 w-7 sm:h-8 sm:w-8 text-primary shrink-0 relative" />
             </motion.div>
             <div className="min-w-0">
-              <h1 className="font-bold text-foreground text-lg sm:text-2xl font-serif truncate">The Cozy Pets</h1>
+              <h1 className="font-bold text-foreground text-lg sm:text-2xl font-display truncate tracking-tight">The Cozy Pets</h1>
               <p className="text-[10px] sm:text-xs text-muted-foreground hidden sm:flex items-center gap-1"><Bone className="h-3 w-3" /> Pet Boarding & Foster Care</p>
+
             </div>
           </motion.div>
           <div className="flex items-center gap-1 shrink-0">
@@ -108,7 +109,7 @@ const Index = () => {
 
       <main className="container max-w-[1600px] mx-auto px-3 sm:px-4 py-4 sm:py-6 animate-fade-in">
         <Tabs value={tab} onValueChange={setTab}>
-          <TabsList className="mb-4 sm:mb-6 w-full justify-between bg-secondary/50 h-auto flex-wrap gap-1 p-1">
+          <TabsList className="mb-4 sm:mb-6 w-full justify-between bg-card border border-border rounded-2xl shadow-[var(--shadow-soft)] h-auto flex-wrap gap-1 p-1.5">
             <div className="flex flex-1 flex-wrap">
               <TabsTrigger value="dashboard" className="gap-1.5 sm:gap-2 font-display px-2 sm:px-3 data-[state=active]:shadow-sm transition-all"><LayoutDashboard className="h-4 w-4" /> <span className="hidden xs:inline sm:inline">Dashboard</span></TabsTrigger>
               <TabsTrigger value="boarding" className="gap-1.5 sm:gap-2 font-display px-2 sm:px-3 data-[state=active]:shadow-sm transition-all group"><Dog className="h-4 w-4 group-data-[state=active]:animate-wag origin-bottom" /> <span className="hidden xs:inline sm:inline">Boarding</span></TabsTrigger>
