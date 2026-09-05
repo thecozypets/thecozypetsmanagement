@@ -93,22 +93,75 @@ export default function PetProfile360({ open, onOpenChange, dog, owner, boarding
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-3 font-display text-2xl">
-            {s.photoUrl ? (
-              <img src={s.photoUrl} alt={s.name} className="h-12 w-12 rounded-full object-cover border-2 border-primary/20" />
-            ) : (
-              <div className="h-12 w-12 rounded-full bg-secondary flex items-center justify-center"><PawPrint className="h-5 w-5" /></div>
-            )}
-            <div className="min-w-0">
-              <div className="truncate">{s.animalType === 'cat' ? '🐱 ' : '🐕 '}{s.name}</div>
-              <div className="text-xs text-muted-foreground font-normal">{s.breed} · {owner?.name}</div>
-            </div>
-          </DialogTitle>
-        </DialogHeader>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-0 gap-0">
+        {/* HERO */}
+        <div className="relative overflow-hidden rounded-t-lg bg-[var(--gradient-warm)]">
+          <div className="absolute inset-0 paw-pattern opacity-60" />
+          <div className="absolute -right-6 -top-8 opacity-15 rotate-12">
+            <PawPrint className="h-40 w-40 text-primary-foreground" />
+          </div>
+          <div className="relative px-5 sm:px-8 pt-8 pb-16 sm:pb-20" />
+        </div>
 
-        <Tabs defaultValue="basic" className="mt-2">
+        <div className="relative px-4 sm:px-8 -mt-14 sm:-mt-16">
+          <div className="flex flex-col sm:flex-row sm:items-end gap-4">
+            <div className="shrink-0">
+              {s.photoUrl ? (
+                <img
+                  src={s.photoUrl}
+                  alt={s.name}
+                  className="h-28 w-28 sm:h-36 sm:w-36 rounded-3xl object-cover border-4 border-card shadow-[var(--shadow-paw)]"
+                />
+              ) : (
+                <div className="h-28 w-28 sm:h-36 sm:w-36 rounded-3xl bg-secondary border-4 border-card shadow-[var(--shadow-paw)] flex items-center justify-center">
+                  <PawPrint className="h-12 w-12 text-primary" />
+                </div>
+              )}
+            </div>
+            <div className="flex-1 min-w-0 sm:pb-1">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h2 className="font-display text-2xl sm:text-3xl font-bold truncate">
+                  {s.animalType === 'cat' ? '🐱' : '🐕'} {s.name}
+                </h2>
+                {(s.behaviourTags || []).slice(0, 2).map(t => (
+                  <Badge key={t} variant="secondary" className="text-[11px]">{t}</Badge>
+                ))}
+              </div>
+              <p className="text-sm text-muted-foreground mt-0.5 truncate">
+                {s.breed || 'Mixed breed'}{s.color ? ` · ${s.color}` : ''}
+              </p>
+              {owner && (
+                <div className="flex items-center gap-1.5 mt-1.5 text-xs text-muted-foreground">
+                  <User className="h-3.5 w-3.5 text-primary" />
+                  <span className="font-medium text-foreground">{owner.name}</span>
+                  {owner.phone && <span>· {owner.phone}</span>}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* HERO STATS */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-4">
+            <div className="surface-card p-3 flex items-center gap-2.5">
+              <div className="h-9 w-9 rounded-xl bg-accent flex items-center justify-center shrink-0"><Cake className="h-4.5 w-4.5 text-primary" /></div>
+              <div className="min-w-0"><div className="text-[11px] text-muted-foreground">Age</div><div className="font-bold text-sm truncate">{s.age}y {s.ageMonths}m</div></div>
+            </div>
+            <div className="surface-card p-3 flex items-center gap-2.5">
+              <div className="h-9 w-9 rounded-xl bg-accent flex items-center justify-center shrink-0"><Weight className="h-4.5 w-4.5 text-primary" /></div>
+              <div className="min-w-0"><div className="text-[11px] text-muted-foreground">Weight</div><div className="font-bold text-sm truncate">{s.weight} kg</div></div>
+            </div>
+            <div className="surface-card p-3 flex items-center gap-2.5">
+              <div className="h-9 w-9 rounded-xl bg-accent flex items-center justify-center shrink-0"><Venus className="h-4.5 w-4.5 text-primary" /></div>
+              <div className="min-w-0"><div className="text-[11px] text-muted-foreground">Gender</div><div className="font-bold text-sm truncate capitalize">{s.gender || '—'}</div></div>
+            </div>
+            <div className="surface-card p-3 flex items-center gap-2.5">
+              <div className="h-9 w-9 rounded-xl bg-accent flex items-center justify-center shrink-0"><History className="h-4.5 w-4.5 text-primary" /></div>
+              <div className="min-w-0"><div className="text-[11px] text-muted-foreground">Total Stays</div><div className="font-bold text-sm truncate">{history.count}</div></div>
+            </div>
+          </div>
+        </div>
+
+        <Tabs defaultValue="basic" className="mt-4 px-4 sm:px-8">
           <TabsList className="w-full flex-wrap h-auto justify-start">
             <TabsTrigger value="basic" className="gap-1.5"><PawPrint className="h-3.5 w-3.5" /> Basic</TabsTrigger>
             <TabsTrigger value="medical" className="gap-1.5"><Stethoscope className="h-3.5 w-3.5" /> Medical</TabsTrigger>
