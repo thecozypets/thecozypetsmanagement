@@ -332,7 +332,7 @@ export default function PetProfile360({ open, onOpenChange, dog, owner, boarding
           </TabsContent>
         </Tabs>
 
-        <div className="flex justify-end gap-2 pt-4 border-t mt-2">
+        <div className="flex justify-end gap-2 px-4 sm:px-8 py-4 border-t mt-4">
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
           <Button onClick={save}><Save className="h-4 w-4 mr-2" /> Save Profile</Button>
         </div>
