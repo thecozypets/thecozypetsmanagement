@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { PawPrint, Plus, Trash2, Save, ShieldCheck, Stethoscope, Utensils, Smile, Phone, History, Cake, Weight, Venus, Palette, Hash, User } from 'lucide-react';
+import { PawPrint, Plus, Trash2, Save, ShieldCheck, Stethoscope, Utensils, Smile, Phone, History, Cake, Weight, Venus, User } from 'lucide-react';
 import { calcBilling } from '@/lib/billing';
 
 interface Props {
