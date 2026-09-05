@@ -143,19 +143,19 @@ export default function PetProfile360({ open, onOpenChange, dog, owner, boarding
           {/* HERO STATS */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-4">
             <div className="surface-card p-3 flex items-center gap-2.5">
-              <div className="h-9 w-9 rounded-xl bg-accent flex items-center justify-center shrink-0"><Cake className="h-4.5 w-4.5 text-primary" /></div>
+              <div className="h-9 w-9 rounded-xl bg-accent flex items-center justify-center shrink-0"><Cake className="h-4 w-4 text-primary" /></div>
               <div className="min-w-0"><div className="text-[11px] text-muted-foreground">Age</div><div className="font-bold text-sm truncate">{s.age}y {s.ageMonths}m</div></div>
             </div>
             <div className="surface-card p-3 flex items-center gap-2.5">
-              <div className="h-9 w-9 rounded-xl bg-accent flex items-center justify-center shrink-0"><Weight className="h-4.5 w-4.5 text-primary" /></div>
+              <div className="h-9 w-9 rounded-xl bg-accent flex items-center justify-center shrink-0"><Weight className="h-4 w-4 text-primary" /></div>
               <div className="min-w-0"><div className="text-[11px] text-muted-foreground">Weight</div><div className="font-bold text-sm truncate">{s.weight} kg</div></div>
             </div>
             <div className="surface-card p-3 flex items-center gap-2.5">
-              <div className="h-9 w-9 rounded-xl bg-accent flex items-center justify-center shrink-0"><Venus className="h-4.5 w-4.5 text-primary" /></div>
+              <div className="h-9 w-9 rounded-xl bg-accent flex items-center justify-center shrink-0"><Heart className="h-4 w-4 text-primary" /></div>
               <div className="min-w-0"><div className="text-[11px] text-muted-foreground">Gender</div><div className="font-bold text-sm truncate capitalize">{s.gender || '—'}</div></div>
             </div>
             <div className="surface-card p-3 flex items-center gap-2.5">
-              <div className="h-9 w-9 rounded-xl bg-accent flex items-center justify-center shrink-0"><History className="h-4.5 w-4.5 text-primary" /></div>
+              <div className="h-9 w-9 rounded-xl bg-accent flex items-center justify-center shrink-0"><History className="h-4 w-4 text-primary" /></div>
               <div className="min-w-0"><div className="text-[11px] text-muted-foreground">Total Stays</div><div className="font-bold text-sm truncate">{history.count}</div></div>
             </div>
           </div>
