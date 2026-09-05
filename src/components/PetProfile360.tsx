@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Dog, Owner, Boarding, Foster, VaccineRecord, MedicationRecord } from '@/types/boarding';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
