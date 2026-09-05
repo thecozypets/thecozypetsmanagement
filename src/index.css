@@ -119,13 +119,14 @@
 
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
+    font-weight: 700;
     letter-spacing: -0.01em;
   }
 }
 
 @layer utilities {
   .hover-lift {
-    @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-lg;
+    @apply transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[var(--shadow-soft)];
   }
   .hover-scale {
     @apply transition-transform duration-200 hover:scale-[1.02];
@@ -138,6 +139,18 @@
     background-size: 24px 24px;
   }
   .gradient-header {
-    background: linear-gradient(135deg, hsl(var(--primary) / 0.04) 0%, hsl(var(--background)) 60%);
+    background: linear-gradient(135deg, hsl(var(--primary) / 0.06) 0%, hsl(var(--card)) 65%);
+  }
+  .surface-card {
+    @apply bg-card border border-border rounded-2xl shadow-[var(--shadow-soft)];
   }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
