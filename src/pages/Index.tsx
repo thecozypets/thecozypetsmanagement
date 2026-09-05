@@ -83,8 +83,9 @@ const Index = () => {
               <PawPrint className="h-7 w-7 sm:h-8 sm:w-8 text-primary shrink-0 relative" />
             </motion.div>
             <div className="min-w-0">
-              <h1 className="font-bold text-foreground text-lg sm:text-2xl font-serif truncate">The Cozy Pets</h1>
+              <h1 className="font-bold text-foreground text-lg sm:text-2xl font-display truncate tracking-tight">The Cozy Pets</h1>
               <p className="text-[10px] sm:text-xs text-muted-foreground hidden sm:flex items-center gap-1"><Bone className="h-3 w-3" /> Pet Boarding & Foster Care</p>
+
             </div>
           </motion.div>
           <div className="flex items-center gap-1 shrink-0">
