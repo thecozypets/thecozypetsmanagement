@@ -301,7 +301,7 @@ export default function DashboardKpis({ owners, dogs, boardings, fosters, totalK
 
         <Card className="border-border/60">
           <CardContent className="p-4">
-            <h3 className="font-display font-semibold text-sm mb-3">Occupancy Trend (14d)</h3>
+            <h3 className="font-display font-semibold text-sm mb-3">{isSingleMonth ? 'Occupancy (by day)' : 'Occupancy Trend (14d)'}</h3>
             <ResponsiveContainer width="100%" height={220}>
               <LineChart data={occupancyTrend}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
@@ -333,7 +333,7 @@ export default function DashboardKpis({ owners, dogs, boardings, fosters, totalK
 
         <Card className="border-border/60">
           <CardContent className="p-4">
-            <h3 className="font-display font-semibold text-sm mb-3">New Customers / Month</h3>
+            <h3 className="font-display font-semibold text-sm mb-3">{isSingleMonth ? 'New Customers (by day)' : 'New Customers / Month'}</h3>
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={newCustomers}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
