@@ -201,8 +201,8 @@ export default function Dashboard({ owners, dogs, boardings, fosters, fosterOwne
           </Card>
           <Card className="cursor-pointer hover-scale hover:ring-1 hover:ring-primary/50 transition-all" onClick={() => setDrilldown(keys.dogs)}>
             <CardContent className="p-3 text-center">
-              <PawPrint className="h-4 w-4 mx-auto mb-1 text-accent/70" />
-              <p className="font-display text-xl font-bold text-accent">{dogCount}</p>
+              <PawPrint className="h-4 w-4 mx-auto mb-1 text-primary/70" />
+              <p className="font-display text-xl font-bold text-primary">{dogCount}</p>
               <p className="text-xs text-muted-foreground">Pets</p>
             </CardContent>
           </Card>
