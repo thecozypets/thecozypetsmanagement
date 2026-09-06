@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { PawPrint, Plus, Trash2, Save, ShieldCheck, Stethoscope, Utensils, Smile, Phone, History, Cake, Weight, Heart, User } from 'lucide-react';
+import { PawPrint, Plus, Trash2, Save, ShieldCheck, Stethoscope, Utensils, Smile, Phone, History, Cake, Weight, Heart, User, Camera } from 'lucide-react';
 import { calcBilling } from '@/lib/billing';
 
 interface Props {
@@ -43,6 +43,7 @@ const expiryBadge = (expiry: string) => {
 
 export default function PetProfile360({ open, onOpenChange, dog, owner, boardings, fosters = [], onUpdate }: Props) {
   const [state, setState] = useState<Dog | null>(dog);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => { setState(dog); }, [dog?.id, open]);
 
