@@ -264,10 +264,29 @@ export default function DashboardKpis({ owners, dogs, boardings, fosters, totalK
       )}
 
       {/* Charts */}
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h3 className="font-display font-semibold text-sm">Analytics · {periodLabel}</h3>
+        <Select value={period} onValueChange={setPeriod}>
+          <SelectTrigger className="w-full sm:w-[220px] h-9">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent className="max-h-72">
+            <SelectItem value="6m">Last 6 months</SelectItem>
+            <SelectItem value="12m">Last 12 months</SelectItem>
+            <SelectItem value="all">All time</SelectItem>
+            {[...allMonths].reverse().map(m => (
+              <SelectItem key={m} value={m}>
+                {new Date(m + '-01T00:00:00').toLocaleString('en-IN', { month: 'long', year: 'numeric' })}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
       <div className="grid lg:grid-cols-2 gap-4">
         <Card className="border-border/60">
           <CardContent className="p-4">
-            <h3 className="font-display font-semibold text-sm mb-3">Monthly Revenue</h3>
+            <h3 className="font-display font-semibold text-sm mb-3">{isSingleMonth ? 'Daily Revenue' : 'Revenue Trend'}</h3>
+
             <ResponsiveContainer width="100%" height={220}>
               <LineChart data={revenueByMonth}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
