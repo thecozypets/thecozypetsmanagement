@@ -77,68 +77,107 @@ export default function DashboardKpis({ owners, dogs, boardings, fosters, totalK
   }, [boardings, dogs, t, totalKennels]);
 
 
-  // Monthly Revenue (last 6 months)
-  const revenueByMonth = useMemo(() => {
-    const map = new Map<string, number>();
-    for (let i = 5; i >= 0; i--) {
-      const d = new Date(); d.setMonth(d.getMonth() - i);
-      map.set(monthKey(d), 0);
+  // ---- Period selection for charts ----
+  const [period, setPeriod] = useState<string>('6m');
+
+  const allMonths = useMemo(() => {
+    const set = new Set<string>();
+    boardings.forEach(b => { if (b.checkInDate) set.add(monthKey(b.checkOutDate || b.checkInDate)); });
+    owners.forEach(o => { if (o.createdAt) set.add(monthKey(o.createdAt)); });
+    set.add(monthKey(new Date()));
+    return [...set].filter(Boolean).sort();
+  }, [boardings, owners]);
+
+  const isSingleMonth = /^\d{4}-\d{2}$/.test(period);
+
+  // Buckets: either months (range views) or days (single-month view)
+  const buckets = useMemo(() => {
+    if (isSingleMonth) {
+      const [y, m] = period.split('-').map(Number);
+      const days = new Date(y, m, 0).getDate();
+      return Array.from({ length: days }, (_, i) => {
+        const key = `${period}-${String(i + 1).padStart(2, '0')}`;
+        return { key, label: String(i + 1) };
+      });
     }
+    let months: string[];
+    if (period === 'all') {
+      months = allMonths;
+    } else {
+      const n = period === '12m' ? 12 : 6;
+      months = [];
+      for (let i = n - 1; i >= 0; i--) {
+        const d = new Date(); d.setDate(1); d.setMonth(d.getMonth() - i);
+        months.push(monthKey(d));
+      }
+    }
+    return months.map(m => ({ key: m, label: m.slice(2) }));
+  }, [period, allMonths, isSingleMonth]);
+
+  const keyOf = (date: string | undefined) => {
+    if (!date) return '';
+    return isSingleMonth ? String(date).slice(0, 10) : monthKey(date);
+  };
+
+  const periodLabel = isSingleMonth
+    ? new Date(period + '-01T00:00:00').toLocaleString('en-IN', { month: 'long', year: 'numeric' })
+    : period === 'all' ? 'All time' : period === '12m' ? 'Last 12 months' : 'Last 6 months';
+
+  // Revenue per bucket
+  const revenueByMonth = useMemo(() => {
+    const map = new Map(buckets.map(b => [b.key, 0]));
     boardings.forEach(b => {
       if (b.status === 'cancelled') return;
-      const key = monthKey(b.checkOutDate || b.checkInDate);
+      const key = keyOf(b.checkOutDate || b.checkInDate);
       if (map.has(key)) map.set(key, (map.get(key) || 0) + calcBilling(b).total);
     });
-    return [...map.entries()].map(([m, v]) => ({ month: m.slice(5), Revenue: Math.round(v) }));
-  }, [boardings]);
+    return buckets.map(b => ({ month: b.label, Revenue: Math.round(map.get(b.key) || 0) }));
+  }, [boardings, buckets, isSingleMonth]);
 
-  // Boarding vs Daycare (last 6 months)
+  // Boarding vs Daycare per bucket
   const boardingVsDaycare = useMemo(() => {
-    const map = new Map<string, { Boarding: number; Daycare: number }>();
-    for (let i = 5; i >= 0; i--) {
-      const d = new Date(); d.setMonth(d.getMonth() - i);
-      map.set(monthKey(d), { Boarding: 0, Daycare: 0 });
-    }
+    const map = new Map(buckets.map(b => [b.key, { Boarding: 0, Daycare: 0 }]));
     boardings.forEach(b => {
-      const key = monthKey(b.checkInDate);
-      if (!map.has(key)) return;
-      const bill = calcBilling(b);
-      const row = map.get(key)!;
-      row.Boarding += bill.nights;
+      const key = keyOf(b.checkInDate);
+      const row = map.get(key);
+      if (!row) return;
+      row.Boarding += calcBilling(b).nights;
       if (b.lastDayCharge === 'daycare') row.Daycare += 1;
     });
-    return [...map.entries()].map(([m, v]) => ({ month: m.slice(5), ...v }));
-  }, [boardings]);
+    return buckets.map(b => ({ month: b.label, ...(map.get(b.key) as { Boarding: number; Daycare: number }) }));
+  }, [boardings, buckets, isSingleMonth]);
 
-  // New customers per month (last 6)
+  // New customers per bucket
   const newCustomers = useMemo(() => {
-    const map = new Map<string, number>();
-    for (let i = 5; i >= 0; i--) {
-      const d = new Date(); d.setMonth(d.getMonth() - i);
-      map.set(monthKey(d), 0);
-    }
+    const map = new Map(buckets.map(b => [b.key, 0]));
     owners.forEach(o => {
-      const key = monthKey(o.createdAt);
+      const key = keyOf(o.createdAt);
       if (map.has(key)) map.set(key, (map.get(key) || 0) + 1);
     });
-    return [...map.entries()].map(([m, v]) => ({ month: m.slice(5), Customers: v }));
-  }, [owners]);
+    return buckets.map(b => ({ month: b.label, Customers: map.get(b.key) || 0 }));
+  }, [owners, buckets, isSingleMonth]);
 
-  // Occupancy trend last 14 days
+  // Occupancy trend: days of selected month, else last 14 days
   const occupancyTrend = useMemo(() => {
-    const out: { day: string; Occupied: number }[] = [];
-    for (let i = 13; i >= 0; i--) {
-      const d = new Date(); d.setDate(d.getDate() - i);
-      const iso = d.toISOString().slice(0, 10);
-      const occupied = boardings.filter(b =>
+    const days: string[] = [];
+    if (isSingleMonth) {
+      buckets.forEach(b => days.push(b.key));
+    } else {
+      for (let i = 13; i >= 0; i--) {
+        const d = new Date(); d.setDate(d.getDate() - i);
+        days.push(d.toISOString().slice(0, 10));
+      }
+    }
+    return days.map(iso => ({
+      day: isSingleMonth ? iso.slice(8) : iso.slice(5),
+      Occupied: boardings.filter(b =>
         b.status !== 'cancelled' &&
         b.checkInDate <= iso &&
         (b.checkOutDate || iso) >= iso
-      ).length;
-      out.push({ day: iso.slice(5), Occupied: occupied });
-    }
-    return out;
-  }, [boardings]);
+      ).length,
+    }));
+  }, [boardings, buckets, isSingleMonth]);
+
 
   const kpis: { label: string; value: string | number; icon: any; tone: string; bg: string; drill: KpiDrill }[] = [
     { label: 'Currently Boarding', value: stats.active.length, icon: CalendarCheck, tone: 'text-primary', bg: 'bg-primary/10', drill: { title: 'Currently Boarding', boardings: stats.active } },
