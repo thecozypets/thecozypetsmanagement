@@ -48,6 +48,8 @@ const monthKey = (date: string | Date) => {
 };
 const stayDays = (start: string, end: string) => Math.max(1, Math.round((new Date(`${end}T12:00:00`).getTime() - new Date(`${start}T12:00:00`).getTime()) / DAY));
 const money = (value: number) => `₹${Math.round(value).toLocaleString('en-IN')}`;
+// Dashboard revenue is cash actually received, not the booking's invoiced total.
+const receivedRevenue = (stay: Boarding | Foster) => Math.max(0, Number(stay.paidAmount) || 0);
 const statusLabel = (status: string) => status === 'checked-in' ? 'Checked in' : status === 'checked-out' ? 'Completed' : status === 'reserved' ? 'Reserved' : 'Cancelled';
 const statusClass = (status: string) => status === 'checked-in'
   ? 'bg-success/15 text-success border-success/30'
@@ -88,12 +90,12 @@ export default function Dashboard({
     const valid = allStays.filter(s => s.status !== 'cancelled');
     const boardingValid = boardings.filter(b => b.status !== 'cancelled');
     const fosterValid = fosters.filter(f => f.status !== 'cancelled');
-    const boardingRevenue = boardingValid.reduce((sum, stay) => sum + calcBilling(stay).total, 0);
-    const fosterRevenue = fosterValid.reduce((sum, stay) => sum + calcBilling(stay).total, 0);
+    const boardingRevenue = boardingValid.reduce((sum, stay) => sum + receivedRevenue(stay), 0);
+    const fosterRevenue = fosterValid.reduce((sum, stay) => sum + receivedRevenue(stay), 0);
     const currentMonth = monthKey(new Date());
     const previousDate = new Date(); previousDate.setMonth(previousDate.getMonth() - 1);
     const previousMonth = monthKey(previousDate);
-    const monthRevenue = (key: string) => valid.filter(s => monthKey(s.checkOutDate || s.checkInDate) === key).reduce((sum, stay) => sum + calcBilling(stay).total, 0);
+    const monthRevenue = (key: string) => valid.filter(s => monthKey(s.checkOutDate || s.checkInDate) === key).reduce((sum, stay) => sum + receivedRevenue(stay), 0);
     const active = valid.filter(s => s.status === 'checked-in' || (s.checkInDate <= today && s.checkOutDate >= today && s.status === 'reserved'));
     const checkIns = valid.filter(s => s.checkInDate === today);
     const checkOuts = valid.filter(s => s.checkOutDate === today);
@@ -125,7 +127,7 @@ export default function Dashboard({
 
   const revenueTrend = useMemo(() => lastSixMonths.map(month => ({
     month: month.label,
-    Revenue: Math.round(allStays.filter(s => s.status !== 'cancelled' && monthKey(s.checkOutDate || s.checkInDate) === month.key).reduce((sum, s) => sum + calcBilling(s).total, 0)),
+    Revenue: Math.round(allStays.filter(s => s.status !== 'cancelled' && monthKey(s.checkOutDate || s.checkInDate) === month.key).reduce((sum, s) => sum + receivedRevenue(s), 0)),
   })), [allStays, lastSixMonths]);
 
   const customerTrend = useMemo(() => lastSixMonths.map(month => ({
@@ -158,7 +160,7 @@ export default function Dashboard({
   ].filter(Boolean) as { label: string; icon: typeof AlertTriangle; action: () => void }[];
 
   const kpis = [
-    { label: 'Revenue (all-time)', value: money(metrics.totalRevenue), subtext: `Boarding ${money(metrics.boardingRevenue)} · Foster ${money(metrics.fosterRevenue)}`, icon: IndianRupee },
+    { label: 'Revenue received (all-time)', value: money(metrics.totalRevenue), subtext: `Boarding ${money(metrics.boardingRevenue)} · Foster ${money(metrics.fosterRevenue)}`, icon: IndianRupee },
     { label: 'Revenue (this month)', value: money(metrics.thisMonth), subtext: `vs ${money(metrics.lastMonth)} last month`, icon: TrendingUp },
     { label: 'Occupancy', value: `${metrics.active.length} / ${capacity} spots`, subtext: `${Math.min(100, Math.round((metrics.active.length / capacity) * 100))}% filled`, icon: PawPrint, progress: Math.min(100, (metrics.active.length / capacity) * 100) },
     { label: 'Check-ins / check-outs today', value: `${metrics.checkIns.length} / ${metrics.checkOuts.length}`, subtext: `${metrics.upcoming.length} upcoming in 7 days`, icon: CalendarDays },
