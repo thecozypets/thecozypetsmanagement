@@ -61,18 +61,6 @@ export default function CompanySettingsForm() {
           </div>
 
           <div>
-            <Label>Kennel Capacity</Label>
-            <Input
-              type="number"
-              min={1}
-              value={form.kennelCapacity}
-              onChange={e => setForm(f => ({ ...f, kennelCapacity: Math.max(1, Number(e.target.value) || 1) }))}
-              className="max-w-40"
-            />
-            <p className="text-xs text-muted-foreground mt-1">Total spots available for boarding and foster care</p>
-          </div>
-
-          <div>
             <Label>Address</Label>
             <Textarea value={form.companyAddress} onChange={e => setForm(f => ({ ...f, companyAddress: e.target.value }))} placeholder="123 Pet Street, Mumbai, Maharashtra 400001" rows={2} />
           </div>
