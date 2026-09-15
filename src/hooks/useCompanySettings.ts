@@ -11,6 +11,7 @@ export interface CompanySettings {
   logoUrl: string;
   gstNumber: string;
   whatsappNumber: string;
+  kennelCapacity: number;
 }
 
 const defaults: CompanySettings = {
@@ -21,6 +22,7 @@ const defaults: CompanySettings = {
   logoUrl: '',
   gstNumber: '',
   whatsappNumber: '',
+  kennelCapacity: 10,
 };
 
 export function useCompanySettings() {
@@ -40,6 +42,7 @@ export function useCompanySettings() {
         logoUrl: data.logo_url || '',
         gstNumber: data.gst_number || '',
         whatsappNumber: (data as any).whatsapp_number || '',
+        kennelCapacity: Math.max(1, Number((data as any).kennel_capacity) || 10),
       });
     }
     setLoading(false);
@@ -59,6 +62,7 @@ export function useCompanySettings() {
       logo_url: s.logoUrl,
       gst_number: s.gstNumber,
       whatsapp_number: s.whatsappNumber,
+      kennel_capacity: Math.max(1, Number(s.kennelCapacity) || 10),
       user_id: user.id,
       updated_at: new Date().toISOString(),
     };

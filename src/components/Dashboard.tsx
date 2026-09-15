@@ -1,19 +1,21 @@
-import { useState } from 'react';
-import { Dog, Owner, Boarding, BoardingStatus, Foster } from '@/types/boarding';
-import { Card, CardContent } from '@/components/ui/card';
+import { useMemo, useState } from 'react';
+import { Boarding, Dog, Foster, Owner, VaccineRecord } from '@/types/boarding';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { Users, PawPrint, CalendarCheck, DollarSign, Phone, Mail, Heart } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import {
+  AlertTriangle, ArrowDownLeft, ArrowUpRight, CalendarDays, Clock3, Dog as DogIcon,
+  FileText, IndianRupee, LineChart as LineChartIcon, PawPrint, Plus, ReceiptIndianRupee,
+  ShieldAlert, TrendingUp, UserPlus, Users,
+} from 'lucide-react';
 import { motion } from 'framer-motion';
+import {
+  ResponsiveContainer, LineChart, Line, BarChart, Bar, XAxis, YAxis,
+  Tooltip, CartesianGrid,
+} from 'recharts';
 import { calcBilling } from '@/lib/billing';
-import DashboardKpis, { KpiDrill } from './DashboardKpis';
-
-const statusColors: Record<BoardingStatus, string> = {
-  'reserved': 'bg-warning/20 text-warning-foreground border-warning/30',
-  'checked-in': 'bg-success/20 text-success-foreground border-success/30',
-  'checked-out': 'bg-muted text-muted-foreground',
-  'cancelled': 'bg-destructive/20 text-destructive border-destructive/30',
-};
+import { useCompanySettings } from '@/hooks/useCompanySettings';
 
 interface Props {
   owners: Owner[];
@@ -30,298 +32,244 @@ interface Props {
   onQuickAction?: (a: 'booking' | 'customer' | 'pet' | 'invoice' | 'calendar' | 'reports') => void;
 }
 
-type DrilldownType = 'b-owners' | 'b-dogs' | 'f-owners' | 'f-dogs' | 'b-active' | 'b-revenue' | 'b-reserved' | 'b-completed' | 'b-cancelled' | 'f-active' | 'f-revenue' | 'f-reserved' | 'f-completed' | 'f-cancelled' | null;
+type Stay = (Boarding | Foster) & { kind: 'Boarding' | 'Foster'; petName: string; ownerName: string; scope: 'boarding' | 'foster' };
+type AttentionItem = { id: string; kind: 'vaccine' | 'payment'; title: string; detail: string; sort: number; petId?: string; scope: 'boarding' | 'foster' };
 
-export default function Dashboard({ owners, dogs, boardings, fosters, fosterOwners, fosterDogs, onClickOwner, onClickDog, onClickBoarding, onClickFosterOwner, onClickFosterDog, onQuickAction }: Props) {
-  const [drilldown, setDrilldown] = useState<DrilldownType>(null);
-  const [kpiDrill, setKpiDrill] = useState<KpiDrill | null>(null);
+const DAY = 86_400_000;
+const isoToday = () => new Date().toISOString().slice(0, 10);
+const addDays = (date: string, count: number) => {
+  const value = new Date(`${date}T12:00:00`);
+  value.setDate(value.getDate() + count);
+  return value.toISOString().slice(0, 10);
+};
+const monthKey = (date: string | Date) => {
+  const value = typeof date === 'string' ? new Date(`${date.slice(0, 10)}T12:00:00`) : date;
+  return `${value.getFullYear()}-${String(value.getMonth() + 1).padStart(2, '0')}`;
+};
+const stayDays = (start: string, end: string) => Math.max(1, Math.round((new Date(`${end}T12:00:00`).getTime() - new Date(`${start}T12:00:00`).getTime()) / DAY));
+const money = (value: number) => `₹${Math.round(value).toLocaleString('en-IN')}`;
+const statusLabel = (status: string) => status === 'checked-in' ? 'Checked in' : status === 'checked-out' ? 'Completed' : status === 'reserved' ? 'Reserved' : 'Cancelled';
+const statusClass = (status: string) => status === 'checked-in'
+  ? 'bg-success/15 text-success border-success/30'
+  : status === 'checked-out'
+    ? 'bg-warning/20 text-warning-foreground border-warning/40'
+    : status === 'reserved'
+      ? 'bg-muted text-muted-foreground border-border'
+      : 'bg-destructive/15 text-destructive border-destructive/30';
 
+export default function Dashboard({
+  owners, dogs, boardings, fosters, fosterOwners, fosterDogs,
+  onClickDog, onClickBoarding, onClickFosterDog, onQuickAction,
+}: Props) {
+  const { settings } = useCompanySettings();
+  const capacity = Math.max(1, settings.kennelCapacity || 10);
+  const today = isoToday();
+  const tomorrow = addDays(today, 1);
+  const weekEnd = addDays(today, 7);
+  const [detail, setDetail] = useState<{ title: string; stays?: Stay[]; vaccines?: AttentionItem[] } | null>(null);
 
-  const bActive = boardings.filter(b => b.status === 'checked-in');
-  const bReserved = boardings.filter(b => b.status === 'reserved');
-  const bCompleted = boardings.filter(b => b.status === 'checked-out');
-  const bCancelled = boardings.filter(b => b.status === 'cancelled');
-  const bPaid = boardings.filter(b => b.status !== 'cancelled');
-  const bRevenue = bPaid.reduce((s, b) => s + calcBilling(b).total, 0);
-  const bPaidAmt = bPaid.reduce((s, b) => s + calcBilling(b).paid, 0);
+  const allStays = useMemo<Stay[]>(() => [
+    ...boardings.map(b => ({ ...b, kind: 'Boarding' as const, scope: 'boarding' as const, petName: dogs.find(d => d.id === b.dogId)?.name || 'Unknown pet', ownerName: owners.find(o => o.id === b.ownerId)?.name || 'Unknown owner' })),
+    ...fosters.map(f => ({ ...f, kind: 'Foster' as const, scope: 'foster' as const, petName: fosterDogs.find(d => d.id === f.dogId)?.name || 'Unknown pet', ownerName: fosterOwners.find(o => o.id === f.ownerId)?.name || 'Unknown owner' })),
+  ], [boardings, fosters, dogs, fosterDogs, owners, fosterOwners]);
 
-  const fActive = fosters.filter(f => f.status === 'checked-in');
-  const fReserved = fosters.filter(f => f.status === 'reserved');
-  const fCompleted = fosters.filter(f => f.status === 'checked-out');
-  const fCancelled = fosters.filter(f => f.status === 'cancelled');
-  const fPaid = fosters.filter(f => f.status !== 'cancelled');
-  const fRevenue = fPaid.reduce((s, f) => s + calcBilling(f).total, 0);
-  const fPaidAmt = fPaid.reduce((s, f) => s + calcBilling(f).paid, 0);
+  const vaccineItems = useMemo<AttentionItem[]>(() => {
+    const collect = (pets: Dog[], scope: 'boarding' | 'foster') => pets.flatMap(pet => (pet.vaccines || [])
+      .filter((v: VaccineRecord) => Boolean(v.expiry))
+      .map((v: VaccineRecord) => ({
+        id: `${scope}-${pet.id}-${v.name}-${v.expiry}`, kind: 'vaccine' as const,
+        title: `${pet.name} · ${v.name}`, detail: v.expiry < today ? `Expired ${v.expiry}` : `Due ${v.expiry}`,
+        sort: new Date(`${v.expiry}T12:00:00`).getTime(), petId: pet.id, scope,
+      })));
+    return [...collect(dogs, 'boarding'), ...collect(fosterDogs, 'foster')].sort((a, b) => a.sort - b.sort);
+  }, [dogs, fosterDogs, today]);
 
-  const getDogName = (id: string, list: Dog[]) => list.find(d => d.id === id)?.name || 'Unknown';
-  const getOwnerName = (id: string, list: Owner[]) => list.find(o => o.id === id)?.name || 'Unknown';
+  const metrics = useMemo(() => {
+    const valid = allStays.filter(s => s.status !== 'cancelled');
+    const boardingValid = boardings.filter(b => b.status !== 'cancelled');
+    const fosterValid = fosters.filter(f => f.status !== 'cancelled');
+    const boardingRevenue = boardingValid.reduce((sum, stay) => sum + calcBilling(stay).total, 0);
+    const fosterRevenue = fosterValid.reduce((sum, stay) => sum + calcBilling(stay).total, 0);
+    const currentMonth = monthKey(new Date());
+    const previousDate = new Date(); previousDate.setMonth(previousDate.getMonth() - 1);
+    const previousMonth = monthKey(previousDate);
+    const monthRevenue = (key: string) => valid.filter(s => monthKey(s.checkOutDate || s.checkInDate) === key).reduce((sum, stay) => sum + calcBilling(stay).total, 0);
+    const active = valid.filter(s => s.status === 'checked-in' || (s.checkInDate <= today && s.checkOutDate >= today && s.status === 'reserved'));
+    const checkIns = valid.filter(s => s.checkInDate === today);
+    const checkOuts = valid.filter(s => s.checkOutDate === today);
+    const upcoming = valid.filter(s => s.checkInDate > today && s.checkInDate <= weekEnd);
+    const completedBoardings = boardingValid.filter(b => b.status === 'checked-out');
+    const averageStay = completedBoardings.length ? completedBoardings.reduce((sum, b) => sum + stayDays(b.checkInDate, b.checkOutDate), 0) / completedBoardings.length : 0;
+    const occupiedDays = valid.reduce((sum, stay) => sum + stayDays(stay.checkInDate, stay.checkOutDate), 0);
+    const recentStart = addDays(today, -30);
+    const recentBookings = valid.filter(s => s.checkInDate >= recentStart && s.checkInDate <= today);
+    const repeatCount = recentBookings.filter(stay => valid.some(previous => previous.ownerId === stay.ownerId && previous.scope === stay.scope && previous.checkInDate < stay.checkInDate)).length;
+    const pending = valid.filter(s => calcBilling(s).remaining > 0);
+    const pendingTotal = pending.reduce((sum, stay) => sum + calcBilling(stay).remaining, 0);
+    const tomorrowCheckouts = valid.filter(s => s.checkOutDate === tomorrow);
+    return {
+      boardingRevenue, fosterRevenue, totalRevenue: boardingRevenue + fosterRevenue,
+      thisMonth: monthRevenue(currentMonth), lastMonth: monthRevenue(previousMonth), active, checkIns, checkOuts, upcoming,
+      averageStay, revenuePerDay: occupiedDays ? (boardingRevenue + fosterRevenue) / occupiedDays : 0,
+      repeatRate: recentBookings.length ? Math.round((repeatCount / recentBookings.length) * 100) : 0,
+      pending, pendingTotal, tomorrowCheckouts,
+    };
+  }, [allStays, boardings, fosters, today, tomorrow, weekEnd]);
 
-  const drilldownTitle: Record<string, string> = {
-    'b-owners': 'Boarding Owners', 'b-dogs': 'Boarding Dogs',
-    'f-owners': 'Foster Owners', 'f-dogs': 'Foster Dogs/Cats',
-    'b-active': 'Active Boardings', 'b-revenue': 'Boarding Revenue',
-    'b-reserved': 'Reserved Boardings', 'b-completed': 'Completed Boardings', 'b-cancelled': 'Cancelled Boardings',
-    'f-active': 'Active Fosters', 'f-revenue': 'Foster Revenue',
-    'f-reserved': 'Reserved Fosters', 'f-completed': 'Completed Fosters', 'f-cancelled': 'Cancelled Fosters',
+  const expiringThisWeek = vaccineItems.filter(item => item.detail.startsWith('Due') && item.sort <= new Date(`${weekEnd}T23:59:59`).getTime());
+
+  const lastSixMonths = useMemo(() => Array.from({ length: 6 }, (_, index) => {
+    const date = new Date(); date.setDate(1); date.setMonth(date.getMonth() - (5 - index));
+    return { key: monthKey(date), label: date.toLocaleString('en-IN', { month: 'short' }) };
+  }), []);
+
+  const revenueTrend = useMemo(() => lastSixMonths.map(month => ({
+    month: month.label,
+    Revenue: Math.round(allStays.filter(s => s.status !== 'cancelled' && monthKey(s.checkOutDate || s.checkInDate) === month.key).reduce((sum, s) => sum + calcBilling(s).total, 0)),
+  })), [allStays, lastSixMonths]);
+
+  const customerTrend = useMemo(() => lastSixMonths.map(month => ({
+    month: month.label,
+    Customers: [...owners, ...fosterOwners].filter(owner => monthKey(owner.createdAt) === month.key).length,
+  })), [owners, fosterOwners, lastSixMonths]);
+
+  const occupancyTrend = useMemo(() => Array.from({ length: 14 }, (_, index) => {
+    const date = addDays(today, index - 13);
+    return {
+      day: date.slice(5),
+      Occupied: allStays.filter(s => s.status !== 'cancelled' && s.checkInDate <= date && s.checkOutDate >= date).length,
+    };
+  }), [allStays, today]);
+
+  const attentionItems = useMemo<AttentionItem[]>(() => {
+    const renewals = vaccineItems.filter(item => item.sort <= new Date(`${addDays(today, 30)}T23:59:59`).getTime());
+    const payments = metrics.pending.filter(stay => stay.checkOutDate < today).map(stay => ({
+      id: `payment-${stay.scope}-${stay.id}`, kind: 'payment' as const, title: stay.ownerName,
+      detail: `${money(calcBilling(stay).remaining)} · Overdue`, sort: new Date(`${stay.checkOutDate}T12:00:00`).getTime(), scope: stay.scope,
+    }));
+    return [...renewals, ...payments].sort((a, b) => a.sort - b.sort).slice(0, 8);
+  }, [vaccineItems, metrics.pending, today]);
+
+  const recentActivity = [...allStays].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 8);
+  const alerts = [
+    expiringThisWeek.length ? { label: `${expiringThisWeek.length} vaccine${expiringThisWeek.length === 1 ? '' : 's'} expiring this week`, icon: ShieldAlert, action: () => setDetail({ title: 'Vaccines expiring this week', vaccines: expiringThisWeek }) } : null,
+    metrics.pendingTotal > 0 ? { label: `${money(metrics.pendingTotal)} in pending payments`, icon: ReceiptIndianRupee, action: () => setDetail({ title: 'Pending payments', stays: metrics.pending }) } : null,
+    metrics.tomorrowCheckouts.length ? { label: `${metrics.tomorrowCheckouts.length} check-out${metrics.tomorrowCheckouts.length === 1 ? '' : 's'} due tomorrow`, icon: Clock3, action: () => setDetail({ title: 'Check-outs due tomorrow', stays: metrics.tomorrowCheckouts }) } : null,
+  ].filter(Boolean) as { label: string; icon: typeof AlertTriangle; action: () => void }[];
+
+  const kpis = [
+    { label: 'Revenue (all-time)', value: money(metrics.totalRevenue), subtext: `Boarding ${money(metrics.boardingRevenue)} · Foster ${money(metrics.fosterRevenue)}`, icon: IndianRupee },
+    { label: 'Revenue (this month)', value: money(metrics.thisMonth), subtext: `vs ${money(metrics.lastMonth)} last month`, icon: TrendingUp },
+    { label: 'Occupancy', value: `${metrics.active.length} / ${capacity} spots`, subtext: `${Math.min(100, Math.round((metrics.active.length / capacity) * 100))}% filled`, icon: PawPrint, progress: Math.min(100, (metrics.active.length / capacity) * 100) },
+    { label: 'Check-ins / check-outs today', value: `${metrics.checkIns.length} / ${metrics.checkOuts.length}`, subtext: `${metrics.upcoming.length} upcoming in 7 days`, icon: CalendarDays },
+    { label: 'Avg stay length', value: `${metrics.averageStay.toFixed(1)} days`, subtext: `${money(metrics.revenuePerDay)} revenue / occupied day`, icon: LineChartIcon },
+    { label: 'Repeat customers', value: `${metrics.repeatRate}%`, subtext: 'of last 30 days', icon: Users },
+  ];
+
+  const actions = [
+    { key: 'booking' as const, label: 'New Booking', icon: Plus }, { key: 'customer' as const, label: 'New Customer', icon: UserPlus },
+    { key: 'pet' as const, label: 'New Pet', icon: DogIcon }, { key: 'invoice' as const, label: 'Invoices', icon: FileText },
+    { key: 'calendar' as const, label: 'Calendar', icon: CalendarDays }, { key: 'reports' as const, label: 'Reports', icon: LineChartIcon },
+  ];
+
+  const openStay = (stay: Stay) => {
+    setDetail(null);
+    if (stay.scope === 'boarding') onClickBoarding(stay.id);
+    else onClickFosterDog(stay.dogId);
   };
-
-  const renderOwnerList = (list: Owner[], onClick: (id: string) => void) =>
-    list.length === 0 ? <p className="text-sm text-muted-foreground">No owners.</p> : (
-      <div className="space-y-2">
-        {list.map(o => (
-          <Card key={o.id} className="cursor-pointer hover:ring-1 hover:ring-primary/50 transition-all" onClick={() => { setDrilldown(null); onClick(o.id); }}>
-            <CardContent className="p-3">
-              <p className="font-display font-semibold">{o.name}</p>
-              <div className="flex gap-4 text-xs text-muted-foreground mt-1">
-                {o.phone && <span className="flex items-center gap-1"><Phone className="h-3 w-3" />{o.phone}</span>}
-                {o.email && <span className="flex items-center gap-1"><Mail className="h-3 w-3" />{o.email}</span>}
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    );
-
-  const renderDogList = (list: Dog[], ownerList: Owner[], onClick: (id: string) => void) =>
-    list.length === 0 ? <p className="text-sm text-muted-foreground">No pets.</p> : (
-      <div className="space-y-2">
-        {list.map(d => (
-          <Card key={d.id} className="cursor-pointer hover:ring-1 hover:ring-primary/50 transition-all" onClick={() => { setDrilldown(null); onClick(d.id); }}>
-            <CardContent className="p-3 flex items-center gap-3">
-              {d.photoUrl ? (
-                <img src={d.photoUrl} alt={d.name} className="h-10 w-10 rounded-full object-cover border border-border shrink-0" />
-              ) : (
-                <div className="h-10 w-10 rounded-full bg-secondary flex items-center justify-center shrink-0"><PawPrint className="h-4 w-4 text-muted-foreground" /></div>
-              )}
-              <div>
-                <p className="font-display font-semibold">{d.name}</p>
-                <p className="text-xs text-muted-foreground">{d.breed} · {d.age}y · Owner: {getOwnerName(d.ownerId, ownerList)}</p>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    );
-
-  const renderBookingList = (list: (Boarding | Foster)[], dogList: Dog[], ownerList: Owner[]) =>
-    list.length === 0 ? <p className="text-sm text-muted-foreground">No entries.</p> : (
-      <div className="space-y-2">
-        {list.map(b => {
-          const bill = calcBilling(b);
-          return (
-          <Card key={b.id} className="cursor-pointer hover:ring-1 hover:ring-primary/50 transition-all" onClick={() => { setDrilldown(null); setKpiDrill(null); onClickBoarding(b.id); }}>
-
-            <CardContent className="p-3">
-              <div className="flex justify-between items-start">
-                <div>
-                  <p className="font-semibold text-sm">🐕 {getDogName(b.dogId, dogList)}</p>
-                  <p className="text-xs text-muted-foreground">Owner: {getOwnerName(b.ownerId, ownerList)}</p>
-                  <p className="text-xs text-muted-foreground">{b.checkInDate} → {b.checkOutDate}</p>
-                </div>
-                <div className="text-right space-y-1">
-                  <Badge className={`text-xs ${statusColors[b.status]}`}>{b.status}</Badge>
-                  <p className="text-lg sm:text-base font-display font-extrabold text-primary">₹{bill.total.toFixed(2)}</p>
-                  <span className="inline-block px-2 py-0.5 rounded-md bg-success/15 text-success text-sm sm:text-xs font-bold">Paid ₹{bill.paid.toFixed(2)}</span>
-                  {bill.remaining > 0 && <span className="block sm:inline-block sm:ml-1 px-2 py-0.5 rounded-md bg-destructive/15 text-destructive text-sm sm:text-xs font-bold">Due ₹{bill.remaining.toFixed(2)}</span>}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        );})}
-      </div>
-    );
-
-  const renderRevenueList = (list: (Boarding | Foster)[], total: number, paid: number, dogList: Dog[]) => (
-    <div className="space-y-2">
-      <div className="space-y-1 px-1 mb-3">
-        <div className="flex justify-between font-display font-bold text-lg"><span>Total</span><span>₹{total.toFixed(2)}</span></div>
-        <div className="flex justify-between text-sm text-success"><span>Paid</span><span>₹{paid.toFixed(2)}</span></div>
-        <div className="flex justify-between text-sm text-destructive"><span>Outstanding</span><span>₹{(total - paid).toFixed(2)}</span></div>
-      </div>
-      {list.map(b => {
-        const bill = calcBilling(b);
-        return (
-        <Card key={b.id} className="cursor-pointer hover:ring-1 hover:ring-primary/50 transition-all" onClick={() => { setDrilldown(null); onClickBoarding(b.id); }}>
-          <CardContent className="p-3 flex justify-between items-center">
-            <div>
-              <p className="font-semibold text-sm">🐕 {getDogName(b.dogId, dogList)}</p>
-              <p className="text-xs text-muted-foreground">{b.checkInDate} → {b.checkOutDate}</p>
-            </div>
-            <div className="text-right space-y-1">
-              <p className="font-display font-extrabold text-lg sm:text-base text-primary">₹{bill.total.toFixed(2)}</p>
-              <span className="inline-block px-2 py-0.5 rounded-md bg-success/15 text-success text-sm sm:text-xs font-bold">Paid ₹{bill.paid.toFixed(2)}</span>
-              {bill.remaining > 0 && <span className="block sm:inline-block sm:ml-1 px-2 py-0.5 rounded-md bg-destructive/15 text-destructive text-sm sm:text-xs font-bold">Due ₹{bill.remaining.toFixed(2)}</span>}
-            </div>
-          </CardContent>
-        </Card>
-      );})}
-    </div>
-  );
-
-  const renderDrilldownContent = () => {
-    switch (drilldown) {
-      case 'b-owners': return renderOwnerList(owners, onClickOwner);
-      case 'b-dogs': return renderDogList(dogs, owners, onClickDog);
-      case 'f-owners': return renderOwnerList(fosterOwners, onClickFosterOwner);
-      case 'f-dogs': return renderDogList(fosterDogs, fosterOwners, onClickFosterDog);
-      case 'b-active': return renderBookingList(bActive, dogs, owners);
-      case 'b-reserved': return renderBookingList(bReserved, dogs, owners);
-      case 'b-completed': return renderBookingList(bCompleted, dogs, owners);
-      case 'b-cancelled': return renderBookingList(bCancelled, dogs, owners);
-      case 'b-revenue': return bPaid.length === 0 ? <p className="text-sm text-muted-foreground">No revenue.</p> : renderRevenueList(bPaid, bRevenue, bPaidAmt, dogs);
-      case 'f-active': return renderBookingList(fActive, fosterDogs, fosterOwners);
-      case 'f-reserved': return renderBookingList(fReserved, fosterDogs, fosterOwners);
-      case 'f-completed': return renderBookingList(fCompleted, fosterDogs, fosterOwners);
-      case 'f-cancelled': return renderBookingList(fCancelled, fosterDogs, fosterOwners);
-      case 'f-revenue': return fPaid.length === 0 ? <p className="text-sm text-muted-foreground">No revenue.</p> : renderRevenueList(fPaid, fRevenue, fPaidAmt, fosterDogs);
-      default: return null;
-    }
-  };
-
-  const renderSectionCard = (
-    title: string, icon: React.ReactNode,
-    ownerCount: number, dogCount: number,
-    active: number, revenue: number, reserved: number, completed: number, cancelled: number,
-    keys: { owners: DrilldownType; dogs: DrilldownType; active: DrilldownType; revenue: DrilldownType; reserved: DrilldownType; completed: DrilldownType; cancelled: DrilldownType }
-  ) => (
-    <Card className="hover-lift overflow-hidden relative">
-      <div className="absolute inset-0 paw-pattern opacity-50 pointer-events-none" />
-      <CardContent className="p-4 sm:p-5 relative">
-        <div className="flex items-center gap-2 mb-4 group">
-          <span className="icon-pop inline-flex">{icon}</span>
-          <h3 className="font-display font-bold text-lg">{title}</h3>
-        </div>
-        <div className="grid grid-cols-2 gap-3 mb-4">
-          <Card className="cursor-pointer hover-scale hover:ring-1 hover:ring-primary/50 transition-all" onClick={() => setDrilldown(keys.owners)}>
-            <CardContent className="p-3 text-center">
-              <Users className="h-4 w-4 mx-auto mb-1 text-primary/70" />
-              <p className="font-display text-xl font-bold text-primary">{ownerCount}</p>
-              <p className="text-xs text-muted-foreground">Owners</p>
-            </CardContent>
-          </Card>
-          <Card className="cursor-pointer hover-scale hover:ring-1 hover:ring-primary/50 transition-all" onClick={() => setDrilldown(keys.dogs)}>
-            <CardContent className="p-3 text-center">
-              <PawPrint className="h-4 w-4 mx-auto mb-1 text-primary/70" />
-              <p className="font-display text-xl font-bold text-primary">{dogCount}</p>
-              <p className="text-xs text-muted-foreground">Pets</p>
-            </CardContent>
-          </Card>
-          <Card className="cursor-pointer hover-scale hover:ring-1 hover:ring-primary/50 transition-all" onClick={() => setDrilldown(keys.active)}>
-            <CardContent className="p-3 text-center">
-              <CalendarCheck className="h-4 w-4 mx-auto mb-1 text-success/70" />
-              <p className="font-display text-xl font-bold text-success">{active}</p>
-              <p className="text-xs text-muted-foreground">Active</p>
-            </CardContent>
-          </Card>
-          <Card className="cursor-pointer hover-scale hover:ring-1 hover:ring-primary/50 transition-all" onClick={() => setDrilldown(keys.revenue)}>
-            <CardContent className="p-3 text-center">
-              <DollarSign className="h-4 w-4 mx-auto mb-1 text-primary/70" />
-              <p className="font-display text-xl font-bold text-primary">₹{revenue.toFixed(0)}</p>
-              <p className="text-xs text-muted-foreground">Revenue</p>
-            </CardContent>
-          </Card>
-        </div>
-        <div className="space-y-2">
-          {[
-            { label: 'Reserved', value: reserved, key: keys.reserved },
-            { label: 'Active', value: active, key: keys.active },
-            { label: 'Completed', value: completed, key: keys.completed },
-            { label: 'Cancelled', value: cancelled, key: keys.cancelled },
-          ].map(qs => (
-            <div key={qs.key as string} className="flex justify-between py-1.5 cursor-pointer hover:bg-muted/50 rounded px-2 -mx-2 transition-colors border-b border-border last:border-0" onClick={() => setDrilldown(qs.key)}>
-              <span className="text-sm text-muted-foreground">{qs.label}</span>
-              <span className="text-sm font-bold">{qs.value}</span>
-            </div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
-  );
 
   return (
     <div className="space-y-4 sm:space-y-6">
-      <div className="grid lg:grid-cols-2 gap-4 sm:gap-6">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-          {renderSectionCard('Boarding', <CalendarCheck className="h-5 w-5 text-primary" />,
-            owners.length, dogs.length, bActive.length, bRevenue, bReserved.length, bCompleted.length, bCancelled.length,
-            { owners: 'b-owners', dogs: 'b-dogs', active: 'b-active', revenue: 'b-revenue', reserved: 'b-reserved', completed: 'b-completed', cancelled: 'b-cancelled' }
-          )}
-        </motion.div>
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-          {renderSectionCard('Foster', <Heart className="h-5 w-5 text-destructive" />,
-            fosterOwners.length, fosterDogs.length, fActive.length, fRevenue, fReserved.length, fCompleted.length, fCancelled.length,
-            { owners: 'f-owners', dogs: 'f-dogs', active: 'f-active', revenue: 'f-revenue', reserved: 'f-reserved', completed: 'f-completed', cancelled: 'f-cancelled' }
-          )}
-        </motion.div>
-      </div>
+      {alerts.length > 0 && (
+        <div className="rounded-xl border border-destructive/30 bg-destructive/10 px-3 py-2.5 text-destructive" role="alert">
+          <div className="flex flex-col gap-1 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-5">
+            {alerts.map(alert => (
+              <Button key={alert.label} variant="ghost" className="h-auto justify-start gap-2 px-1.5 py-1 text-left text-destructive hover:bg-destructive/10 hover:text-destructive" onClick={alert.action}>
+                <alert.icon className="h-4 w-4 shrink-0" /><span className="text-sm font-semibold">{alert.label}</span>
+              </Button>
+            ))}
+          </div>
+        </div>
+      )}
 
-      <DashboardKpis
-        owners={owners} dogs={dogs} boardings={boardings} fosters={fosters}
-        onQuickAction={onQuickAction}
-        onDrill={setKpiDrill}
-      />
+      <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        {kpis.map((kpi, index) => (
+          <motion.div key={kpi.label} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.035 }}>
+            <Card className="h-full border-border/70">
+              <CardContent className="p-4 sm:p-5">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0"><p className="text-xs font-medium text-muted-foreground">{kpi.label}</p><p className="mt-1 font-display text-2xl font-extrabold text-foreground">{kpi.value}</p></div>
+                  <div className="rounded-lg bg-primary/10 p-2.5"><kpi.icon className="h-5 w-5 text-primary" /></div>
+                </div>
+                <p className="mt-2 text-xs text-muted-foreground">{kpi.subtext}</p>
+                {kpi.progress !== undefined && <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-muted"><div className="h-full rounded-full bg-primary transition-all" style={{ width: `${kpi.progress}%` }} /></div>}
+              </CardContent>
+            </Card>
+          </motion.div>
+        ))}
+      </section>
 
+      {onQuickAction && (
+        <section aria-label="Quick actions" className="flex gap-2 overflow-x-auto pb-1 sm:flex-wrap">
+          {actions.map(action => <Button key={action.key} variant="outline" className="shrink-0 gap-2 bg-card" onClick={() => onQuickAction(action.key)}><action.icon className="h-4 w-4 text-primary" />{action.label}</Button>)}
+        </section>
+      )}
 
-      {/* Recent Activity */}
-      <div className="grid lg:grid-cols-2 gap-4 sm:gap-6">
-        <Card>
-          <CardContent className="p-4 sm:p-5">
-            <h3 className="font-display font-bold text-lg mb-4">Recent Boardings</h3>
-            {boardings.length === 0 ? <p className="text-muted-foreground text-sm">No boardings yet</p> : (
-              <div className="space-y-3">
-                {[...boardings].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 5).map(b => (
-                  <div key={b.id} className="flex justify-between items-center py-2 border-b border-border last:border-0 cursor-pointer hover:bg-muted/50 rounded px-1 -mx-1 transition-colors" onClick={() => onClickBoarding(b.id)}>
-                    <div>
-                      <p className="font-medium">🐕 {getDogName(b.dogId, dogs)}</p>
-                      <p className="text-xs text-muted-foreground">{b.checkInDate} → {b.checkOutDate}</p>
-                    </div>
-                    <Badge className={`text-xs ${statusColors[b.status]}`}>{b.status}</Badge>
-                  </div>
-                ))}
-              </div>
-            )}
+      <section className="grid gap-4 lg:grid-cols-2">
+        <ChartCard title="Revenue trend" subtitle="Last 6 months">
+          <ResponsiveContainer width="100%" height={230}><LineChart data={revenueTrend}><CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" /><XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" fontSize={12} /><YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} /><Tooltip contentStyle={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: 8 }} formatter={(value: number) => money(value)} /><Line type="monotone" dataKey="Revenue" stroke="hsl(var(--primary))" strokeWidth={2.5} dot={{ r: 3 }} /></LineChart></ResponsiveContainer>
+        </ChartCard>
+        <ChartCard title="Occupancy trend" subtitle="Last 14 days">
+          <ResponsiveContainer width="100%" height={230}><LineChart data={occupancyTrend}><CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" /><XAxis dataKey="day" stroke="hsl(var(--muted-foreground))" fontSize={12} /><YAxis domain={[0, capacity]} stroke="hsl(var(--muted-foreground))" fontSize={12} allowDecimals={false} /><Tooltip contentStyle={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: 8 }} /><Line type="monotone" dataKey="Occupied" stroke="hsl(var(--primary))" strokeWidth={2.5} dot={false} /></LineChart></ResponsiveContainer>
+        </ChartCard>
+        <ChartCard title="New customers / month" subtitle="Last 6 months">
+          <ResponsiveContainer width="100%" height={230}><BarChart data={customerTrend}><CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" /><XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" fontSize={12} /><YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} allowDecimals={false} /><Tooltip contentStyle={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: 8 }} /><Bar dataKey="Customers" fill="hsl(var(--primary))" radius={[6, 6, 0, 0]} /></BarChart></ResponsiveContainer>
+        </ChartCard>
+      </section>
+
+      <section className="grid gap-4 lg:grid-cols-[3fr_2fr]">
+        <Card className="border-border/70">
+          <CardHeader className="pb-2"><CardTitle className="font-display text-lg">Recent activity</CardTitle></CardHeader>
+          <CardContent>
+            {recentActivity.length === 0 ? <EmptyState text="No recent activity." /> : <div className="divide-y divide-border">
+              {recentActivity.map(stay => <button key={`${stay.scope}-${stay.id}`} className="flex w-full items-center justify-between gap-3 py-3 text-left transition-colors hover:bg-muted/40" onClick={() => openStay(stay)}>
+                <div className="min-w-0"><p className="truncate text-sm font-semibold">{stay.petName} <span className="font-normal text-muted-foreground">· {stay.kind}</span></p><p className="mt-0.5 text-xs text-muted-foreground">{stay.checkInDate} → {stay.checkOutDate}</p></div>
+                <Badge variant="outline" className={`shrink-0 ${statusClass(stay.status)}`}>{statusLabel(stay.status)}</Badge>
+              </button>)}
+            </div>}
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="p-4 sm:p-5">
-            <h3 className="font-display font-bold text-lg mb-4">Recent Fosters</h3>
-            {fosters.length === 0 ? <p className="text-muted-foreground text-sm">No fosters yet</p> : (
-              <div className="space-y-3">
-                {[...fosters].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 5).map(f => (
-                  <div key={f.id} className="flex justify-between items-center py-2 border-b border-border last:border-0 cursor-pointer hover:bg-muted/50 rounded px-1 -mx-1 transition-colors" onClick={() => onClickFosterDog(f.dogId)}>
-                    <div>
-                      <p className="font-medium">{f.animalType === 'cat' ? '🐈' : '🐕'} {getDogName(f.dogId, fosterDogs)}</p>
-                      <p className="text-xs text-muted-foreground">{f.checkInDate} → {f.checkOutDate}</p>
-                    </div>
-                    <Badge className={`text-xs ${statusColors[f.status]}`}>{f.status}</Badge>
-                  </div>
-                ))}
-              </div>
-            )}
+
+        <Card className="border-border/70">
+          <CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 font-display text-lg"><AlertTriangle className="h-5 w-5 text-warning" />Needs attention</CardTitle></CardHeader>
+          <CardContent>
+            {attentionItems.length === 0 ? <EmptyState text="Nothing needs attention." /> : <div className="divide-y divide-border">
+              {attentionItems.map(item => <button key={item.id} className="flex w-full items-center gap-3 py-3 text-left transition-colors hover:bg-muted/40" onClick={() => item.kind === 'vaccine' && item.petId ? (item.scope === 'boarding' ? onClickDog(item.petId) : onClickFosterDog(item.petId)) : setDetail({ title: 'Overdue payments', stays: metrics.pending.filter(stay => stay.checkOutDate < today) })}>
+                <div className={`rounded-lg p-2 ${item.kind === 'vaccine' ? 'bg-warning/15 text-warning-foreground' : 'bg-destructive/10 text-destructive'}`}>{item.kind === 'vaccine' ? <ShieldAlert className="h-4 w-4" /> : <ReceiptIndianRupee className="h-4 w-4" />}</div>
+                <div className="min-w-0"><p className="truncate text-sm font-semibold">{item.title}</p><p className={`text-xs ${item.kind === 'payment' ? 'font-semibold text-destructive' : 'text-muted-foreground'}`}>{item.detail}</p></div>
+              </button>)}
+            </div>}
           </CardContent>
         </Card>
-      </div>
+      </section>
 
-      <Dialog open={!!drilldown} onOpenChange={(open) => { if (!open) setDrilldown(null); }}>
-        <DialogContent className="w-[95vw] max-w-lg max-h-[85vh] overflow-y-auto p-4 sm:p-6">
-          <DialogHeader>
-            <DialogTitle className="font-display text-base sm:text-lg">{drilldown ? drilldownTitle[drilldown] : ''}</DialogTitle>
-          </DialogHeader>
-          {renderDrilldownContent()}
+      <Dialog open={Boolean(detail)} onOpenChange={open => { if (!open) setDetail(null); }}>
+        <DialogContent className="max-h-[85vh] w-[95vw] max-w-xl overflow-y-auto">
+          <DialogHeader><DialogTitle className="font-display">{detail?.title}</DialogTitle></DialogHeader>
+          <div className="divide-y divide-border">
+            {detail?.stays?.map(stay => <button key={`${stay.scope}-${stay.id}`} className="flex w-full items-center justify-between gap-3 py-3 text-left hover:bg-muted/40" onClick={() => openStay(stay)}><div><p className="text-sm font-semibold">{stay.petName} · {stay.ownerName}</p><p className="text-xs text-muted-foreground">{stay.checkInDate} → {stay.checkOutDate}</p></div>{calcBilling(stay).remaining > 0 ? <span className="font-bold text-destructive">{money(calcBilling(stay).remaining)}</span> : <ArrowUpRight className="h-4 w-4 text-muted-foreground" />}</button>)}
+            {detail?.vaccines?.map(item => <button key={item.id} className="flex w-full items-center justify-between gap-3 py-3 text-left hover:bg-muted/40" onClick={() => item.petId && (item.scope === 'boarding' ? onClickDog(item.petId) : onClickFosterDog(item.petId))}><div><p className="text-sm font-semibold">{item.title}</p><p className="text-xs text-muted-foreground">{item.detail}</p></div><ArrowDownLeft className="h-4 w-4 text-muted-foreground" /></button>)}
+          </div>
         </DialogContent>
       </Dialog>
-
-      <Dialog open={!!kpiDrill} onOpenChange={(open) => { if (!open) setKpiDrill(null); }}>
-        <DialogContent className="w-[95vw] max-w-lg max-h-[85vh] overflow-y-auto p-4 sm:p-6">
-          <DialogHeader>
-            <DialogTitle className="font-display text-base sm:text-lg">{kpiDrill?.title || ''}</DialogTitle>
-          </DialogHeader>
-          {kpiDrill?.dogs
-            ? renderDogList(kpiDrill.dogs, owners, (id) => { setKpiDrill(null); onClickDog(id); })
-            : renderBookingList(kpiDrill?.boardings || [], dogs, owners)}
-        </DialogContent>
-      </Dialog>
-
     </div>
   );
+}
+
+function ChartCard({ title, subtitle, children }: { title: string; subtitle: string; children: React.ReactNode }) {
+  return <Card className="border-border/70"><CardHeader className="pb-0"><div className="flex items-baseline justify-between gap-2"><CardTitle className="font-display text-base">{title}</CardTitle><span className="text-xs text-muted-foreground">{subtitle}</span></div></CardHeader><CardContent className="px-2 pb-3 pt-3 sm:px-4">{children}</CardContent></Card>;
+}
+
+function EmptyState({ text }: { text: string }) {
+  return <div className="flex min-h-28 items-center justify-center text-sm text-muted-foreground">{text}</div>;
 }
