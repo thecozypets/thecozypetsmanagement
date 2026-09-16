@@ -226,7 +226,6 @@ export type Database = {
           created_at: string
           gst_number: string | null
           id: string
-          kennel_capacity: number
           logo_url: string | null
           updated_at: string
           user_id: string
@@ -240,7 +239,6 @@ export type Database = {
           created_at?: string
           gst_number?: string | null
           id?: string
-          kennel_capacity?: number
           logo_url?: string | null
           updated_at?: string
           user_id?: string
@@ -254,7 +252,6 @@ export type Database = {
           created_at?: string
           gst_number?: string | null
           id?: string
-          kennel_capacity?: number
           logo_url?: string | null
           updated_at?: string
           user_id?: string
