@@ -1,19 +1,19 @@
-import { useState } from 'react';
-import { Dog, Owner, Boarding, BoardingStatus, Foster } from '@/types/boarding';
-import { Card, CardContent } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { useMemo } from 'react';
+import { Bar, BarChart, CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { Badge } from '@/components/ui/badge';
-import { Users, PawPrint, CalendarCheck, DollarSign, Phone, Mail, Heart } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { Boarding, Dog, Owner, Foster } from '@/types/boarding';
 import { calcBilling } from '@/lib/billing';
-import DashboardKpis, { KpiDrill } from './DashboardKpis';
+import {
+  AlertTriangle, BarChart3, CalendarCheck, CalendarDays, Clock3, CreditCard, Dog as DogIcon,
+  FileText, Heart, IndianRupee, LineChart as LineChartIcon, LogIn, LogOut, PawPrint, Plus,
+  ShieldAlert, UserPlus, Users,
+} from 'lucide-react';
 
-const statusColors: Record<BoardingStatus, string> = {
-  'reserved': 'bg-warning/20 text-warning-foreground border-warning/30',
-  'checked-in': 'bg-success/20 text-success-foreground border-success/30',
-  'checked-out': 'bg-muted text-muted-foreground',
-  'cancelled': 'bg-destructive/20 text-destructive border-destructive/30',
-};
+type QuickAction = 'booking' | 'customer' | 'pet' | 'invoice' | 'calendar' | 'reports';
+type AlertAction = 'vaccines' | 'payments' | 'checkouts';
 
 interface Props {
   owners: Owner[];
@@ -22,306 +22,182 @@ interface Props {
   fosters: Foster[];
   fosterOwners: Owner[];
   fosterDogs: Dog[];
+  totalKennels?: number;
   onClickOwner: (ownerId: string) => void;
   onClickDog: (dogId: string) => void;
   onClickBoarding: (boardingId: string) => void;
   onClickFosterOwner: (ownerId: string) => void;
   onClickFosterDog: (dogId: string) => void;
-  onQuickAction?: (a: 'booking' | 'customer' | 'pet' | 'invoice' | 'calendar' | 'reports') => void;
+  onQuickAction?: (action: QuickAction) => void;
+  onAlert?: (action: AlertAction) => void;
 }
 
-type DrilldownType = 'b-owners' | 'b-dogs' | 'f-owners' | 'f-dogs' | 'b-active' | 'b-revenue' | 'b-reserved' | 'b-completed' | 'b-cancelled' | 'f-active' | 'f-revenue' | 'f-reserved' | 'f-completed' | 'f-cancelled' | null;
+const isoToday = () => new Date().toISOString().slice(0, 10);
+const addDays = (amount: number) => {
+  const date = new Date();
+  date.setDate(date.getDate() + amount);
+  return date.toISOString().slice(0, 10);
+};
+const monthKey = (date: string) => date.slice(0, 7);
+const money = (value: number) => `₹${Math.round(value).toLocaleString('en-IN')}`;
+const daysUntil = (date: string) => Math.round((new Date(`${date}T00:00:00`).getTime() - new Date(`${isoToday()}T00:00:00`).getTime()) / 86400000);
 
-export default function Dashboard({ owners, dogs, boardings, fosters, fosterOwners, fosterDogs, onClickOwner, onClickDog, onClickBoarding, onClickFosterOwner, onClickFosterDog, onQuickAction }: Props) {
-  const [drilldown, setDrilldown] = useState<DrilldownType>(null);
-  const [kpiDrill, setKpiDrill] = useState<KpiDrill | null>(null);
+type VaccineAlert = { dog: Dog; name: string; expiry: string; days: number };
+type AttentionItem =
+  | { kind: 'vaccine'; dog: Dog; name: string; days: number }
+  | { kind: 'payment'; owner: Owner; amount: number; days: number };
 
+const statusStyles = {
+  reserved: 'bg-muted text-muted-foreground border-border',
+  'checked-in': 'bg-success/15 text-success border-success/30',
+  'checked-out': 'bg-warning/15 text-warning-foreground border-warning/30',
+  cancelled: 'bg-destructive/15 text-destructive border-destructive/30',
+};
 
-  const bActive = boardings.filter(b => b.status === 'checked-in');
-  const bReserved = boardings.filter(b => b.status === 'reserved');
-  const bCompleted = boardings.filter(b => b.status === 'checked-out');
-  const bCancelled = boardings.filter(b => b.status === 'cancelled');
-  const bPaid = boardings.filter(b => b.status !== 'cancelled');
-  const bRevenue = bPaid.reduce((s, b) => s + calcBilling(b).total, 0);
-  const bPaidAmt = bPaid.reduce((s, b) => s + calcBilling(b).paid, 0);
+export default function Dashboard({
+  owners, dogs, boardings, fosters, fosterOwners, fosterDogs, totalKennels = 10,
+  onClickOwner, onClickDog, onClickBoarding, onClickFosterOwner, onClickFosterDog, onQuickAction, onAlert,
+}: Props) {
+  const today = isoToday();
+  const tomorrow = addDays(1);
+  const allDogs = [...dogs, ...fosterDogs];
+  const allOwners = [...owners, ...fosterOwners];
+  const activeBookings = [...boardings, ...fosters].filter(b => b.status === 'checked-in');
+  const validBoardings = boardings.filter(b => b.status !== 'cancelled');
+  const validFosters = fosters.filter(f => f.status !== 'cancelled');
+  const validBookings = [...validBoardings, ...validFosters];
 
-  const fActive = fosters.filter(f => f.status === 'checked-in');
-  const fReserved = fosters.filter(f => f.status === 'reserved');
-  const fCompleted = fosters.filter(f => f.status === 'checked-out');
-  const fCancelled = fosters.filter(f => f.status === 'cancelled');
-  const fPaid = fosters.filter(f => f.status !== 'cancelled');
-  const fRevenue = fPaid.reduce((s, f) => s + calcBilling(f).total, 0);
-  const fPaidAmt = fPaid.reduce((s, f) => s + calcBilling(f).paid, 0);
+  const vaccineAlerts = useMemo<VaccineAlert[]>(() => allDogs.flatMap(dog =>
+    (dog.vaccines || []).flatMap(vaccine => {
+      if (!vaccine.expiry) return [];
+      const days = daysUntil(vaccine.expiry);
+      return days >= 0 && days <= 7 ? [{ dog, name: vaccine.name || 'Vaccine', expiry: vaccine.expiry, days }] : [];
+    })
+  ), [allDogs]);
 
-  const getDogName = (id: string, list: Dog[]) => list.find(d => d.id === id)?.name || 'Unknown';
-  const getOwnerName = (id: string, list: Owner[]) => list.find(o => o.id === id)?.name || 'Unknown';
+  const stats = useMemo(() => {
+    const boardingRevenue = validBoardings.reduce((sum, booking) => sum + calcBilling(booking).total, 0);
+    const fosterRevenue = validFosters.reduce((sum, booking) => sum + calcBilling(booking).total, 0);
+    const month = monthKey(today);
+    const previousMonthDate = new Date(`${month}-01T00:00:00`);
+    previousMonthDate.setMonth(previousMonthDate.getMonth() - 1);
+    const previousMonth = monthKey(previousMonthDate.toISOString().slice(0, 10));
+    const revenueForMonth = (key: string) => validBookings.reduce((sum, booking) => {
+      const date = booking.checkOutDate || booking.checkInDate;
+      return sum + (monthKey(date) === key ? calcBilling(booking).total : 0);
+    }, 0);
+    const completed = validBoardings.filter(booking => booking.status === 'checked-out');
+    const occupiedDays = validBookings.reduce((sum, booking) => sum + Math.max(1, calcBilling(booking).units), 0);
+    const completedStayDays = completed.reduce((sum, booking) => sum + calcBilling(booking).days, 0);
+    const recentBookings = validBookings.filter(booking => booking.checkInDate >= addDays(-30));
+    const previousOwnerIds = new Set(validBookings.filter(booking => booking.checkInDate < addDays(-30)).map(booking => booking.ownerId));
+    const repeatBookings = recentBookings.filter(booking => previousOwnerIds.has(booking.ownerId)).length;
+    const pendingPayments = validBookings.reduce((sum, booking) => sum + calcBilling(booking).remaining, 0);
+    return {
+      allTimeRevenue: boardingRevenue + fosterRevenue,
+      boardingRevenue, fosterRevenue,
+      monthRevenue: revenueForMonth(month), previousMonthRevenue: revenueForMonth(previousMonth),
+      currentOccupancy: activeBookings.length,
+      checkins: validBookings.filter(booking => booking.checkInDate === today).length,
+      checkouts: validBookings.filter(booking => booking.checkOutDate === today).length,
+      upcoming: validBookings.filter(booking => booking.checkInDate > today && booking.checkInDate <= addDays(7)).length,
+      averageStay: completed.length ? completedStayDays / completed.length : 0,
+      revenuePerDay: occupiedDays ? (boardingRevenue + fosterRevenue) / occupiedDays : 0,
+      repeatRate: recentBookings.length ? (repeatBookings / recentBookings.length) * 100 : 0,
+      pendingPayments,
+    };
+  }, [activeBookings.length, today, validBoardings, validBookings, validFosters]);
 
-  const drilldownTitle: Record<string, string> = {
-    'b-owners': 'Boarding Owners', 'b-dogs': 'Boarding Dogs',
-    'f-owners': 'Foster Owners', 'f-dogs': 'Foster Dogs/Cats',
-    'b-active': 'Active Boardings', 'b-revenue': 'Boarding Revenue',
-    'b-reserved': 'Reserved Boardings', 'b-completed': 'Completed Boardings', 'b-cancelled': 'Cancelled Boardings',
-    'f-active': 'Active Fosters', 'f-revenue': 'Foster Revenue',
-    'f-reserved': 'Reserved Fosters', 'f-completed': 'Completed Fosters', 'f-cancelled': 'Cancelled Fosters',
-  };
+  const sixMonths = useMemo(() => Array.from({ length: 6 }, (_, index) => {
+    const date = new Date();
+    date.setDate(1);
+    date.setMonth(date.getMonth() - (5 - index));
+    return monthKey(date.toISOString().slice(0, 10));
+  }), []);
+  const revenueTrend = useMemo(() => sixMonths.map(key => ({
+    month: new Date(`${key}-01T00:00:00`).toLocaleString('en-IN', { month: 'short' }),
+    Boarding: Math.round(validBoardings.filter(b => monthKey(b.checkOutDate || b.checkInDate) === key).reduce((sum, b) => sum + calcBilling(b).total, 0)),
+    Foster: Math.round(validFosters.filter(f => monthKey(f.checkOutDate || f.checkInDate) === key).reduce((sum, f) => sum + calcBilling(f).total, 0)),
+  })), [sixMonths, validBoardings, validFosters]);
+  const occupancyTrend = useMemo(() => Array.from({ length: 14 }, (_, index) => {
+    const date = new Date();
+    date.setDate(date.getDate() - (13 - index));
+    const day = date.toISOString().slice(0, 10);
+    return { day: day.slice(5), Occupied: validBookings.filter(b => b.checkInDate <= day && b.checkOutDate >= day).length };
+  }), [validBookings]);
+  const customerTrend = useMemo(() => sixMonths.map(key => ({
+    month: new Date(`${key}-01T00:00:00`).toLocaleString('en-IN', { month: 'short' }),
+    Customers: allOwners.filter(owner => monthKey(owner.createdAt) === key).length,
+  })), [allOwners, sixMonths]);
 
-  const renderOwnerList = (list: Owner[], onClick: (id: string) => void) =>
-    list.length === 0 ? <p className="text-sm text-muted-foreground">No owners.</p> : (
-      <div className="space-y-2">
-        {list.map(o => (
-          <Card key={o.id} className="cursor-pointer hover:ring-1 hover:ring-primary/50 transition-all" onClick={() => { setDrilldown(null); onClick(o.id); }}>
-            <CardContent className="p-3">
-              <p className="font-display font-semibold">{o.name}</p>
-              <div className="flex gap-4 text-xs text-muted-foreground mt-1">
-                {o.phone && <span className="flex items-center gap-1"><Phone className="h-3 w-3" />{o.phone}</span>}
-                {o.email && <span className="flex items-center gap-1"><Mail className="h-3 w-3" />{o.email}</span>}
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    );
+  const attentionItems = useMemo<AttentionItem[]>(() => {
+    const vaccineItems: AttentionItem[] = allDogs.flatMap(dog => (dog.vaccines || []).flatMap(vaccine => {
+      if (!vaccine.expiry) return [];
+      const days = daysUntil(vaccine.expiry);
+      return days <= 30 ? [{ kind: 'vaccine' as const, dog, name: vaccine.name || 'Vaccine', days }] : [];
+    }));
+    const paymentItems: AttentionItem[] = validBookings.flatMap(booking => {
+      const amount = calcBilling(booking).remaining;
+      const owner = allOwners.find(item => item.id === booking.ownerId);
+      return amount > 0 && owner ? [{ kind: 'payment' as const, owner, amount, days: daysUntil(booking.checkOutDate) }] : [];
+    });
+    return [...vaccineItems, ...paymentItems].sort((a, b) => a.days - b.days).slice(0, 8);
+  }, [allDogs, allOwners, validBookings]);
 
-  const renderDogList = (list: Dog[], ownerList: Owner[], onClick: (id: string) => void) =>
-    list.length === 0 ? <p className="text-sm text-muted-foreground">No pets.</p> : (
-      <div className="space-y-2">
-        {list.map(d => (
-          <Card key={d.id} className="cursor-pointer hover:ring-1 hover:ring-primary/50 transition-all" onClick={() => { setDrilldown(null); onClick(d.id); }}>
-            <CardContent className="p-3 flex items-center gap-3">
-              {d.photoUrl ? (
-                <img src={d.photoUrl} alt={d.name} className="h-10 w-10 rounded-full object-cover border border-border shrink-0" />
-              ) : (
-                <div className="h-10 w-10 rounded-full bg-secondary flex items-center justify-center shrink-0"><PawPrint className="h-4 w-4 text-muted-foreground" /></div>
-              )}
-              <div>
-                <p className="font-display font-semibold">{d.name}</p>
-                <p className="text-xs text-muted-foreground">{d.breed} · {d.age}y · Owner: {getOwnerName(d.ownerId, ownerList)}</p>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    );
+  const recentActivity = useMemo(() => [
+    ...validBoardings.map(booking => ({ ...booking, kind: 'Boarding' as const, pet: dogs.find(dog => dog.id === booking.dogId), click: () => onClickBoarding(booking.id) })),
+    ...validFosters.map(booking => ({ ...booking, kind: 'Foster' as const, pet: fosterDogs.find(dog => dog.id === booking.dogId), click: () => onClickFosterDog(booking.dogId) })),
+  ].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 8), [dogs, fosterDogs, onClickBoarding, onClickFosterDog, validBoardings, validFosters]);
 
-  const renderBookingList = (list: (Boarding | Foster)[], dogList: Dog[], ownerList: Owner[]) =>
-    list.length === 0 ? <p className="text-sm text-muted-foreground">No entries.</p> : (
-      <div className="space-y-2">
-        {list.map(b => {
-          const bill = calcBilling(b);
-          return (
-          <Card key={b.id} className="cursor-pointer hover:ring-1 hover:ring-primary/50 transition-all" onClick={() => { setDrilldown(null); setKpiDrill(null); onClickBoarding(b.id); }}>
+  const alerts = [
+    vaccineAlerts.length > 0 ? { label: `${vaccineAlerts.length} vaccine${vaccineAlerts.length === 1 ? '' : 's'} expiring this week`, icon: ShieldAlert, action: 'vaccines' as const } : null,
+    stats.pendingPayments > 0 ? { label: `${money(stats.pendingPayments)} in pending payments`, icon: CreditCard, action: 'payments' as const } : null,
+    [...validBookings].filter(booking => booking.checkOutDate === tomorrow).length > 0 ? { label: `${validBookings.filter(booking => booking.checkOutDate === tomorrow).length} check-out(s) due tomorrow`, icon: Clock3, action: 'checkouts' as const } : null,
+  ].filter(Boolean) as Array<{ label: string; icon: typeof ShieldAlert; action: AlertAction }>;
 
-            <CardContent className="p-3">
-              <div className="flex justify-between items-start">
-                <div>
-                  <p className="font-semibold text-sm">🐕 {getDogName(b.dogId, dogList)}</p>
-                  <p className="text-xs text-muted-foreground">Owner: {getOwnerName(b.ownerId, ownerList)}</p>
-                  <p className="text-xs text-muted-foreground">{b.checkInDate} → {b.checkOutDate}</p>
-                </div>
-                <div className="text-right space-y-1">
-                  <Badge className={`text-xs ${statusColors[b.status]}`}>{b.status}</Badge>
-                  <p className="text-lg sm:text-base font-display font-extrabold text-primary">₹{bill.total.toFixed(2)}</p>
-                  <span className="inline-block px-2 py-0.5 rounded-md bg-success/15 text-success text-sm sm:text-xs font-bold">Paid ₹{bill.paid.toFixed(2)}</span>
-                  {bill.remaining > 0 && <span className="block sm:inline-block sm:ml-1 px-2 py-0.5 rounded-md bg-destructive/15 text-destructive text-sm sm:text-xs font-bold">Due ₹{bill.remaining.toFixed(2)}</span>}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        );})}
-      </div>
-    );
-
-  const renderRevenueList = (list: (Boarding | Foster)[], total: number, paid: number, dogList: Dog[]) => (
-    <div className="space-y-2">
-      <div className="space-y-1 px-1 mb-3">
-        <div className="flex justify-between font-display font-bold text-lg"><span>Total</span><span>₹{total.toFixed(2)}</span></div>
-        <div className="flex justify-between text-sm text-success"><span>Paid</span><span>₹{paid.toFixed(2)}</span></div>
-        <div className="flex justify-between text-sm text-destructive"><span>Outstanding</span><span>₹{(total - paid).toFixed(2)}</span></div>
-      </div>
-      {list.map(b => {
-        const bill = calcBilling(b);
-        return (
-        <Card key={b.id} className="cursor-pointer hover:ring-1 hover:ring-primary/50 transition-all" onClick={() => { setDrilldown(null); onClickBoarding(b.id); }}>
-          <CardContent className="p-3 flex justify-between items-center">
-            <div>
-              <p className="font-semibold text-sm">🐕 {getDogName(b.dogId, dogList)}</p>
-              <p className="text-xs text-muted-foreground">{b.checkInDate} → {b.checkOutDate}</p>
-            </div>
-            <div className="text-right space-y-1">
-              <p className="font-display font-extrabold text-lg sm:text-base text-primary">₹{bill.total.toFixed(2)}</p>
-              <span className="inline-block px-2 py-0.5 rounded-md bg-success/15 text-success text-sm sm:text-xs font-bold">Paid ₹{bill.paid.toFixed(2)}</span>
-              {bill.remaining > 0 && <span className="block sm:inline-block sm:ml-1 px-2 py-0.5 rounded-md bg-destructive/15 text-destructive text-sm sm:text-xs font-bold">Due ₹{bill.remaining.toFixed(2)}</span>}
-            </div>
-          </CardContent>
-        </Card>
-      );})}
-    </div>
-  );
-
-  const renderDrilldownContent = () => {
-    switch (drilldown) {
-      case 'b-owners': return renderOwnerList(owners, onClickOwner);
-      case 'b-dogs': return renderDogList(dogs, owners, onClickDog);
-      case 'f-owners': return renderOwnerList(fosterOwners, onClickFosterOwner);
-      case 'f-dogs': return renderDogList(fosterDogs, fosterOwners, onClickFosterDog);
-      case 'b-active': return renderBookingList(bActive, dogs, owners);
-      case 'b-reserved': return renderBookingList(bReserved, dogs, owners);
-      case 'b-completed': return renderBookingList(bCompleted, dogs, owners);
-      case 'b-cancelled': return renderBookingList(bCancelled, dogs, owners);
-      case 'b-revenue': return bPaid.length === 0 ? <p className="text-sm text-muted-foreground">No revenue.</p> : renderRevenueList(bPaid, bRevenue, bPaidAmt, dogs);
-      case 'f-active': return renderBookingList(fActive, fosterDogs, fosterOwners);
-      case 'f-reserved': return renderBookingList(fReserved, fosterDogs, fosterOwners);
-      case 'f-completed': return renderBookingList(fCompleted, fosterDogs, fosterOwners);
-      case 'f-cancelled': return renderBookingList(fCancelled, fosterDogs, fosterOwners);
-      case 'f-revenue': return fPaid.length === 0 ? <p className="text-sm text-muted-foreground">No revenue.</p> : renderRevenueList(fPaid, fRevenue, fPaidAmt, fosterDogs);
-      default: return null;
-    }
-  };
-
-  const renderSectionCard = (
-    title: string, icon: React.ReactNode,
-    ownerCount: number, dogCount: number,
-    active: number, revenue: number, reserved: number, completed: number, cancelled: number,
-    keys: { owners: DrilldownType; dogs: DrilldownType; active: DrilldownType; revenue: DrilldownType; reserved: DrilldownType; completed: DrilldownType; cancelled: DrilldownType }
-  ) => (
-    <Card className="hover-lift overflow-hidden relative">
-      <div className="absolute inset-0 paw-pattern opacity-50 pointer-events-none" />
-      <CardContent className="p-4 sm:p-5 relative">
-        <div className="flex items-center gap-2 mb-4 group">
-          <span className="icon-pop inline-flex">{icon}</span>
-          <h3 className="font-display font-bold text-lg">{title}</h3>
-        </div>
-        <div className="grid grid-cols-2 gap-3 mb-4">
-          <Card className="cursor-pointer hover-scale hover:ring-1 hover:ring-primary/50 transition-all" onClick={() => setDrilldown(keys.owners)}>
-            <CardContent className="p-3 text-center">
-              <Users className="h-4 w-4 mx-auto mb-1 text-primary/70" />
-              <p className="font-display text-xl font-bold text-primary">{ownerCount}</p>
-              <p className="text-xs text-muted-foreground">Owners</p>
-            </CardContent>
-          </Card>
-          <Card className="cursor-pointer hover-scale hover:ring-1 hover:ring-primary/50 transition-all" onClick={() => setDrilldown(keys.dogs)}>
-            <CardContent className="p-3 text-center">
-              <PawPrint className="h-4 w-4 mx-auto mb-1 text-primary/70" />
-              <p className="font-display text-xl font-bold text-primary">{dogCount}</p>
-              <p className="text-xs text-muted-foreground">Pets</p>
-            </CardContent>
-          </Card>
-          <Card className="cursor-pointer hover-scale hover:ring-1 hover:ring-primary/50 transition-all" onClick={() => setDrilldown(keys.active)}>
-            <CardContent className="p-3 text-center">
-              <CalendarCheck className="h-4 w-4 mx-auto mb-1 text-success/70" />
-              <p className="font-display text-xl font-bold text-success">{active}</p>
-              <p className="text-xs text-muted-foreground">Active</p>
-            </CardContent>
-          </Card>
-          <Card className="cursor-pointer hover-scale hover:ring-1 hover:ring-primary/50 transition-all" onClick={() => setDrilldown(keys.revenue)}>
-            <CardContent className="p-3 text-center">
-              <DollarSign className="h-4 w-4 mx-auto mb-1 text-primary/70" />
-              <p className="font-display text-xl font-bold text-primary">₹{revenue.toFixed(0)}</p>
-              <p className="text-xs text-muted-foreground">Revenue</p>
-            </CardContent>
-          </Card>
-        </div>
-        <div className="space-y-2">
-          {[
-            { label: 'Reserved', value: reserved, key: keys.reserved },
-            { label: 'Active', value: active, key: keys.active },
-            { label: 'Completed', value: completed, key: keys.completed },
-            { label: 'Cancelled', value: cancelled, key: keys.cancelled },
-          ].map(qs => (
-            <div key={qs.key as string} className="flex justify-between py-1.5 cursor-pointer hover:bg-muted/50 rounded px-2 -mx-2 transition-colors border-b border-border last:border-0" onClick={() => setDrilldown(qs.key)}>
-              <span className="text-sm text-muted-foreground">{qs.label}</span>
-              <span className="text-sm font-bold">{qs.value}</span>
-            </div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
-  );
+  const kpis = [
+    { label: 'Revenue · all time', value: money(stats.allTimeRevenue), subtext: `Boarding ${money(stats.boardingRevenue)} · Foster ${money(stats.fosterRevenue)}`, icon: IndianRupee, tone: 'text-primary', bg: 'bg-primary/10' },
+    { label: 'Revenue · this month', value: money(stats.monthRevenue), subtext: `vs ${money(stats.previousMonthRevenue)} last month`, icon: LineChartIcon, tone: 'text-success', bg: 'bg-success/10' },
+    { label: 'Occupancy', value: `${stats.currentOccupancy}/${totalKennels}`, subtext: `${totalKennels ? Math.round((stats.currentOccupancy / totalKennels) * 100) : 0}% of available spots`, icon: PawPrint, tone: 'text-primary', bg: 'bg-primary/10', progress: totalKennels ? Math.min(100, (stats.currentOccupancy / totalKennels) * 100) : 0 },
+    { label: 'Check-ins / check-outs today', value: `${stats.checkins} / ${stats.checkouts}`, subtext: `${stats.upcoming} upcoming in 7 days`, icon: CalendarCheck, tone: 'text-warning', bg: 'bg-warning/10' },
+    { label: 'Avg stay length', value: `${stats.averageStay.toFixed(1)} days`, subtext: `${money(stats.revenuePerDay)} revenue per occupied day`, icon: CalendarDays, tone: 'text-accent-foreground', bg: 'bg-accent' },
+    { label: 'Repeat customers', value: `${Math.round(stats.repeatRate)}%`, subtext: 'of last 30 days', icon: Users, tone: 'text-primary', bg: 'bg-primary/10' },
+  ];
+  const actions: Array<{ label: string; icon: typeof Plus; key: QuickAction }> = [
+    { label: 'New Booking', icon: Plus, key: 'booking' }, { label: 'New Customer', icon: UserPlus, key: 'customer' },
+    { label: 'New Pet', icon: DogIcon, key: 'pet' }, { label: 'Invoices', icon: FileText, key: 'invoice' },
+    { label: 'Calendar', icon: CalendarDays, key: 'calendar' }, { label: 'Reports', icon: BarChart3, key: 'reports' },
+  ];
 
   return (
     <div className="space-y-4 sm:space-y-6">
-      <div className="grid lg:grid-cols-2 gap-4 sm:gap-6">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-          {renderSectionCard('Boarding', <CalendarCheck className="h-5 w-5 text-primary" />,
-            owners.length, dogs.length, bActive.length, bRevenue, bReserved.length, bCompleted.length, bCancelled.length,
-            { owners: 'b-owners', dogs: 'b-dogs', active: 'b-active', revenue: 'b-revenue', reserved: 'b-reserved', completed: 'b-completed', cancelled: 'b-cancelled' }
-          )}
-        </motion.div>
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-          {renderSectionCard('Foster', <Heart className="h-5 w-5 text-destructive" />,
-            fosterOwners.length, fosterDogs.length, fActive.length, fRevenue, fReserved.length, fCompleted.length, fCancelled.length,
-            { owners: 'f-owners', dogs: 'f-dogs', active: 'f-active', revenue: 'f-revenue', reserved: 'f-reserved', completed: 'f-completed', cancelled: 'f-cancelled' }
-          )}
-        </motion.div>
+      {alerts.length > 0 && (
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-2 rounded-2xl bg-destructive px-4 py-3 text-destructive-foreground shadow-[var(--shadow-soft)]" role="alert">
+          <AlertTriangle className="h-5 w-5 shrink-0" />
+          {alerts.map(alert => <button key={alert.action} type="button" className="flex items-center gap-2 text-left text-sm font-semibold underline-offset-4 hover:underline" onClick={() => onAlert?.(alert.action)}><alert.icon className="h-4 w-4" />{alert.label}</button>)}
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+        {kpis.map(kpi => <Card key={kpi.label} className="border-border/60 shadow-[var(--shadow-soft)]"><CardContent className="p-4">
+          <div className="flex items-start justify-between gap-3"><div className="min-w-0"><p className="text-xs font-semibold text-muted-foreground">{kpi.label}</p><p className="mt-1 truncate font-display text-2xl font-extrabold text-foreground">{kpi.value}</p></div><div className={`rounded-xl p-2 ${kpi.bg}`}><kpi.icon className={`h-4 w-4 ${kpi.tone}`} /></div></div>
+          <p className="mt-2 text-xs text-muted-foreground">{kpi.subtext}</p>
+          {'progress' in kpi && <Progress value={kpi.progress} className="mt-3 h-1.5" />}
+        </CardContent></Card>)}
       </div>
 
-      <DashboardKpis
-        owners={owners} dogs={dogs} boardings={boardings} fosters={fosters}
-        onQuickAction={onQuickAction}
-        onDrill={setKpiDrill}
-      />
+      {onQuickAction && <div className="flex flex-wrap gap-2">{actions.map(action => <Button key={action.key} variant="outline" className="h-10 gap-2 bg-card" onClick={() => onQuickAction(action.key)}><action.icon className="h-4 w-4 text-primary" />{action.label}</Button>)}</div>}
 
-
-      {/* Recent Activity */}
-      <div className="grid lg:grid-cols-2 gap-4 sm:gap-6">
-        <Card>
-          <CardContent className="p-4 sm:p-5">
-            <h3 className="font-display font-bold text-lg mb-4">Recent Boardings</h3>
-            {boardings.length === 0 ? <p className="text-muted-foreground text-sm">No boardings yet</p> : (
-              <div className="space-y-3">
-                {[...boardings].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 5).map(b => (
-                  <div key={b.id} className="flex justify-between items-center py-2 border-b border-border last:border-0 cursor-pointer hover:bg-muted/50 rounded px-1 -mx-1 transition-colors" onClick={() => onClickBoarding(b.id)}>
-                    <div>
-                      <p className="font-medium">🐕 {getDogName(b.dogId, dogs)}</p>
-                      <p className="text-xs text-muted-foreground">{b.checkInDate} → {b.checkOutDate}</p>
-                    </div>
-                    <Badge className={`text-xs ${statusColors[b.status]}`}>{b.status}</Badge>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 sm:p-5">
-            <h3 className="font-display font-bold text-lg mb-4">Recent Fosters</h3>
-            {fosters.length === 0 ? <p className="text-muted-foreground text-sm">No fosters yet</p> : (
-              <div className="space-y-3">
-                {[...fosters].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 5).map(f => (
-                  <div key={f.id} className="flex justify-between items-center py-2 border-b border-border last:border-0 cursor-pointer hover:bg-muted/50 rounded px-1 -mx-1 transition-colors" onClick={() => onClickFosterDog(f.dogId)}>
-                    <div>
-                      <p className="font-medium">{f.animalType === 'cat' ? '🐈' : '🐕'} {getDogName(f.dogId, fosterDogs)}</p>
-                      <p className="text-xs text-muted-foreground">{f.checkInDate} → {f.checkOutDate}</p>
-                    </div>
-                    <Badge className={`text-xs ${statusColors[f.status]}`}>{f.status}</Badge>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Card><CardContent className="p-4 sm:p-5"><div className="mb-4 flex items-center gap-2"><LineChartIcon className="h-4 w-4 text-primary" /><h3 className="font-display font-bold">Revenue trend</h3></div><ResponsiveContainer width="100%" height={240}><LineChart data={revenueTrend}><CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" /><XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" fontSize={12} /><YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickFormatter={value => `₹${value}`} /><Tooltip formatter={(value: number) => money(value)} contentStyle={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: 12 }} /><Legend /><Line type="monotone" dataKey="Boarding" stroke="hsl(var(--primary))" strokeWidth={3} dot={{ r: 3 }} /><Line type="monotone" dataKey="Foster" stroke="hsl(var(--warning))" strokeWidth={3} dot={{ r: 3 }} /></LineChart></ResponsiveContainer></CardContent></Card>
+        <Card><CardContent className="p-4 sm:p-5"><div className="mb-4 flex items-center gap-2"><PawPrint className="h-4 w-4 text-primary" /><h3 className="font-display font-bold">Occupancy trend · 14 days</h3></div><ResponsiveContainer width="100%" height={240}><LineChart data={occupancyTrend}><CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" /><XAxis dataKey="day" stroke="hsl(var(--muted-foreground))" fontSize={12} /><YAxis domain={[0, totalKennels]} ticks={[0, Math.ceil(totalKennels / 2), totalKennels]} stroke="hsl(var(--muted-foreground))" fontSize={12} allowDecimals={false} /><Tooltip formatter={(value: number) => [`${value}/${totalKennels}`, 'Occupied']} contentStyle={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: 12 }} /><Line type="monotone" dataKey="Occupied" stroke="hsl(var(--primary))" strokeWidth={3} dot={{ r: 2 }} /></LineChart></ResponsiveContainer></CardContent></Card>
+        <Card><CardContent className="p-4 sm:p-5"><div className="mb-4 flex items-center gap-2"><BarChart3 className="h-4 w-4 text-primary" /><h3 className="font-display font-bold">New customers / month</h3></div><ResponsiveContainer width="100%" height={240}><BarChart data={customerTrend}><CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" /><XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" fontSize={12} /><YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} allowDecimals={false} /><Tooltip contentStyle={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: 12 }} /><Bar dataKey="Customers" fill="hsl(var(--primary))" radius={[6, 6, 0, 0]} /></BarChart></ResponsiveContainer></CardContent></Card>
       </div>
 
-      <Dialog open={!!drilldown} onOpenChange={(open) => { if (!open) setDrilldown(null); }}>
-        <DialogContent className="w-[95vw] max-w-lg max-h-[85vh] overflow-y-auto p-4 sm:p-6">
-          <DialogHeader>
-            <DialogTitle className="font-display text-base sm:text-lg">{drilldown ? drilldownTitle[drilldown] : ''}</DialogTitle>
-          </DialogHeader>
-          {renderDrilldownContent()}
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={!!kpiDrill} onOpenChange={(open) => { if (!open) setKpiDrill(null); }}>
-        <DialogContent className="w-[95vw] max-w-lg max-h-[85vh] overflow-y-auto p-4 sm:p-6">
-          <DialogHeader>
-            <DialogTitle className="font-display text-base sm:text-lg">{kpiDrill?.title || ''}</DialogTitle>
-          </DialogHeader>
-          {kpiDrill?.dogs
-            ? renderDogList(kpiDrill.dogs, owners, (id) => { setKpiDrill(null); onClickDog(id); })
-            : renderBookingList(kpiDrill?.boardings || [], dogs, owners)}
-        </DialogContent>
-      </Dialog>
-
+      <div className="grid gap-4 lg:grid-cols-[1.5fr_1fr]">
+        <Card><CardContent className="p-4 sm:p-5"><div className="mb-4 flex items-center gap-2"><CalendarCheck className="h-4 w-4 text-primary" /><h3 className="font-display font-bold">Recent activity</h3></div>{recentActivity.length === 0 ? <p className="text-sm text-muted-foreground">No recent activity.</p> : <div className="space-y-1">{recentActivity.map(activity => <button type="button" key={`${activity.kind}-${activity.id}`} onClick={activity.click} className="flex w-full items-center justify-between gap-3 rounded-xl border-b border-border/70 px-2 py-3 text-left last:border-0 hover:bg-muted/50"><div className="flex min-w-0 items-center gap-3"><div className="rounded-lg bg-primary/10 p-2 text-primary">{activity.kind === 'Foster' ? <Heart className="h-4 w-4" /> : <DogIcon className="h-4 w-4" />}</div><div className="min-w-0"><p className="truncate text-sm font-semibold">{activity.pet?.name || 'Unknown pet'} <span className="font-normal text-muted-foreground">· {activity.kind}</span></p><p className="text-xs text-muted-foreground">{activity.checkInDate} → {activity.checkOutDate}</p></div></div><Badge className={`shrink-0 border ${statusStyles[activity.status]}`}>{activity.status === 'checked-in' ? 'Checked in' : activity.status === 'checked-out' ? 'Checked out' : activity.status === 'reserved' ? 'Reserved' : 'Cancelled'}</Badge></button>)}</div>}</CardContent></Card>
+        <Card><CardContent className="p-4 sm:p-5"><div className="mb-4 flex items-center gap-2"><AlertTriangle className="h-4 w-4 text-warning" /><h3 className="font-display font-bold">Needs attention</h3></div>{attentionItems.length === 0 ? <p className="text-sm text-muted-foreground">Nothing needs attention right now.</p> : <div className="space-y-1">{attentionItems.map((item, index) => item.kind === 'vaccine' ? <button type="button" key={`vaccine-${item.dog.id}-${item.name}-${index}`} onClick={() => onClickDog(item.dog.id)} className="flex w-full items-center gap-3 rounded-xl px-2 py-3 text-left hover:bg-muted/50"><ShieldAlert className="h-4 w-4 shrink-0 text-warning" /><span className="min-w-0 flex-1"><span className="block truncate text-sm font-semibold">{item.dog.name}</span><span className="block text-xs text-muted-foreground">{item.name} due · {item.days < 0 ? 'overdue' : `${item.days} days remaining`}</span></span></button> : <button type="button" key={`payment-${item.owner.id}-${index}`} onClick={() => onClickOwner(item.owner.id)} className="flex w-full items-center gap-3 rounded-xl px-2 py-3 text-left hover:bg-muted/50"><CreditCard className="h-4 w-4 shrink-0 text-destructive" /><span className="min-w-0 flex-1"><span className="block truncate text-sm font-semibold">{item.owner.name}</span><span className="block text-xs text-muted-foreground">{money(item.amount)} due</span></span><Badge variant="destructive">Overdue</Badge></button>)}</div>}</CardContent></Card>
+      </div>
     </div>
   );
 }
