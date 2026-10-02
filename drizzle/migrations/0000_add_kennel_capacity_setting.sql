@@ -1,1 +1,0 @@
-ALTER TABLE public.company_settings ADD COLUMN IF NOT EXISTS kennel_capacity integer NOT NULL DEFAULT 10;

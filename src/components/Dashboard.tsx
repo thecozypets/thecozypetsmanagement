@@ -7,7 +7,6 @@ import { Users, PawPrint, CalendarCheck, DollarSign, Phone, Mail, Heart } from '
 import { motion } from 'framer-motion';
 import { calcBilling } from '@/lib/billing';
 import DashboardKpis, { KpiDrill } from './DashboardKpis';
-import DashboardOverview from './DashboardOverview';
 
 const statusColors: Record<BoardingStatus, string> = {
   'reserved': 'bg-warning/20 text-warning-foreground border-warning/30',
@@ -36,21 +35,6 @@ type DrilldownType = 'b-owners' | 'b-dogs' | 'f-owners' | 'f-dogs' | 'b-active' 
 export default function Dashboard({ owners, dogs, boardings, fosters, fosterOwners, fosterDogs, onClickOwner, onClickDog, onClickBoarding, onClickFosterOwner, onClickFosterDog, onQuickAction }: Props) {
   const [drilldown, setDrilldown] = useState<DrilldownType>(null);
   const [kpiDrill, setKpiDrill] = useState<KpiDrill | null>(null);
-
-  return <DashboardOverview
-    owners={owners}
-    dogs={dogs}
-    boardings={boardings}
-    fosters={fosters}
-    fosterOwners={fosterOwners}
-    fosterDogs={fosterDogs}
-    onClickOwner={onClickOwner}
-    onClickDog={onClickDog}
-    onClickBoarding={onClickBoarding}
-    onClickFosterOwner={onClickFosterOwner}
-    onClickFosterDog={onClickFosterDog}
-    onQuickAction={onQuickAction}
-  />;
 
 
   const bActive = boardings.filter(b => b.status === 'checked-in');
