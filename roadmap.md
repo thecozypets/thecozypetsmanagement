@@ -1,0 +1,2 @@
+- [ ] Redesign the main dashboard per the latest specification, including occupancy as `current / capacity` and configurable kennel capacity.
+- [ ] Clarify and then scope the earlier “client portal” request; the user has not yet specified portal access or capabilities.
