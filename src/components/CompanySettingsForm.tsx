@@ -43,6 +43,19 @@ export default function CompanySettingsForm() {
             </div>
           </div>
 
+          <div className="max-w-xs">
+            <Label htmlFor="kennel-capacity">Total kennel capacity</Label>
+            <Input
+              id="kennel-capacity"
+              type="number"
+              min="1"
+              step="1"
+              value={form.kennelCapacity}
+              onChange={e => setForm(f => ({ ...f, kennelCapacity: Math.max(1, Number(e.target.value) || 1) }))}
+            />
+            <p className="text-xs text-muted-foreground mt-1">Used for the dashboard occupancy count.</p>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <Label>Email</Label>
