@@ -95,91 +95,102 @@ export default function PetProfile360({ open, onOpenChange, dog, owner, boarding
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-0 gap-0">
-        {/* HERO */}
+        {/* HERO — large photo + name on the left, details on the right */}
         <div className="relative overflow-hidden rounded-t-lg bg-[var(--gradient-warm)]">
           <div className="absolute inset-0 paw-pattern opacity-60" />
           <div className="absolute -right-6 -top-8 opacity-15 rotate-12">
             <PawPrint className="h-40 w-40 text-primary-foreground" />
           </div>
-          <div className="relative px-5 sm:px-8 pt-8 pb-16 sm:pb-20" />
-        </div>
 
-        <div className="relative px-4 sm:px-8 -mt-14 sm:-mt-16">
-          <div className="flex flex-col sm:flex-row sm:items-end gap-4">
-            <div className="shrink-0 relative group">
-              {s.photoUrl ? (
-                <img
-                  src={s.photoUrl}
-                  alt={s.name}
-                  className="h-36 w-36 sm:h-48 sm:w-48 rounded-3xl object-cover border-4 border-card shadow-[var(--shadow-paw)]"
+          <div className="relative px-4 sm:px-8 py-6 sm:py-8 flex flex-col sm:flex-row gap-5 sm:gap-8">
+            {/* LEFT: large photo + name */}
+            <div className="sm:w-[260px] shrink-0 flex flex-col items-center sm:items-start gap-3">
+              <div className="relative group">
+                {s.photoUrl ? (
+                  <img
+                    src={s.photoUrl}
+                    alt={s.name}
+                    className="h-52 w-52 sm:h-60 sm:w-60 rounded-3xl object-cover border-4 border-card shadow-[var(--shadow-paw)]"
+                  />
+                ) : (
+                  <div className="h-52 w-52 sm:h-60 sm:w-60 rounded-3xl bg-card/80 border-4 border-card shadow-[var(--shadow-paw)] flex items-center justify-center">
+                    <PawPrint className="h-16 w-16 text-primary" />
+                  </div>
+                )}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={e => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onloadend = () => set({ photoUrl: reader.result as string });
+                    reader.readAsDataURL(file);
+                    e.target.value = '';
+                  }}
                 />
-              ) : (
-                <div className="h-36 w-36 sm:h-48 sm:w-48 rounded-3xl bg-secondary border-4 border-card shadow-[var(--shadow-paw)] flex items-center justify-center">
-                  <PawPrint className="h-14 w-14 text-primary" />
-                </div>
-              )}
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={e => {
-                  const file = e.target.files?.[0];
-                  if (!file) return;
-                  const reader = new FileReader();
-                  reader.onloadend = () => set({ photoUrl: reader.result as string });
-                  reader.readAsDataURL(file);
-                  e.target.value = '';
-                }}
-              />
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                className="absolute bottom-2 right-2 h-9 w-9 rounded-full bg-primary text-primary-foreground shadow-md flex items-center justify-center transition-transform hover:scale-105"
-                title="Change photo"
-              >
-                <Camera className="h-4 w-4" />
-              </button>
-            </div>
-            <div className="flex-1 min-w-0 sm:pb-1">
-              <div className="flex items-center gap-2 flex-wrap">
-                <h2 className="font-display text-2xl sm:text-3xl font-bold truncate">
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="absolute bottom-2 right-2 h-9 w-9 rounded-full bg-primary text-primary-foreground shadow-md flex items-center justify-center transition-transform hover:scale-105"
+                  title="Change photo"
+                >
+                  <Camera className="h-4 w-4" />
+                </button>
+              </div>
+              <div className="text-center sm:text-left">
+                <h2 className="font-display text-2xl sm:text-3xl font-bold">
                   {s.animalType === 'cat' ? '🐱' : '🐕'} {s.name}
                 </h2>
-                {(s.behaviourTags || []).slice(0, 2).map(t => (
-                  <Badge key={t} variant="secondary" className="text-[11px]">{t}</Badge>
-                ))}
+                <p className="text-sm text-muted-foreground mt-0.5">
+                  {s.breed || 'Mixed breed'}{s.color ? ` · ${s.color}` : ''}
+                </p>
               </div>
-              <p className="text-sm text-muted-foreground mt-0.5 truncate">
-                {s.breed || 'Mixed breed'}{s.color ? ` · ${s.color}` : ''}
-              </p>
+            </div>
+
+            {/* RIGHT: details */}
+            <div className="flex-1 min-w-0 flex flex-col justify-center gap-3">
               {owner && (
-                <div className="flex items-center gap-1.5 mt-1.5 text-xs text-muted-foreground">
-                  <User className="h-3.5 w-3.5 text-primary" />
-                  <span className="font-medium text-foreground">{owner.name}</span>
-                  {owner.phone && <span>· {owner.phone}</span>}
+                <div className="flex items-center gap-2 text-sm">
+                  <div className="h-8 w-8 rounded-lg bg-card/80 flex items-center justify-center shrink-0"><User className="h-4 w-4 text-primary" /></div>
+                  <div className="min-w-0">
+                    <span className="font-semibold">{owner.name}</span>
+                    {owner.phone && <span className="text-muted-foreground"> · {owner.phone}</span>}
+                  </div>
                 </div>
               )}
-            </div>
-          </div>
 
-          {/* HERO STATS */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-4">
-            <div className="surface-card p-3 flex items-center gap-2.5">
-              <div className="h-9 w-9 rounded-xl bg-accent flex items-center justify-center shrink-0"><Cake className="h-4 w-4 text-primary" /></div>
-              <div className="min-w-0"><div className="text-[11px] text-muted-foreground">Age</div><div className="font-bold text-sm truncate">{s.age}y {s.ageMonths}m</div></div>
-            </div>
-            <div className="surface-card p-3 flex items-center gap-2.5">
-              <div className="h-9 w-9 rounded-xl bg-accent flex items-center justify-center shrink-0"><Weight className="h-4 w-4 text-primary" /></div>
-              <div className="min-w-0"><div className="text-[11px] text-muted-foreground">Weight</div><div className="font-bold text-sm truncate">{s.weight} kg</div></div>
-            </div>
-            <div className="surface-card p-3 flex items-center gap-2.5">
-              <div className="h-9 w-9 rounded-xl bg-accent flex items-center justify-center shrink-0"><Heart className="h-4 w-4 text-primary" /></div>
-              <div className="min-w-0"><div className="text-[11px] text-muted-foreground">Gender</div><div className="font-bold text-sm truncate capitalize">{s.gender || '—'}</div></div>
-            </div>
-            <div className="surface-card p-3 flex items-center gap-2.5">
-              <div className="h-9 w-9 rounded-xl bg-accent flex items-center justify-center shrink-0"><History className="h-4 w-4 text-primary" /></div>
-              <div className="min-w-0"><div className="text-[11px] text-muted-foreground">Total Stays</div><div className="font-bold text-sm truncate">{history.count}</div></div>
+              {(s.behaviourTags || []).length > 0 && (
+                <div className="flex items-start gap-2">
+                  <div className="h-8 w-8 rounded-lg bg-card/80 flex items-center justify-center shrink-0"><Smile className="h-4 w-4 text-primary" /></div>
+                  <div className="flex flex-wrap gap-1.5 pt-1">
+                    {(s.behaviourTags || []).map(t => (
+                      <Badge key={t} variant="secondary" className="text-[11px]">{t}</Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="grid grid-cols-2 gap-2">
+                <div className="surface-card p-3 flex items-center gap-2.5">
+                  <div className="h-9 w-9 rounded-xl bg-accent flex items-center justify-center shrink-0"><Cake className="h-4 w-4 text-primary" /></div>
+                  <div className="min-w-0"><div className="text-[11px] text-muted-foreground">Age</div><div className="font-bold text-sm truncate">{s.age}y {s.ageMonths}m</div></div>
+                </div>
+                <div className="surface-card p-3 flex items-center gap-2.5">
+                  <div className="h-9 w-9 rounded-xl bg-accent flex items-center justify-center shrink-0"><Weight className="h-4 w-4 text-primary" /></div>
+                  <div className="min-w-0"><div className="text-[11px] text-muted-foreground">Weight</div><div className="font-bold text-sm truncate">{s.weight} kg</div></div>
+                </div>
+                <div className="surface-card p-3 flex items-center gap-2.5">
+                  <div className="h-9 w-9 rounded-xl bg-accent flex items-center justify-center shrink-0"><Heart className="h-4 w-4 text-primary" /></div>
+                  <div className="min-w-0"><div className="text-[11px] text-muted-foreground">Gender</div><div className="font-bold text-sm truncate capitalize">{s.gender || '—'}</div></div>
+                </div>
+                <div className="surface-card p-3 flex items-center gap-2.5">
+                  <div className="h-9 w-9 rounded-xl bg-accent flex items-center justify-center shrink-0"><History className="h-4 w-4 text-primary" /></div>
+                  <div className="min-w-0"><div className="text-[11px] text-muted-foreground">Total Stays</div><div className="font-bold text-sm truncate">{history.count}</div></div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
